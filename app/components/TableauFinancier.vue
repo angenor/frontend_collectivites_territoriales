@@ -57,9 +57,9 @@ const handleTelecharger = (format: 'excel' | 'word') => {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
     <!-- En-tête du tableau -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 print:bg-blue-700">
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 p-6 print:bg-blue-700">
       <div class="max-w-7xl mx-auto">
         <h2 class="text-2xl font-bold text-white mb-2">
           COMPTE ADMINISTRATIF {{ compte.annee }}
@@ -76,7 +76,7 @@ const handleTelecharger = (format: 'excel' | 'word') => {
     </div>
 
     <!-- Barre d'actions -->
-    <div class="bg-gray-50 border-b border-gray-200 p-4 print:hidden">
+    <div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 print:hidden">
       <div class="max-w-7xl mx-auto flex flex-wrap gap-3 justify-between items-center">
         <div class="flex gap-2">
           <button
@@ -84,8 +84,8 @@ const handleTelecharger = (format: 'excel' | 'word') => {
             :class="[
               'px-4 py-2 rounded-lg font-medium transition',
               ongletActif === 'recettes'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             ]"
           >
             Recettes
@@ -95,8 +95,8 @@ const handleTelecharger = (format: 'excel' | 'word') => {
             :class="[
               'px-4 py-2 rounded-lg font-medium transition',
               ongletActif === 'depenses'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
             ]"
           >
             Dépenses
@@ -106,7 +106,7 @@ const handleTelecharger = (format: 'excel' | 'word') => {
         <div class="flex gap-2">
           <button
             @click="handlePrint"
-            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -137,21 +137,21 @@ const handleTelecharger = (format: 'excel' | 'word') => {
 
     <!-- Tableau des RECETTES -->
     <div v-if="ongletActif === 'recettes'" class="p-6 overflow-x-auto">
-      <h3 class="text-xl font-bold text-gray-800 mb-4">TABLEAU DÉTAILLÉ DES RECETTES</h3>
+      <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">TABLEAU DÉTAILLÉ DES RECETTES</h3>
 
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm">
           <thead>
-            <tr class="bg-blue-100 border-b-2 border-blue-600">
-              <th class="text-left p-3 font-bold text-gray-800 border border-gray-300">INTITULÉ</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">OR ADMIS</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300">RECOUVREMENT</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">RESTE À<br>RECOUVRER</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
+            <tr class="bg-blue-100 dark:bg-blue-900 border-b-2 border-blue-600 dark:border-blue-400">
+              <th class="text-left p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">INTITULÉ</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">OR ADMIS</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">RECOUVREMENT</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">RESTE À<br>RECOUVRER</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
             </tr>
           </thead>
           <tbody>
@@ -159,77 +159,77 @@ const handleTelecharger = (format: 'excel' | 'word') => {
               v-for="ligne in compte.lignesRecettes"
               :key="ligne.code"
               :class="{
-                'bg-blue-50 font-bold': ligne.niveau === 1,
-                'bg-white': ligne.niveau === 2,
-                'bg-gray-50': ligne.niveau === 3,
-                'border-t-2 border-blue-400': ligne.niveau === 1
+                'bg-blue-50 dark:bg-blue-900/20 font-bold': ligne.niveau === 1,
+                'bg-white dark:bg-gray-800': ligne.niveau === 2,
+                'bg-gray-50 dark:bg-gray-700/50': ligne.niveau === 3,
+                'border-t-2 border-blue-400 dark:border-blue-600': ligne.niveau === 1
               }"
             >
               <td
-                class="p-3 border border-gray-300"
+                class="p-3 border border-gray-300 dark:border-gray-600 dark:text-gray-200"
                 :style="{ paddingLeft: `${ligne.niveau * 1.5}rem` }"
               >
                 <span :class="{ 'font-bold': ligne.niveau <= 2 }">
                   {{ ligne.intitule }}
                 </span>
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.budgetPrimitif) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.budgetAdditionnel) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.modifications) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono font-semibold bg-yellow-50">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono font-semibold bg-yellow-50 dark:bg-yellow-900/30 dark:text-gray-200">
                 {{ formatMontant(ligne.previsionDefinitives) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.orAdmis) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.recouvrement) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.resteRecouvrer) }}
               </td>
               <td
-                class="text-right p-3 border border-gray-300 font-mono"
+                class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono"
                 :class="{
-                  'text-green-700 font-bold': (ligne.tauxExecution || 0) >= 100,
-                  'text-orange-700': (ligne.tauxExecution || 0) >= 80 && (ligne.tauxExecution || 0) < 100,
-                  'text-red-700': (ligne.tauxExecution || 0) < 80
+                  'text-green-700 dark:text-green-400 font-bold': (ligne.tauxExecution || 0) >= 100,
+                  'text-orange-700 dark:text-orange-400': (ligne.tauxExecution || 0) >= 80 && (ligne.tauxExecution || 0) < 100,
+                  'text-red-700 dark:text-red-400': (ligne.tauxExecution || 0) < 80
                 }"
               >
                 {{ formatPourcentage(ligne.tauxExecution) }}
               </td>
             </tr>
             <!-- Ligne totaux -->
-            <tr class="bg-blue-600 text-white font-bold border-t-4 border-blue-800">
-              <td class="p-3 border border-gray-300">TOTAL RECETTES</td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+            <tr class="bg-blue-600 dark:bg-blue-700 text-white font-bold border-t-4 border-blue-800 dark:border-blue-900">
+              <td class="p-3 border border-gray-300 dark:border-gray-600">TOTAL RECETTES</td>
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.budgetPrimitif) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.budgetAdditionnel) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.modifications) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.previsionDefinitives) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.orAdmis) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.recouvrement) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxRecettes.resteRecouvrer) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatPourcentage((totauxRecettes.orAdmis / totauxRecettes.previsionDefinitives) * 100) }}
               </td>
             </tr>
@@ -240,21 +240,21 @@ const handleTelecharger = (format: 'excel' | 'word') => {
 
     <!-- Tableau des DÉPENSES -->
     <div v-if="ongletActif === 'depenses'" class="p-6 overflow-x-auto">
-      <h3 class="text-xl font-bold text-gray-800 mb-4">TABLEAU DÉTAILLÉ DES DÉPENSES</h3>
+      <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">TABLEAU DÉTAILLÉ DES DÉPENSES</h3>
 
       <div class="overflow-x-auto">
         <table class="w-full border-collapse text-sm">
           <thead>
-            <tr class="bg-red-100 border-b-2 border-red-600">
-              <th class="text-left p-3 font-bold text-gray-800 border border-gray-300">INTITULÉ</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">MANDAT<br>ADMIS</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300">PAIEMENT</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">RESTE À<br>PAYER</th>
-              <th class="text-right p-3 font-bold text-gray-800 border border-gray-300 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
+            <tr class="bg-red-100 dark:bg-red-900 border-b-2 border-red-600 dark:border-red-400">
+              <th class="text-left p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">INTITULÉ</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MANDAT<br>ADMIS</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">PAIEMENT</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">RESTE À<br>PAYER</th>
+              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
             </tr>
           </thead>
           <tbody>
@@ -262,77 +262,77 @@ const handleTelecharger = (format: 'excel' | 'word') => {
               v-for="ligne in compte.lignesDepenses"
               :key="ligne.code"
               :class="{
-                'bg-red-50 font-bold': ligne.niveau === 1,
-                'bg-white': ligne.niveau === 2,
-                'bg-gray-50': ligne.niveau === 3,
-                'border-t-2 border-red-400': ligne.niveau === 1
+                'bg-red-50 dark:bg-red-900/20 font-bold': ligne.niveau === 1,
+                'bg-white dark:bg-gray-800': ligne.niveau === 2,
+                'bg-gray-50 dark:bg-gray-700/50': ligne.niveau === 3,
+                'border-t-2 border-red-400 dark:border-red-600': ligne.niveau === 1
               }"
             >
               <td
-                class="p-3 border border-gray-300"
+                class="p-3 border border-gray-300 dark:border-gray-600 dark:text-gray-200"
                 :style="{ paddingLeft: `${ligne.niveau * 1.5}rem` }"
               >
                 <span :class="{ 'font-bold': ligne.niveau <= 2 }">
                   {{ ligne.intitule }}
                 </span>
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.budgetPrimitif) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.budgetAdditionnel) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.modifications) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono font-semibold bg-yellow-50">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono font-semibold bg-yellow-50 dark:bg-yellow-900/30 dark:text-gray-200">
                 {{ formatMontant(ligne.previsionDefinitives) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.orAdmis) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.recouvrement) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono dark:text-gray-300">
                 {{ formatMontant(ligne.resteRecouvrer) }}
               </td>
               <td
-                class="text-right p-3 border border-gray-300 font-mono"
+                class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono"
                 :class="{
-                  'text-green-700 font-bold': (ligne.tauxExecution || 0) >= 90,
-                  'text-orange-700': (ligne.tauxExecution || 0) >= 80 && (ligne.tauxExecution || 0) < 90,
-                  'text-red-700': (ligne.tauxExecution || 0) < 80
+                  'text-green-700 dark:text-green-400 font-bold': (ligne.tauxExecution || 0) >= 90,
+                  'text-orange-700 dark:text-orange-400': (ligne.tauxExecution || 0) >= 80 && (ligne.tauxExecution || 0) < 90,
+                  'text-red-700 dark:text-red-400': (ligne.tauxExecution || 0) < 80
                 }"
               >
                 {{ formatPourcentage(ligne.tauxExecution) }}
               </td>
             </tr>
             <!-- Ligne totaux -->
-            <tr class="bg-red-600 text-white font-bold border-t-4 border-red-800">
-              <td class="p-3 border border-gray-300">TOTAL DÉPENSES</td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+            <tr class="bg-red-600 dark:bg-red-700 text-white font-bold border-t-4 border-red-800 dark:border-red-900">
+              <td class="p-3 border border-gray-300 dark:border-gray-600">TOTAL DÉPENSES</td>
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.budgetPrimitif) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.budgetAdditionnel) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.modifications) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.previsionDefinitives) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.orAdmis) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.recouvrement) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatMontant(totauxDepenses.resteRecouvrer) }}
               </td>
-              <td class="text-right p-3 border border-gray-300 font-mono">
+              <td class="text-right p-3 border border-gray-300 dark:border-gray-600 font-mono">
                 {{ formatPourcentage((totauxDepenses.orAdmis / totauxDepenses.previsionDefinitives) * 100) }}
               </td>
             </tr>

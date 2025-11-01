@@ -75,6 +75,12 @@ When adding tables:
 ### Styling
 
 - **Tailwind CSS**: Primary framework (configured in nuxt.config.ts with Vite plugin)
+- **Dark Mode**: Fully implemented with class-based strategy using Tailwind v4
+  - Composable: `app/composables/useDarkMode.ts` for theme management
+  - Component: `ThemeToggle.vue` for toggle button in navigation
+  - Persistence: Theme preference saved to localStorage with key `theme`
+  - System Detection: Automatically detects system preference on first visit
+  - All components support dark mode with `dark:` prefix classes
 - **Animate.css**: Available globally for animations
 - Main CSS: `app/assets/css/main.css` (imports Tailwind directives)
 - Component styles: Supports `<style lang="scss" scoped>`
@@ -97,6 +103,58 @@ Key Nuxt modules in `nuxt.config.ts`:
 - **Requirements**: `bank/cahier_des_charges/TIMG_PCQVP_TdR_Prestataire-Conception-Plateforme-Web.pdf`
 - **Data Tables**: `bank/cahier_des_charges/Tableaux_de_Compte_Administratif.xlsx`
 
+## Dark Mode Implementation
+
+### Overview
+The application features a fully functional dark/light mode toggle, implemented using Tailwind CSS v4's class-based strategy.
+
+### Tailwind v4 Configuration (CRITICAL)
+**IMPORTANT**: Tailwind CSS v4 requires explicit dark mode configuration in the CSS file:
+
+In `app/assets/css/main.css`:
+```css
+@import "tailwindcss";
+
+/* Enable class-based dark mode in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+```
+
+Without this `@variant` declaration, dark mode classes (e.g., `dark:bg-gray-900`) will NOT work, even if the `.dark` class is present on the HTML element.
+
+### Core Components
+- **Composable**: `app/composables/useDarkMode.ts`
+  - Manages theme state and persistence
+  - Detects system preference automatically
+  - Saves preference to localStorage (key: `theme`)
+  - Provides `isDark`, `toggleDarkMode()`, and `setTheme()` methods
+
+- **Toggle Component**: `app/components/ThemeToggle.vue`
+  - Icon-based toggle button (sun/moon icons)
+  - Integrated into navigation bar
+  - Smooth animations and transitions
+
+### Usage in Components
+When creating or modifying components, use Tailwind's `dark:` prefix for dark mode styles:
+
+```vue
+<template>
+  <div class="bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+    <!-- Content -->
+  </div>
+</template>
+```
+
+### Key Features
+- **Automatic Detection**: Detects system theme preference on first visit
+- **Persistence**: Theme choice saved to localStorage
+- **Smooth Transitions**: All color transitions use `transition-colors duration-200`
+- **Component Coverage**: All major components support dark mode:
+  - Navigation (Nav.vue)
+  - Page layouts (default.vue)
+  - Home page (index.vue) with cards, loading states, error messages
+  - Financial tables (TableauFinancier.vue) with full table styling
+  - Hero section (HeroSection.vue)
+
 ## Important Development Notes
 
 - Auto-imports enabled: Components, composables, and utilities are auto-imported by Nuxt
@@ -104,3 +162,4 @@ Key Nuxt modules in `nuxt.config.ts`:
 - TypeScript configuration references Nuxt-generated configs in `.nuxt/`
 - No linting or testing setup currently configured
 - Compatibility date set to 2025-07-15
+- **Dark Mode**: Fully implemented - use `dark:` prefix when adding new components
