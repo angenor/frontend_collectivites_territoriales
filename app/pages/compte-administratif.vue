@@ -23,6 +23,12 @@ const compteAffi = ref<CompteAdministratif | null>(null)
 const isLoading = ref(true)
 const errorMessage = ref('')
 const showScrollTop = ref(false)
+const isTableauExpanded = ref(false)
+
+// Toggle tableau expansion
+const toggleTableau = () => {
+  isTableauExpanded.value = !isTableauExpanded.value
+}
 
 // Charger les données au montage
 onMounted(() => {
@@ -231,7 +237,7 @@ const description = computed(() => {
           </h2>
 
           <!-- Contenu riche avec support HTML -->
-          <div class="description-content space-y-4">
+          <div class="description-content space-y-6">
             <div v-html="description.contenu" class="
               [&_p]:text-gray-700 dark:[&_p]:text-gray-300 [&_p]:leading-relaxed [&_p]:mb-4
               [&_h3]:text-xl [&_h3]:font-bold [&_h3]:text-gray-900 dark:[&_h3]:text-white [&_h3]:mt-6 [&_h3]:mb-3
@@ -240,6 +246,165 @@ const description = computed(() => {
               [&_li]:text-gray-700 dark:[&_li]:text-gray-300
               [&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:hover:text-blue-300
             "></div>
+
+            <!-- Section Galerie Photos (Exemple) -->
+            <div class="mt-8 space-y-4">
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <font-awesome-icon icon="camera" class="text-purple-600 dark:text-purple-400" />
+                Galerie Photos - Contexte Minier Local
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Photo 1 -->
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                  <div class="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                    <div class="text-center p-4">
+                      <font-awesome-icon icon="industry" class="w-16 h-16 text-gray-400 dark:text-gray-600 mb-2" />
+                      <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">Site d'extraction minier</p>
+                    </div>
+                  </div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <p class="text-white text-sm font-medium">Zone d'exploitation {{ compteAffi.commune.nom }}</p>
+                  </div>
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                  <div class="aspect-video bg-gradient-to-br from-blue-200 to-blue-300 dark:from-blue-700 dark:to-blue-800 flex items-center justify-center">
+                    <div class="text-center p-4">
+                      <font-awesome-icon icon="users" class="w-16 h-16 text-blue-400 dark:text-blue-600 mb-2" />
+                      <p class="text-sm text-blue-700 dark:text-blue-400 font-medium">Communauté locale</p>
+                    </div>
+                  </div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <p class="text-white text-sm font-medium">Impact social et développement</p>
+                  </div>
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="group relative overflow-hidden rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300">
+                  <div class="aspect-video bg-gradient-to-br from-green-200 to-green-300 dark:from-green-700 dark:to-green-800 flex items-center justify-center">
+                    <div class="text-center p-4">
+                      <font-awesome-icon icon="building" class="w-16 h-16 text-green-400 dark:text-green-600 mb-2" />
+                      <p class="text-sm text-green-700 dark:text-green-400 font-medium">Infrastructures publiques</p>
+                    </div>
+                  </div>
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                    <p class="text-white text-sm font-medium">Projets financés par les revenus miniers</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Liens Utiles (Exemple) -->
+            <div class="mt-8 space-y-4">
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <font-awesome-icon icon="link" class="text-blue-600 dark:text-blue-400" />
+                Liens Utiles & Documentation
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Lien 1 -->
+                <a href="#" class="group flex items-start gap-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700 hover:shadow-lg transition-all">
+                  <div class="bg-blue-500 dark:bg-blue-600 p-2 rounded-lg">
+                    <font-awesome-icon icon="file-pdf" class="w-5 h-5 text-white" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
+                      Rapport annuel d'activité minière
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Document PDF - {{ compteAffi.annee }}</p>
+                  </div>
+                  <font-awesome-icon icon="external-link-alt" class="w-4 h-4 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                </a>
+
+                <!-- Lien 2 -->
+                <a href="#" class="group flex items-start gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-700 hover:shadow-lg transition-all">
+                  <div class="bg-green-500 dark:bg-green-600 p-2 rounded-lg">
+                    <font-awesome-icon icon="globe" class="w-5 h-5 text-white" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition">
+                      Site officiel de la commune
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Informations administratives</p>
+                  </div>
+                  <font-awesome-icon icon="external-link-alt" class="w-4 h-4 text-gray-400 group-hover:text-green-600 dark:group-hover:text-green-400" />
+                </a>
+
+                <!-- Lien 3 -->
+                <a href="#" class="group flex items-start gap-3 p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-xl border border-purple-200 dark:border-purple-700 hover:shadow-lg transition-all">
+                  <div class="bg-purple-500 dark:bg-purple-600 p-2 rounded-lg">
+                    <font-awesome-icon icon="chart-bar" class="w-5 h-5 text-white" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition">
+                      Statistiques minières régionales
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Données et analyses</p>
+                  </div>
+                  <font-awesome-icon icon="external-link-alt" class="w-4 h-4 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400" />
+                </a>
+
+                <!-- Lien 4 -->
+                <a href="#" class="group flex items-start gap-3 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-xl border border-orange-200 dark:border-orange-700 hover:shadow-lg transition-all">
+                  <div class="bg-orange-500 dark:bg-orange-600 p-2 rounded-lg">
+                    <font-awesome-icon icon="landmark" class="w-5 h-5 text-white" />
+                  </div>
+                  <div class="flex-1">
+                    <p class="font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition">
+                      Cadre légal et réglementaire
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Législation minière à Madagascar</p>
+                  </div>
+                  <font-awesome-icon icon="external-link-alt" class="w-4 h-4 text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400" />
+                </a>
+              </div>
+            </div>
+
+            <!-- Section Tableau Financier Intégré -->
+            <div class="mt-10 space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <font-awesome-icon icon="table" class="text-indigo-600 dark:text-indigo-400" />
+                  Données Financières - Compte Administratif {{ compteAffi.annee }}
+                </h3>
+              </div>
+
+              <!-- Tableau avec masquage et bouton "Voir tout" -->
+              <div class="relative">
+                <div :class="[
+                  'overflow-hidden transition-all duration-500',
+                  isTableauExpanded ? 'max-h-[10000px]' : 'max-h-[600px]'
+                ]">
+                  <TableauFinancier
+                    :compte="compteAffi"
+                    @telecharger="handleTelecharger"
+                  />
+                </div>
+
+                <!-- Gradient Overlay et Bouton "Voir tout" -->
+                <div v-if="!isTableauExpanded" class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-gray-800 via-white/90 dark:via-gray-800/90 to-transparent flex items-end justify-center pb-4">
+                  <button
+                    @click="toggleTableau"
+                    class="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 dark:from-indigo-500 dark:to-purple-500 dark:hover:from-indigo-600 dark:hover:to-purple-600 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+                  >
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 group-hover:translate-y-1 transition-transform" />
+                    <span>Voir tout le tableau</span>
+                    <font-awesome-icon icon="table" class="w-4 h-4" />
+                  </button>
+                </div>
+
+                <!-- Bouton "Masquer" quand le tableau est déployé -->
+                <div v-else class="flex justify-center mt-6">
+                  <button
+                    @click="toggleTableau"
+                    class="group flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 dark:from-gray-500 dark:to-gray-600 dark:hover:from-gray-600 dark:hover:to-gray-700 text-white font-semibold rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all"
+                  >
+                    <font-awesome-icon icon="chevron-up" class="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
+                    <span>Masquer le tableau</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Note pour l'éditeur -->
@@ -273,16 +438,6 @@ const description = computed(() => {
               </div>
             </div>
           </div>
-        </section>
-      </Transition>
-
-      <!-- Tableau financier -->
-      <Transition name="slide-up">
-        <section v-if="compteAffi && !isLoading" class="pt-8">
-          <TableauFinancier
-            :compte="compteAffi"
-            @telecharger="handleTelecharger"
-          />
         </section>
       </Transition>
     </main>
