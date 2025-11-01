@@ -1,0 +1,153 @@
+import { library, config } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+// Import des icônes que vous souhaitez utiliser
+// Solid icons
+import {
+  faHome,
+  faUser,
+  faSearch,
+  faChartBar,
+  faFileAlt,
+  faDownload,
+  faArrowLeft,
+  faArrowUp,
+  faSun,
+  faMoon,
+  faInfoCircle,
+  faCheckCircle,
+  faExclamationTriangle,
+  faTimesCircle,
+  faBars,
+  faTimes,
+  faChevronDown,
+  faChevronUp,
+  faChevronRight,
+  faChevronLeft,
+  faExternalLinkAlt,
+  faEnvelope,
+  faPhone,
+  faMapMarkerAlt,
+  faCog,
+  faEye,
+  faEyeSlash,
+  faEdit,
+  faTrash,
+  faPlus,
+  faMinus,
+  faSpinner,
+  faCircle,
+  faSquare,
+  faHeart,
+  faStar,
+  faBuilding,
+  faUsers,
+  faMoneyBillWave,
+  faIndustry,
+  faLandmark,
+  faCalendar,
+  faTable,
+  faPrint,
+  faFilePdf,
+  faFileExcel,
+  faFileWord,
+  faGlobe,
+  faLink,
+  faImage,
+  faCamera,
+} from '@fortawesome/free-solid-svg-icons'
+
+// Regular icons
+import {
+  faHeart as farHeart,
+  faStar as farStar,
+  faFile as farFile,
+  faFileAlt as farFileAlt,
+} from '@fortawesome/free-regular-svg-icons'
+
+// Brand icons
+import {
+  faFacebook,
+  faTwitter,
+  faLinkedin,
+  faGithub,
+  faYoutube,
+  faInstagram,
+} from '@fortawesome/free-brands-svg-icons'
+
+// Désactiver l'ajout automatique de CSS par Font Awesome
+// (Nuxt gère le CSS différemment)
+config.autoAddCss = false
+
+// Ajouter les icônes à la bibliothèque
+library.add(
+  // Solid
+  faHome,
+  faUser,
+  faSearch,
+  faChartBar,
+  faFileAlt,
+  faDownload,
+  faArrowLeft,
+  faArrowUp,
+  faSun,
+  faMoon,
+  faInfoCircle,
+  faCheckCircle,
+  faExclamationTriangle,
+  faTimesCircle,
+  faBars,
+  faTimes,
+  faChevronDown,
+  faChevronUp,
+  faChevronRight,
+  faChevronLeft,
+  faExternalLinkAlt,
+  faEnvelope,
+  faPhone,
+  faMapMarkerAlt,
+  faCog,
+  faEye,
+  faEyeSlash,
+  faEdit,
+  faTrash,
+  faPlus,
+  faMinus,
+  faSpinner,
+  faCircle,
+  faSquare,
+  faHeart,
+  faStar,
+  faBuilding,
+  faUsers,
+  faMoneyBillWave,
+  faIndustry,
+  faLandmark,
+  faCalendar,
+  faTable,
+  faPrint,
+  faFilePdf,
+  faFileExcel,
+  faFileWord,
+  faGlobe,
+  faLink,
+  faImage,
+  faCamera,
+  // Regular
+  farHeart,
+  farStar,
+  farFile,
+  farFileAlt,
+  // Brands
+  faFacebook,
+  faTwitter,
+  faLinkedin,
+  faGithub,
+  faYoutube,
+  faInstagram
+)
+
+export default defineNuxtPlugin((nuxtApp) => {
+  // Enregistrer le composant globalement
+  nuxtApp.vueApp.component('font-awesome-icon', FontAwesomeIcon)
+})
