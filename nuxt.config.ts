@@ -9,21 +9,19 @@ export default defineNuxtConfig({
     'animate.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  vite: {    
+  vite: {
     plugins: [
       tailwindcss(),
     ],
   },
-  // app: {
-  //   head: {
-  //     link: [
-  //       {
-  //         rel: "stylesheet",
-  //         href: "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-  //       }
-  //     ]
-  //   }
-  // },
+
+  // Configuration des transitions de pages
+  app: {
+    pageTransition: {
+      name: 'page',
+      mode: 'out-in'
+    }
+  },
 
   modules: [
     '@nuxt/image',

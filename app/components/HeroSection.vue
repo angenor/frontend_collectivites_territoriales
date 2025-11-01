@@ -47,15 +47,20 @@ watch(selectedDistrict, () => {
 })
 
 // Fonction de recherche avec redirection
-const handleSearch = () => {
+const handleSearch = async () => {
   if (!selectedCommune.value) {
     alert('Veuillez sélectionner une commune')
     return
   }
 
-  // Redirection vers la page du compte administratif
-  const url = `/compte-administratif?commune=${encodeURIComponent(selectedCommune.value)}&annee=${selectedAnnee.value}`
-  window.location.href = url
+  // Navigation vers la page du compte administratif avec transition
+  await navigateTo({
+    path: '/compte-administratif',
+    query: {
+      commune: selectedCommune.value,
+      annee: selectedAnnee.value
+    }
+  })
 }
 </script>
 

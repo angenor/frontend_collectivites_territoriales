@@ -111,7 +111,7 @@ const description = computed(() => {
   <div class="min-h-screen bg-white dark:bg-gray-900">
     <!-- Header avec bouton retour et ThemeToggle -->
     <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors duration-200">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class=" mx-auto px-4 py-4 flex items-center justify-between">
         <button
           @click="retourAccueil"
           class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium"
