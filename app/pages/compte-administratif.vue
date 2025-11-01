@@ -247,6 +247,239 @@ const description = computed(() => {
               [&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:underline [&_a]:hover:text-blue-700 dark:[&_a]:hover:text-blue-300
             "></div>
 
+            <!-- Blocs Riches : Image + Texte + Liens + Légende -->
+
+            <!-- Bloc 1 : Image à gauche + Contenu à droite -->
+            <div class="grid md:grid-cols-2 gap-6 items-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border border-blue-200 dark:border-blue-700 shadow-lg">
+              <div class="order-2 md:order-1">
+                <div class="relative overflow-hidden rounded-xl shadow-xl group">
+                  <img
+                    src="https://imgs.mongabay.com/wp-content/uploads/sites/26/2023/06/14150521/cobalt-mine.jpg"
+                    alt="Exploitation minière de cobalt"
+                    class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <p class="text-white text-sm font-semibold flex items-center gap-2">
+                      <font-awesome-icon icon="camera" class="text-blue-300" />
+                      Mine de cobalt - {{ compteAffi.commune.nom }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="order-1 md:order-2 space-y-4">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <font-awesome-icon icon="industry" class="text-blue-600 dark:text-blue-400" />
+                  Exploitation du Cobalt
+                </h3>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Le cobalt est un minerai critique essentiel pour la fabrication de batteries lithium-ion.
+                  L'exploitation dans la région de {{ compteAffi.commune.nom }} contribue significativement
+                  aux revenus de la collectivité territoriale à travers les redevances minières.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                  <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all text-sm font-medium">
+                    <font-awesome-icon icon="file-pdf" />
+                    Rapport d'impact
+                    <font-awesome-icon icon="external-link-alt" class="text-xs" />
+                  </a>
+                  <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all text-sm font-medium">
+                    <font-awesome-icon icon="chart-bar" />
+                    Statistiques
+                  </a>
+                </div>
+                <div class="flex items-start gap-2 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg border-l-4 border-blue-600">
+                  <font-awesome-icon icon="info-circle" class="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <p class="text-xs text-blue-800 dark:text-blue-300 italic">
+                    Source: Étude sur les minerais critiques à Madagascar, 2024
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloc 2 : Image à droite + Contenu à gauche -->
+            <div class="grid md:grid-cols-2 gap-6 items-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl border border-green-200 dark:border-green-700 shadow-lg">
+              <div class="space-y-4">
+                <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <font-awesome-icon icon="users" class="text-green-600 dark:text-green-400" />
+                  Impact Socio-économique
+                </h3>
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  Les activités minières génèrent des emplois directs et indirects pour plus de
+                  2 500 personnes dans la région. Les redevances minières financent des projets
+                  d'infrastructure et de développement local.
+                </p>
+                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                  <li class="flex items-start gap-2">
+                    <font-awesome-icon icon="check-circle" class="text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                    <span>Construction d'écoles et centres de santé</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <font-awesome-icon icon="check-circle" class="text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                    <span>Amélioration des infrastructures routières</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <font-awesome-icon icon="check-circle" class="text-green-600 dark:text-green-400 mt-1 flex-shrink-0" />
+                    <span>Programmes de formation professionnelle</span>
+                  </li>
+                </ul>
+                <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white rounded-lg shadow-md hover:shadow-xl transition-all text-sm font-medium">
+                  <font-awesome-icon icon="book" />
+                  En savoir plus
+                  <font-awesome-icon icon="chevron-right" class="text-xs" />
+                </a>
+              </div>
+              <div>
+                <div class="relative overflow-hidden rounded-xl shadow-xl group">
+                  <img
+                    src="https://www.afrique-sur7.fr/wp-content/uploads/2023/10/2ad85722-5c2c-4f30-a98c-89412ec2b5aa.jpg"
+                    alt="Développement communautaire"
+                    class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <p class="text-white text-sm font-semibold flex items-center gap-2">
+                      <font-awesome-icon icon="building" class="text-green-300" />
+                      Projets de développement local
+                    </p>
+                  </div>
+                </div>
+                <p class="mt-3 text-xs text-gray-600 dark:text-gray-400 italic flex items-center gap-1">
+                  <font-awesome-icon icon="map-marker-alt" class="text-green-600" />
+                  Infrastructure financée par les redevances minières - {{ compteAffi.annee }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Bloc 3 : Carte avec image de fond et contenu superposé -->
+            <div class="relative overflow-hidden rounded-2xl shadow-2xl min-h-[400px] flex items-end">
+              <img
+                src="https://static.euronews.com/articles/stories/08/97/03/94/1200x675_cmsv2_fb678fe0-5671-57f4-95f5-0abb520be44e-8970394.jpg"
+                alt="Site d'exploitation minière"
+                class="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+              <div class="relative z-10 p-8 text-white space-y-4 w-full">
+                <div class="flex items-center gap-2 text-yellow-400 font-semibold">
+                  <font-awesome-icon icon="exclamation-triangle" />
+                  <span class="uppercase text-sm tracking-wider">Enjeux environnementaux</span>
+                </div>
+                <h3 class="text-3xl font-bold">Gestion durable des ressources minières</h3>
+                <p class="text-gray-200 leading-relaxed max-w-3xl">
+                  La collectivité territoriale travaille en collaboration avec les entreprises minières
+                  pour assurer une exploitation responsable et minimiser l'impact environnemental.
+                  Des programmes de réhabilitation des sites miniers sont en cours.
+                </p>
+                <div class="flex flex-wrap gap-3 pt-2">
+                  <a href="#" class="inline-flex items-center gap-2 px-5 py-3 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-lg hover:shadow-xl transition-all font-medium">
+                    <font-awesome-icon icon="leaf" class="text-green-600" />
+                    Plan environnemental
+                    <font-awesome-icon icon="external-link-alt" class="text-xs" />
+                  </a>
+                  <a href="#" class="inline-flex items-center gap-2 px-5 py-3 bg-yellow-500/90 hover:bg-yellow-500 text-gray-900 rounded-lg shadow-lg hover:shadow-xl transition-all font-medium">
+                    <font-awesome-icon icon="shield-alt" />
+                    Cadre réglementaire
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bloc 4 : Grille de cartes informatives -->
+            <div class="grid md:grid-cols-3 gap-6">
+              <!-- Carte 1 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
+                <div class="relative h-48 overflow-hidden">
+                  <img
+                    src="https://diplomatie.belgium.be/sites/default/files/styles/fluid_image/public/2022-11/Minersconcentratingcassiteriteandcoltan_KL.jpg?itok=EuU2PJlB"
+                    alt="Traitement des minerais"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div class="absolute top-3 right-3 bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    <font-awesome-icon icon="star" />
+                    Important
+                  </div>
+                </div>
+                <div class="p-5 space-y-3">
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <font-awesome-icon icon="cogs" class="text-purple-600 dark:text-purple-400" />
+                    Traitement Local
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Unités de traitement et de concentration des minerais créant de la valeur ajoutée localement.
+                  </p>
+                  <a href="#" class="inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 text-sm font-medium group-hover:gap-2 transition-all">
+                    Découvrir
+                    <font-awesome-icon icon="arrow-right" class="text-xs" />
+                  </a>
+                  <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-xs text-gray-500 dark:text-gray-500 italic flex items-center gap-1">
+                      <font-awesome-icon icon="calendar" />
+                      Mise à jour: {{ compteAffi.annee }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Carte 2 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
+                <div class="relative h-48 overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <font-awesome-icon icon="money-bill-wave" class="text-white/20 text-9xl" />
+                  </div>
+                  <div class="relative z-10 p-6 text-white">
+                    <p class="text-sm font-medium opacity-90">Revenus miniers {{ compteAffi.annee }}</p>
+                    <p class="text-3xl font-bold mt-2">1.2M Ar</p>
+                    <p class="text-xs mt-1 opacity-75">+15% vs année précédente</p>
+                  </div>
+                </div>
+                <div class="p-5 space-y-3">
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <font-awesome-icon icon="chart-line" class="text-blue-600 dark:text-blue-400" />
+                    Redevances Minières
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Contribution des activités minières au budget de la collectivité.
+                  </p>
+                  <a href="#" class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium group-hover:gap-2 transition-all">
+                    Voir détails
+                    <font-awesome-icon icon="arrow-right" class="text-xs" />
+                  </a>
+                </div>
+              </div>
+
+              <!-- Carte 3 -->
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
+                <div class="relative h-48 overflow-hidden bg-gradient-to-br from-green-600 to-emerald-800">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <font-awesome-icon icon="leaf" class="text-white/20 text-9xl" />
+                  </div>
+                  <div class="relative z-10 p-6 text-white">
+                    <div class="flex items-center gap-2 mb-3">
+                      <font-awesome-icon icon="seedling" class="text-2xl" />
+                      <span class="text-sm font-medium">Environnement</span>
+                    </div>
+                    <p class="text-sm opacity-90">Zones réhabilitées</p>
+                    <p class="text-3xl font-bold mt-1">45 ha</p>
+                  </div>
+                </div>
+                <div class="p-5 space-y-3">
+                  <h4 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <font-awesome-icon icon="recycle" class="text-green-600 dark:text-green-400" />
+                    Réhabilitation
+                  </h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Programme de restauration écologique des sites d'exploitation.
+                  </p>
+                  <a href="#" class="inline-flex items-center gap-1 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 text-sm font-medium group-hover:gap-2 transition-all">
+                    En savoir plus
+                    <font-awesome-icon icon="arrow-right" class="text-xs" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
             <!-- Section Galerie Photos (Exemple) -->
             <div class="mt-8 space-y-4">
               <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
