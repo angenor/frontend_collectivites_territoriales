@@ -80,15 +80,11 @@ onUnmounted(() => {
 
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
-    <!-- En-tête de la plateforme -->
-    <PlatformHeader />
+    <!-- Hero Section avec recherche intégrée -->
+    <HeroSection @search="handleSearch" />
 
     <!-- Contenu principal -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-8">
-      <!-- Section de sélection -->
-      <section>
-        <SelectionCollectivite @search="handleSearch" />
-      </section>
 
       <!-- Indicateur de chargement -->
       <Transition name="fade">
@@ -115,52 +111,6 @@ onUnmounted(() => {
         </div>
       </Transition>
 
-      <!-- Message d'accueil (affiché uniquement si aucun compte n'est chargé) -->
-      <Transition name="fade">
-        <div v-if="!compteAffi && !isLoading && !errorMessage" class="bg-white rounded-lg shadow-lg p-8 text-center">
-          <div class="max-w-2xl mx-auto">
-            <svg class="w-20 h-20 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <h2 class="text-2xl font-bold text-gray-800 mb-3">
-              Bienvenue sur la Plateforme de Suivi
-            </h2>
-            <p class="text-gray-600 leading-relaxed mb-4">
-              Sélectionnez une région, un district et une commune dans le formulaire ci-dessus
-              pour consulter le compte administratif de la collectivité.
-            </p>
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-              <h3 class="font-semibold text-blue-900 mb-2">Informations disponibles :</h3>
-              <ul class="text-sm text-blue-800 space-y-1">
-                <li class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Tableau détaillé des recettes fiscales et non fiscales
-                </li>
-                <li class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Tableau détaillé des dépenses de fonctionnement
-                </li>
-                <li class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Taux d'exécution et reste à recouvrer/payer
-                </li>
-                <li class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                  </svg>
-                  Export Excel et Word disponibles
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Transition>
 
       <!-- Tableau financier -->
       <Transition name="slide-up">
