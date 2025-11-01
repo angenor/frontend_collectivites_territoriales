@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Nuxt 4 web application for managing information about French territorial authorities ("Collectivités Territoriales"). Built with Vue 3, Nuxt, PostgreSQL via Prisma ORM, and Tailwind CSS.
+A Nuxt 4 web application for managing information about French territorial authorities ("Collectivités Territoriales"). Built with Vue 3, Nuxt, Supabase (PostgreSQL backend), and Tailwind CSS.
 
 ## Essential Commands
 
@@ -23,16 +23,15 @@ pnpm generate         # Generate static HTML (SSG)
 
 **Database:**
 ```bash
-pnpm dlx prisma migrate dev    # Run database migrations
-pnpm dlx prisma generate       # Regenerate Prisma client
-pnpm dlx prisma studio         # Open Prisma Studio (DB GUI)
+# Database is managed through Supabase Dashboard
+# Connection string in .env file (SUPABASE_URL and SUPABASE_KEY)
 ```
 
 ## Critical Setup Requirements
 
 1. **Package Manager**: MUST use `pnpm`. The project uses pnpm lockfile v9.0.
-2. **Database**: PostgreSQL connection via Prisma. Connection string in `.env` file points to local Prisma Postgres instance on port 51213.
-3. **Prisma Client**: Auto-generated in `/app/generated/prisma` (not the default location).
+2. **Backend**: Supabase for database, authentication, and storage. Configure `SUPABASE_URL` and `SUPABASE_KEY` in `.env` file.
+3. **Database**: PostgreSQL managed by Supabase. Use Supabase Dashboard or SQL Editor for schema management.
 
 ## Architecture Overview
 
@@ -61,17 +60,17 @@ Pages specify layouts via `definePageMeta({ layout: 'layoutname' })` or use defa
 
 All middleware files use Nuxt's `defineNuxtRouteMiddleware()`.
 
-### Database & ORM
+### Database & Backend
 
-- Prisma schema: `prisma/schema.prisma`
-- Generated client location: `/app/generated/prisma` (non-standard location)
-- Database provider: PostgreSQL
-- Connection: Via `DATABASE_URL` in `.env`
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Realtime)
+- **Client**: `@supabase/supabase-js` for database queries
+- **Authentication**: Supabase Auth with Row Level Security (RLS)
+- **Connection**: Via `SUPABASE_URL` and `SUPABASE_KEY` in `.env`
 
-When adding models:
-1. Edit `prisma/schema.prisma`
-2. Run `pnpm dlx prisma migrate dev --name <migration_name>`
-3. Client regenerates automatically
+When adding tables:
+1. Use Supabase Dashboard SQL Editor or Table Editor
+2. Define Row Level Security (RLS) policies
+3. Generate TypeScript types if needed
 
 ### Styling
 
