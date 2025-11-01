@@ -111,14 +111,12 @@ const description = computed(() => {
   <div class="min-h-screen bg-white dark:bg-gray-900">
     <!-- Header avec bouton retour et ThemeToggle -->
     <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors duration-200">
-      <div class=" mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="mx-auto px-4 py-4 flex items-center justify-between">
         <button
           @click="retourAccueil"
-          class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium"
+          class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium group"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+          <font-awesome-icon icon="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span>Retour à l'accueil</span>
         </button>
 
@@ -143,31 +141,39 @@ const description = computed(() => {
       <div class="relative z-10 w-full">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div class="flex flex-col items-center gap-4">
-            <!-- Titre avec fond glassmorphism -->
+            <!-- Titre avec fond glassmorphism et icône -->
             <div class="w-auto bg-white/0 dark:bg-gray-900/0 backdrop-blur-xl px-8 py-4 rounded-2xl shadow-2xl border border-white/50 dark:border-gray-700/50">
-              <h1 class="text-4xl sm:text-5xl font-bold text-white whitespace-nowrap">
+              <h1 class="text-4xl sm:text-5xl font-bold text-white whitespace-nowrap flex items-center gap-4">
+                <font-awesome-icon icon="landmark" class="text-blue-300 dark:text-blue-400" />
                 Compte Administratif {{ compteAffi.annee }}
               </h1>
             </div>
 
-            <!-- Breadcrumb avec fond glassmorphism -->
+            <!-- Breadcrumb avec fond glassmorphism et icône -->
             <div class="w-auto bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl px-6 py-3 rounded-xl shadow-lg border border-white/50 dark:border-gray-700/50">
               <div class="flex flex-wrap justify-center items-center gap-2 text-lg sm:text-xl text-gray-700 dark:text-gray-300">
+                <font-awesome-icon icon="map-marker-alt" class="text-red-500 dark:text-red-400" />
                 <span class="font-semibold">{{ compteAffi.region.nom }}</span>
-                <span class="mx-2">→</span>
+                <font-awesome-icon icon="chevron-right" class="text-sm text-gray-400" />
                 <span class="font-semibold">{{ compteAffi.district.nom }}</span>
-                <span class="mx-2">→</span>
+                <font-awesome-icon icon="chevron-right" class="text-sm text-gray-400" />
                 <span class="font-bold text-blue-600 dark:text-blue-400">{{ compteAffi.commune.nom }}</span>
               </div>
             </div>
 
-            <!-- Badges d'information -->
+            <!-- Badges d'information avec icônes -->
             <div class="flex flex-wrap justify-center gap-4 mt-2">
               <div class="bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl px-6 py-3 rounded-full shadow-lg border border-white/50 dark:border-gray-700/50">
-                <span class="text-gray-800 dark:text-gray-200 font-medium">Population: {{ compteAffi.commune.population?.toLocaleString() }}</span>
+                <span class="text-gray-800 dark:text-gray-200 font-medium flex items-center gap-2">
+                  <font-awesome-icon icon="users" class="text-green-600 dark:text-green-400" />
+                  Population: {{ compteAffi.commune.population?.toLocaleString() }}
+                </span>
               </div>
               <div class="bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl px-6 py-3 rounded-full shadow-lg border border-white/50 dark:border-gray-700/50">
-                <span class="text-gray-800 dark:text-gray-200 font-medium">Année fiscale: {{ compteAffi.annee }}</span>
+                <span class="text-gray-800 dark:text-gray-200 font-medium flex items-center gap-2">
+                  <font-awesome-icon icon="calendar" class="text-purple-600 dark:text-purple-400" />
+                  Année fiscale: {{ compteAffi.annee }}
+                </span>
               </div>
             </div>
           </div>
@@ -180,23 +186,35 @@ const description = computed(() => {
       <!-- Indicateur de chargement -->
       <Transition name="fade">
         <div v-if="isLoading" class="flex justify-center items-center py-12">
-          <div class="text-center">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 dark:border-blue-400 border-t-transparent"></div>
-            <p class="mt-4 text-gray-600 dark:text-gray-300 font-medium">Chargement des données...</p>
+          <div class="text-center bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+            <div class="relative inline-block">
+              <font-awesome-icon icon="spinner" class="w-16 h-16 text-blue-600 dark:text-blue-400 animate-spin" />
+              <div class="absolute inset-0 animate-pulse">
+                <font-awesome-icon icon="circle" class="w-16 h-16 text-blue-300 dark:text-blue-500 opacity-30" />
+              </div>
+            </div>
+            <p class="mt-6 text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center justify-center gap-2">
+              <font-awesome-icon icon="chart-bar" class="text-blue-600 dark:text-blue-400" />
+              Chargement des données...
+            </p>
+            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm">Veuillez patienter</p>
           </div>
         </div>
       </Transition>
 
       <!-- Message d'erreur -->
       <Transition name="fade">
-        <div v-if="errorMessage && !isLoading" class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 p-4 rounded-lg shadow">
-          <div class="flex items-center">
-            <svg class="w-6 h-6 text-red-500 dark:text-red-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-            </svg>
-            <div>
-              <h3 class="text-red-800 dark:text-red-300 font-bold">Aucune donnée disponible</h3>
-              <p class="text-red-700 dark:text-red-400 text-sm mt-1">{{ errorMessage }}</p>
+        <div v-if="errorMessage && !isLoading" class="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-l-4 border-red-500 dark:border-red-400 p-6 rounded-lg shadow-lg">
+          <div class="flex items-start gap-4">
+            <div class="bg-red-500 dark:bg-red-600 p-3 rounded-lg shadow-md">
+              <font-awesome-icon icon="exclamation-triangle" class="w-6 h-6 text-white" />
+            </div>
+            <div class="flex-1">
+              <h3 class="text-red-800 dark:text-red-300 font-bold text-lg flex items-center gap-2 mb-2">
+                <font-awesome-icon icon="times-circle" class="text-red-600 dark:text-red-400" />
+                Aucune donnée disponible
+              </h3>
+              <p class="text-red-700 dark:text-red-400 text-sm leading-relaxed">{{ errorMessage }}</p>
             </div>
           </div>
         </div>
@@ -206,10 +224,10 @@ const description = computed(() => {
       <Transition name="slide-up">
         <section v-if="compteAffi && !isLoading && description" class="relative -mt-16 z-20 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl dark:shadow-3xl p-6 sm:p-8 lg:p-10 transition-all duration-200 border border-gray-100 dark:border-gray-700">
           <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-            <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {{ description.titre }}
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 p-3 rounded-xl shadow-lg">
+              <font-awesome-icon icon="industry" class="w-6 h-6 text-white" />
+            </div>
+            <span>{{ description.titre }} - Contexte Minier</span>
           </h2>
 
           <!-- Contenu riche avec support HTML -->
@@ -225,16 +243,33 @@ const description = computed(() => {
           </div>
 
           <!-- Note pour l'éditeur -->
-          <div class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 dark:border-blue-400 rounded-r-lg transition-colors duration-200">
-            <div class="flex items-start gap-3">
-              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-              </svg>
-              <div>
-                <p class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">Note pour l'éditeur</p>
-                <p class="text-sm text-blue-800 dark:text-blue-300">
+          <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-700 rounded-xl transition-colors duration-200 shadow-sm">
+            <div class="flex items-start gap-4">
+              <div class="bg-blue-500 dark:bg-blue-600 p-3 rounded-lg shadow-md">
+                <font-awesome-icon icon="edit" class="w-5 h-5 text-white" />
+              </div>
+              <div class="flex-1">
+                <p class="text-base font-bold text-blue-900 dark:text-blue-200 mb-2 flex items-center gap-2">
+                  <font-awesome-icon icon="info-circle" class="text-blue-600 dark:text-blue-400" />
+                  Note pour l'éditeur
+                </p>
+                <p class="text-sm text-blue-800 dark:text-blue-300 leading-relaxed">
                   Cette section sera éditable via le système de gestion de contenu (CMS) et permettra l'ajout de textes, images, photos et liens concernant le contexte minier de la collectivité.
                 </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <span class="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-xs font-medium text-blue-700 dark:text-blue-300 shadow-sm">
+                    <font-awesome-icon icon="image" class="text-xs" />
+                    Images
+                  </span>
+                  <span class="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-xs font-medium text-blue-700 dark:text-blue-300 shadow-sm">
+                    <font-awesome-icon icon="link" class="text-xs" />
+                    Liens
+                  </span>
+                  <span class="inline-flex items-center gap-1 px-3 py-1 bg-white dark:bg-gray-800 rounded-full text-xs font-medium text-blue-700 dark:text-blue-300 shadow-sm">
+                    <font-awesome-icon icon="file-alt" class="text-xs" />
+                    Textes
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -253,33 +288,66 @@ const description = computed(() => {
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 dark:bg-gray-950 text-white mt-16 print:hidden transition-colors duration-200">
+    <footer class="bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-black dark:to-gray-950 text-white mt-16 print:hidden transition-colors duration-200">
       <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="grid md:grid-cols-3 gap-8">
           <div>
-            <h3 class="font-bold text-lg mb-3">À propos</h3>
-            <p class="text-gray-300 dark:text-gray-400 text-sm">
-              Projet "Minerais critiques : justice fiscale et redistribution de revenus"
-              mené par PCQVP Madagascar et TI Madagascar.
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <div class="bg-blue-600 p-2 rounded-lg">
+                <font-awesome-icon icon="info-circle" class="w-4 h-4" />
+              </div>
+              À propos
+            </h3>
+            <p class="text-gray-300 dark:text-gray-400 text-sm leading-relaxed flex items-start gap-2">
+              <font-awesome-icon icon="industry" class="text-blue-400 mt-1 flex-shrink-0" />
+              <span>
+                Projet "Minerais critiques : justice fiscale et redistribution de revenus"
+                mené par PCQVP Madagascar et TI Madagascar.
+              </span>
             </p>
           </div>
           <div>
-            <h3 class="font-bold text-lg mb-3">Contact</h3>
-            <p class="text-gray-300 dark:text-gray-400 text-sm">
-              Email: vramaherison@transparency.mg<br>
-              Transparency International - Initiative Madagascar
-            </p>
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <div class="bg-green-600 p-2 rounded-lg">
+                <font-awesome-icon icon="envelope" class="w-4 h-4" />
+              </div>
+              Contact
+            </h3>
+            <div class="space-y-2 text-gray-300 dark:text-gray-400 text-sm">
+              <p class="flex items-center gap-2">
+                <font-awesome-icon icon="envelope" class="text-green-400" />
+                vramaherison@transparency.mg
+              </p>
+              <p class="flex items-start gap-2">
+                <font-awesome-icon icon="building" class="text-green-400 mt-1 flex-shrink-0" />
+                <span>Transparency International - Initiative Madagascar</span>
+              </p>
+            </div>
           </div>
           <div>
-            <h3 class="font-bold text-lg mb-3">Ressources</h3>
-            <p class="text-gray-300 dark:text-gray-400 text-sm">
-              Plateforme de suivi des revenus miniers<br>
-              Collectivités Territoriales de Madagascar
-            </p>
+            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+              <div class="bg-purple-600 p-2 rounded-lg">
+                <font-awesome-icon icon="globe" class="w-4 h-4" />
+              </div>
+              Ressources
+            </h3>
+            <div class="space-y-2 text-gray-300 dark:text-gray-400 text-sm">
+              <p class="flex items-center gap-2">
+                <font-awesome-icon icon="chart-bar" class="text-purple-400" />
+                Plateforme de suivi des revenus miniers
+              </p>
+              <p class="flex items-center gap-2">
+                <font-awesome-icon icon="landmark" class="text-purple-400" />
+                Collectivités Territoriales de Madagascar
+              </p>
+            </div>
           </div>
         </div>
         <div class="border-t border-gray-700 dark:border-gray-800 mt-8 pt-6 text-center text-gray-400 dark:text-gray-500 text-sm">
-          <p>&copy; {{ new Date().getFullYear() }} PCQVP Madagascar. Tous droits réservés.</p>
+          <p class="flex items-center justify-center gap-2">
+            <font-awesome-icon icon="heart" class="text-red-500" />
+            &copy; {{ new Date().getFullYear() }} PCQVP Madagascar. Tous droits réservés.
+          </p>
         </div>
       </div>
     </footer>
@@ -289,12 +357,10 @@ const description = computed(() => {
       <button
         v-if="showScrollTop"
         @click="scrollToTop"
-        class="fixed bottom-8 right-8 bg-blue-600 dark:bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition print:hidden z-50"
+        class="fixed bottom-8 right-8 bg-gradient-to-br from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white p-4 rounded-full shadow-2xl hover:shadow-blue-500/50 hover:scale-110 transition-all print:hidden z-50 group"
         aria-label="Retour en haut"
       >
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-        </svg>
+        <font-awesome-icon icon="arrow-up" class="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
       </button>
     </Transition>
   </div>
