@@ -159,8 +159,9 @@ const handleSearch = async () => {
         <!-- Formulaire de recherche moderne avec dark mode -->
         <div class="max-w-5xl mx-auto animate-fade-in-up">
           <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10 border border-white/20 dark:border-gray-700/50 transition-colors duration-200">
-            <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center">
-              Rechercher un Compte Administratif
+            <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center flex items-center justify-center gap-3">
+              <font-awesome-icon icon="search" class="text-blue-600 dark:text-blue-400" />
+              <span>Rechercher un Compte Administratif</span>
             </h3>
 
             <!-- Grille de sélection -->
@@ -168,15 +169,19 @@ const handleSearch = async () => {
               <!-- Région avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <font-awesome-icon icon="map-marker-alt" class="text-blue-500 dark:text-blue-400" />
                   <span>Région</span>
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
                     {{ totalRegions }}
                   </span>
                 </label>
                 <div class="relative">
+                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="globe" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  </div>
                   <select
                     v-model="selectedRegion"
-                    class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     <option value="">Sélectionner...</option>
                     <option v-for="region in regions" :key="region.id" :value="region.id">
@@ -184,9 +189,7 @@ const handleSearch = async () => {
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                   </div>
                 </div>
                 <!-- Compteur Districts/Communes pour la région sélectionnée -->
@@ -201,6 +204,7 @@ const handleSearch = async () => {
               <!-- District avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <font-awesome-icon icon="building" class="text-green-500 dark:text-green-400" />
                   <span>District</span>
                   <Transition name="fade" mode="out-in">
                     <span v-if="selectedRegion" :key="totalDistrictsForRegion" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
@@ -209,10 +213,13 @@ const handleSearch = async () => {
                   </Transition>
                 </label>
                 <div class="relative">
+                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="landmark" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  </div>
                   <select
                     v-model="selectedDistrict"
                     :disabled="!selectedRegion"
-                    class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">Sélectionner...</option>
                     <option v-for="district in districts" :key="district.id" :value="district.id">
@@ -220,9 +227,7 @@ const handleSearch = async () => {
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                   </div>
                 </div>
                 <!-- Compteur Communes pour le district sélectionné -->
@@ -237,6 +242,7 @@ const handleSearch = async () => {
               <!-- Commune avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <font-awesome-icon icon="users" class="text-purple-500 dark:text-purple-400" />
                   <span>Commune</span>
                   <Transition name="fade" mode="out-in">
                     <span v-if="selectedDistrict" :key="totalCommunesForDistrict" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200">
@@ -245,10 +251,13 @@ const handleSearch = async () => {
                   </Transition>
                 </label>
                 <div class="relative">
+                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="home" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  </div>
                   <select
                     v-model="selectedCommune"
                     :disabled="!selectedDistrict"
-                    class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">Sélectionner...</option>
                     <option v-for="commune in communes" :key="commune.id" :value="commune.id">
@@ -256,31 +265,31 @@ const handleSearch = async () => {
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                   </div>
                 </div>
               </div>
 
               <!-- Année -->
               <div class="relative">
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  Année
+                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <font-awesome-icon icon="calendar" class="text-orange-500 dark:text-orange-400" />
+                  <span>Année</span>
                 </label>
                 <div class="relative">
+                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="clock" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  </div>
                   <select
                     v-model="selectedAnnee"
-                    class="w-full pl-4 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
                   >
                     <option v-for="annee in annees" :key="annee" :value="annee">
                       {{ annee }}
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-400 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                   </div>
                 </div>
               </div>
@@ -293,13 +302,9 @@ const handleSearch = async () => {
                 :disabled="!selectedCommune"
                 class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl disabled:from-gray-300 disabled:to-gray-400 dark:disabled:from-gray-600 dark:disabled:to-gray-700 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100 disabled:opacity-60 flex items-center gap-3"
               >
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <font-awesome-icon icon="search" class="w-6 h-6" />
                 <span>Rechercher</span>
-                <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                </svg>
+                <font-awesome-icon icon="chevron-right" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
@@ -307,18 +312,31 @@ const handleSearch = async () => {
             <Transition name="fade">
               <div v-if="selectedCommune" class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-xl border-2 border-blue-200 dark:border-blue-700">
                 <div class="flex items-start gap-3">
-                  <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                  </svg>
+                  <font-awesome-icon icon="info-circle" class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1">Sélection actuelle :</p>
-                    <p class="text-sm text-blue-800 dark:text-blue-300">
-                      <span class="font-medium">{{ regions.find(r => r.id === selectedRegion)?.nom }}</span>
-                      <span class="mx-2">→</span>
-                      <span class="font-medium">{{ districts.find(d => d.id === selectedDistrict)?.nom }}</span>
-                      <span class="mx-2">→</span>
-                      <span class="font-medium">{{ communes.find(c => c.id === selectedCommune)?.nom }}</span>
-                      <span class="ml-2 text-blue-600 dark:text-blue-400">({{ selectedAnnee }})</span>
+                    <p class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-1 flex items-center gap-2">
+                      <font-awesome-icon icon="check-circle" class="text-green-500" />
+                      Sélection actuelle :
+                    </p>
+                    <p class="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2 flex-wrap">
+                      <span class="flex items-center gap-1 font-medium">
+                        <font-awesome-icon icon="map-marker-alt" class="text-blue-600 dark:text-blue-400" />
+                        {{ regions.find(r => r.id === selectedRegion)?.nom }}
+                      </span>
+                      <font-awesome-icon icon="arrow-right" class="text-gray-400" />
+                      <span class="flex items-center gap-1 font-medium">
+                        <font-awesome-icon icon="building" class="text-green-600 dark:text-green-400" />
+                        {{ districts.find(d => d.id === selectedDistrict)?.nom }}
+                      </span>
+                      <font-awesome-icon icon="arrow-right" class="text-gray-400" />
+                      <span class="flex items-center gap-1 font-medium">
+                        <font-awesome-icon icon="home" class="text-purple-600 dark:text-purple-400" />
+                        {{ communes.find(c => c.id === selectedCommune)?.nom }}
+                      </span>
+                      <span class="flex items-center gap-1 ml-2 text-blue-600 dark:text-blue-400 font-semibold">
+                        <font-awesome-icon icon="calendar" />
+                        ({{ selectedAnnee }})
+                      </span>
                     </p>
                   </div>
                 </div>
