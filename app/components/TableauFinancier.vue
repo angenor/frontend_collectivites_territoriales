@@ -57,78 +57,105 @@ const handleTelecharger = (format: 'excel' | 'word') => {
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-    <!-- En-tête du tableau -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 p-6 print:bg-blue-700">
-      <div class="max-w-7xl mx-auto">
-        <h2 class="text-2xl font-bold text-white mb-2">
-          COMPTE ADMINISTRATIF {{ compte.annee }}
-        </h2>
-        <div class="text-blue-100 text-sm space-y-1">
-          <p><span class="font-semibold">Commune :</span> {{ compte.commune.nom }}</p>
-          <p><span class="font-semibold">District :</span> {{ compte.district.nom }}</p>
-          <p><span class="font-semibold">Région :</span> {{ compte.region.nom }}</p>
-          <p v-if="compte.commune.maire">
-            <span class="font-semibold">Maire :</span> {{ compte.commune.maire }}
-          </p>
+  <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+    <!-- En-tête du tableau avec design moderne -->
+    <div class="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 dark:from-indigo-700 dark:via-blue-700 dark:to-purple-700 p-8 print:bg-blue-700">
+      <!-- Motif de fond décoratif -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+      </div>
+
+      <div class="relative z-10 max-w-7xl mx-auto">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div class="flex-1 min-w-[300px]">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
+                <font-awesome-icon icon="table" class="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 class="text-3xl font-bold text-white">
+                  COMPTE ADMINISTRATIF {{ compte.annee }}
+                </h2>
+                <p class="text-blue-100 text-sm mt-1">Tableau détaillé des finances publiques</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
+              <div class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
+                <p class="text-blue-100 text-xs uppercase tracking-wider mb-1 flex items-center gap-2">
+                  <font-awesome-icon icon="map-marker-alt" class="text-xs" />
+                  Localisation
+                </p>
+                <p class="text-white font-semibold">{{ compte.region.nom }} → {{ compte.district.nom }}</p>
+                <p class="text-white font-bold text-lg">{{ compte.commune.nom }}</p>
+              </div>
+              <div v-if="compte.commune.maire" class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
+                <p class="text-blue-100 text-xs uppercase tracking-wider mb-1 flex items-center gap-2">
+                  <font-awesome-icon icon="user" class="text-xs" />
+                  Autorité
+                </p>
+                <p class="text-white font-semibold">{{ compte.commune.maire }}</p>
+                <p class="text-blue-100 text-sm">Maire de la commune</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Barre d'actions -->
-    <div class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 p-4 print:hidden">
-      <div class="max-w-7xl mx-auto flex flex-wrap gap-3 justify-between items-center">
-        <div class="flex gap-2">
+    <!-- Barre d'actions moderne -->
+    <div class="bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-b-2 border-gray-200 dark:border-gray-700 p-6 print:hidden">
+      <div class="max-w-7xl mx-auto flex flex-wrap gap-4 justify-between items-center">
+        <!-- Onglets Recettes/Dépenses -->
+        <div class="flex gap-2 bg-gray-100 dark:bg-gray-800 p-1.5 rounded-xl shadow-inner">
           <button
             @click="ongletActif = 'recettes'"
             :class="[
-              'px-4 py-2 rounded-lg font-medium transition',
+              'px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2',
               ongletActif === 'recettes'
-                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-500 text-white shadow-lg transform scale-105'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'
             ]"
           >
+            <font-awesome-icon icon="arrow-up" :class="ongletActif === 'recettes' ? 'text-white' : 'text-green-600 dark:text-green-400'" />
             Recettes
           </button>
           <button
             @click="ongletActif = 'depenses'"
             :class="[
-              'px-4 py-2 rounded-lg font-medium transition',
+              'px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2',
               ongletActif === 'depenses'
-                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-500 dark:to-rose-500 text-white shadow-lg transform scale-105'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50'
             ]"
           >
+            <font-awesome-icon icon="arrow-down" :class="ongletActif === 'depenses' ? 'text-white' : 'text-red-600 dark:text-red-400'" />
             Dépenses
           </button>
         </div>
 
-        <div class="flex gap-2">
+        <!-- Boutons d'action -->
+        <div class="flex flex-wrap gap-2">
           <button
             @click="handlePrint"
-            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition flex items-center gap-2"
+            class="group px-5 py-3 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-lg transition-all flex items-center gap-2 font-medium"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
+            <font-awesome-icon icon="print" class="text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200" />
             Imprimer
           </button>
           <button
             @click="handleTelecharger('excel')"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2"
+            class="group px-5 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white rounded-xl shadow-md hover:shadow-xl transition-all flex items-center gap-2 font-medium"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <font-awesome-icon icon="file-excel" class="group-hover:scale-110 transition-transform" />
             Excel
           </button>
           <button
             @click="handleTelecharger('word')"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            class="group px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md hover:shadow-xl transition-all flex items-center gap-2 font-medium"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            <font-awesome-icon icon="file-word" class="group-hover:scale-110 transition-transform" />
             Word
           </button>
         </div>
@@ -136,22 +163,30 @@ const handleTelecharger = (format: 'excel' | 'word') => {
     </div>
 
     <!-- Tableau des RECETTES -->
-    <div v-if="ongletActif === 'recettes'" class="p-6 overflow-x-auto">
-      <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">TABLEAU DÉTAILLÉ DES RECETTES</h3>
+    <div v-if="ongletActif === 'recettes'" class="p-8 overflow-x-auto bg-gradient-to-br from-green-50/30 to-emerald-50/30 dark:from-green-900/10 dark:to-emerald-900/10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-3 rounded-xl shadow-lg">
+          <font-awesome-icon icon="arrow-up" class="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">RECETTES</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Tableau détaillé des recettes budgétaires</p>
+        </div>
+      </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse text-sm">
+      <div class="overflow-x-auto rounded-xl border-2 border-green-200 dark:border-green-700 shadow-xl">
+        <table class="w-full border-collapse text-sm bg-white dark:bg-gray-800">
           <thead>
-            <tr class="bg-blue-100 dark:bg-blue-900 border-b-2 border-blue-600 dark:border-blue-400">
-              <th class="text-left p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">INTITULÉ</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">OR ADMIS</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">RECOUVREMENT</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">RESTE À<br>RECOUVRER</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
+            <tr class="bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-700 dark:to-emerald-700 text-white border-b-2 border-green-700 dark:border-green-800">
+              <th class="text-left p-4 font-bold text-white border-r border-green-500/50">INTITULÉ</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap bg-yellow-600/20">PRÉVISIONS<br>DÉFINITIVES</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap">OR ADMIS</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50">RECOUVREMENT</th>
+              <th class="text-right p-4 font-bold text-white border-r border-green-500/50 whitespace-nowrap">RESTE À<br>RECOUVRER</th>
+              <th class="text-right p-4 font-bold text-white whitespace-nowrap">TAUX<br>EXÉCUTION</th>
             </tr>
           </thead>
           <tbody>
@@ -239,22 +274,30 @@ const handleTelecharger = (format: 'excel' | 'word') => {
     </div>
 
     <!-- Tableau des DÉPENSES -->
-    <div v-if="ongletActif === 'depenses'" class="p-6 overflow-x-auto">
-      <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-4">TABLEAU DÉTAILLÉ DES DÉPENSES</h3>
+    <div v-if="ongletActif === 'depenses'" class="p-8 overflow-x-auto bg-gradient-to-br from-red-50/30 to-rose-50/30 dark:from-red-900/10 dark:to-rose-900/10">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="bg-gradient-to-r from-red-600 to-rose-600 p-3 rounded-xl shadow-lg">
+          <font-awesome-icon icon="arrow-down" class="w-6 h-6 text-white" />
+        </div>
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white">DÉPENSES</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400">Tableau détaillé des dépenses budgétaires</p>
+        </div>
+      </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse text-sm">
+      <div class="overflow-x-auto rounded-xl border-2 border-red-200 dark:border-red-700 shadow-xl">
+        <table class="w-full border-collapse text-sm bg-white dark:bg-gray-800">
           <thead>
-            <tr class="bg-red-100 dark:bg-red-900 border-b-2 border-red-600 dark:border-red-400">
-              <th class="text-left p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">INTITULÉ</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">PRÉVISIONS<br>DÉFINITIVES</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">MANDAT<br>ADMIS</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600">PAIEMENT</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">RESTE À<br>PAYER</th>
-              <th class="text-right p-3 font-bold text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 whitespace-nowrap">TAUX<br>EXÉCUTION</th>
+            <tr class="bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-700 dark:to-rose-700 text-white border-b-2 border-red-700 dark:border-red-800">
+              <th class="text-left p-4 font-bold text-white border-r border-red-500/50">INTITULÉ</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap">BUDGET<br>PRIMITIF</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap">BUDGET<br>ADDITIONNEL</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap">MODIFICATIONS<br>+/-</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap bg-yellow-600/20">PRÉVISIONS<br>DÉFINITIVES</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap">MANDAT<br>ADMIS</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50">PAIEMENT</th>
+              <th class="text-right p-4 font-bold text-white border-r border-red-500/50 whitespace-nowrap">RESTE À<br>PAYER</th>
+              <th class="text-right p-4 font-bold text-white whitespace-nowrap">TAUX<br>EXÉCUTION</th>
             </tr>
           </thead>
           <tbody>

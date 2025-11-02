@@ -386,8 +386,8 @@ const description = computed(() => {
             </div>
 
             <!-- Bloc 4 : Grille de cartes informatives -->
-            <div class="grid md:grid-cols-3 gap-6">
-              <!-- Carte 1 -->
+            <!-- <div class="grid md:grid-cols-3 gap-6">
+              
               <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
                 <div class="relative h-48 overflow-hidden">
                   <img
@@ -421,8 +421,7 @@ const description = computed(() => {
                   </div>
                 </div>
               </div>
-
-              <!-- Carte 2 -->
+              
               <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
                 <div class="relative h-48 overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800">
                   <div class="absolute inset-0 flex items-center justify-center">
@@ -448,8 +447,7 @@ const description = computed(() => {
                   </a>
                 </div>
               </div>
-
-              <!-- Carte 3 -->
+              
               <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
                 <div class="relative h-48 overflow-hidden bg-gradient-to-br from-green-600 to-emerald-800">
                   <div class="absolute inset-0 flex items-center justify-center">
@@ -478,7 +476,7 @@ const description = computed(() => {
                   </a>
                 </div>
               </div>
-            </div>
+            </div> -->
 
             <!-- Section Galerie Photos (Exemple) -->
             <div class="mt-8 space-y-4">
