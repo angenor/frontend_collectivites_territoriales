@@ -216,9 +216,9 @@ const formatDate = (dateStr: string | undefined): string => {
 
 <template>
   <div class="min-h-screen bg-white dark:bg-gray-900">
-    <!-- Header avec bouton retour et ThemeToggle -->
+    <!-- Header avec bouton retour, Logo et ThemeToggle -->
     <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors duration-200">
-      <div class="mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <button
           @click="retourAccueil"
           class="flex items-center gap-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium group"
@@ -226,6 +226,20 @@ const formatDate = (dateStr: string | undefined): string => {
           <font-awesome-icon icon="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span>Retour à l'accueil</span>
         </button>
+
+        <!-- Logo centré -->
+        <div class="absolute left-1/2 -translate-x-1/2 hidden md:block">
+          <img
+            src="/images/logos/logo_fond_bleu_texte_blanc.jpeg"
+            alt="Logo PCQVP & TI Madagascar"
+            class="h-12 w-auto object-contain dark:hidden"
+          />
+          <img
+            src="/images/logos/logo_fond_noire_texte_blanc.jpeg"
+            alt="Logo PCQVP & TI Madagascar"
+            class="h-12 w-auto object-contain hidden dark:block"
+          />
+        </div>
 
         <div class="flex items-center gap-4">
           <ThemeToggle />
@@ -240,7 +254,7 @@ const formatDate = (dateStr: string | undefined): string => {
         <img
           src="/images/hero_background.jpg"
           alt="Exploitation minière à Madagascar"
-          class="w-full h-full object-cover brightness-90 dark:brightness-75"
+          class="w-full h-full object-cover brightness-90 dark:brightness-75 "
         />
       </div>
 
