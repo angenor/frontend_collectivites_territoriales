@@ -199,6 +199,19 @@ const chartTauxExecution = computed(() => {
 
   return recettesTaux
 })
+
+// Formater la date de mise à jour
+const formatDate = (dateStr: string | undefined): string => {
+  if (!dateStr) return 'Non disponible'
+
+  const date = new Date(dateStr)
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }
+  return date.toLocaleDateString('fr-FR', options)
+}
 </script>
 
 <template>
@@ -267,6 +280,12 @@ const chartTauxExecution = computed(() => {
                 <span class="text-gray-800 dark:text-gray-200 font-medium flex items-center gap-2">
                   <font-awesome-icon icon="calendar" class="text-purple-600 dark:text-purple-400" />
                   Année fiscale: {{ compteAffi.annee }}
+                </span>
+              </div>
+              <div class="bg-blue-500/90 dark:bg-blue-600/90 backdrop-blur-xl px-6 py-3 rounded-full shadow-lg border border-blue-400/50 dark:border-blue-500/50">
+                <span class="text-white font-medium flex items-center gap-2">
+                  <font-awesome-icon icon="clock" class="text-blue-100" />
+                  Mise à jour: {{ formatDate(compteAffi.dateMiseAJour) }}
                 </span>
               </div>
             </div>

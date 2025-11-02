@@ -49,6 +49,7 @@ export interface CompteAdministratif {
   region: Region
   statut: 'brouillon' | 'valide' | 'publie'
   datePublication?: string
+  dateMiseAJour?: string
   lignesRecettes: LigneBudgetaire[]
   lignesDepenses: LigneBudgetaire[]
 }
@@ -543,6 +544,7 @@ export const useMockData = () => {
       region,
       statut: 'publie',
       datePublication: '2024-06-15',
+      dateMiseAJour: '2024-10-28',
       lignesRecettes: lignesRecettesMock,
       lignesDepenses: lignesDepensesMock
     }

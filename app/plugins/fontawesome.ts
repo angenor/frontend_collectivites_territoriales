@@ -64,6 +64,7 @@ import {
   faRecycle,
   faShieldAlt,
   faChartLine,
+  faClock,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Regular icons
@@ -151,6 +152,7 @@ library.add(
   faRecycle,
   faShieldAlt,
   faChartLine,
+  faClock,
   // Regular
   farHeart,
   farStar,
