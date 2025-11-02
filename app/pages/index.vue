@@ -1,34 +1,34 @@
 <script setup lang="ts">
-// Métadonnées de la page
-useHead({
-  title: 'Plateforme de Suivi des Revenus Miniers - Accueil',
-  meta: [
-    {
-      name: 'description',
-      content: 'Plateforme de suivi de l\'utilisation des revenus miniers des collectivités territoriales à Madagascar'
-    }
-  ]
-})
+  // Métadonnées de la page
+  useHead({
+    title: 'Plateforme de Suivi des Revenus Miniers - Accueil',
+    meta: [
+      {
+        name: 'description',
+        content: 'Plateforme de suivi de l\'utilisation des revenus miniers des collectivités territoriales à Madagascar'
+      }
+    ]
+  })
 
-const showScrollTop = ref(false)
+  const showScrollTop = ref(false)
 
-// Gestion du scroll to top
-const handleScroll = () => {
-  showScrollTop.value = window.scrollY > 300
-}
+  // Gestion du scroll to top
+  const handleScroll = () => {
+    showScrollTop.value = window.scrollY > 300
+  }
 
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
-// Lifecycle
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll)
-})
+  // Lifecycle
+  onMounted(() => {
+    window.addEventListener('scroll', handleScroll)
+  })
 
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+  })
 </script>
 
 <template>
