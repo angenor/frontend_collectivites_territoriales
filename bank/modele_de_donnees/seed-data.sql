@@ -27,11 +27,11 @@ SELECT
     d.superficie,
     d.chef_lieu
 FROM (VALUES
-    ('ANA', 'ANTANA-REN', 'Antananarivo Renivohitra', 1300000, 88, 'Antananarivo'),
+    ('ANA', 'ANTANA-R', 'Antananarivo Renivohitra', 1300000, 88, 'Antananarivo'),
     ('ANA', 'ANKAZOBE', 'Ankazobe', 215000, 6762, 'Ankazobe'),
-    ('ANA', 'ANJOZOROBE', 'Anjozorobe', 285000, 4922, 'Anjozorobe'),
-    ('VAK', 'ANTSIRABE-I', 'Antsirabe I', 257500, 110, 'Antsirabe'),
-    ('VAK', 'ANTSIRABE-II', 'Antsirabe II', 423000, 4993, 'Antsirabe'),
+    ('ANA', 'ANJOZOROB', 'Anjozorobe', 285000, 4922, 'Anjozorobe'),
+    ('VAK', 'ANTSIR-I', 'Antsirabe I', 257500, 110, 'Antsirabe'),
+    ('VAK', 'ANTSIR-II', 'Antsirabe II', 423000, 4993, 'Antsirabe'),
     ('VAK', 'BETAFO', 'Betafo', 298000, 3682, 'Betafo')
 ) AS d(region_code, code, nom, population, superficie, chef_lieu)
 JOIN regions r ON r.code = d.region_code;
@@ -48,12 +48,12 @@ SELECT
     c.maire,
     c.contact_email
 FROM (VALUES
-    ('ANKAZOBE', 'ANKAZOBE-C', 'Ankazobe', 'urbaine', 35000, 45.5, 'Rakoto Jean', 'mairie.ankazobe@gov.mg'),
-    ('ANKAZOBE', 'AMBATOMANGA', 'Ambatomanga', 'rurale', 12000, 78.2, 'Razafy Paul', 'mairie.ambatomanga@gov.mg'),
+    ('ANKAZOBE', 'ANKAZ-C', 'Ankazobe', 'urbaine', 35000, 45.5, 'Rakoto Jean', 'mairie.ankazobe@gov.mg'),
+    ('ANKAZOBE', 'AMBATOMG', 'Ambatomanga', 'rurale', 12000, 78.2, 'Razafy Paul', 'mairie.ambatomanga@gov.mg'),
     ('ANKAZOBE', 'MIANTSO', 'Miantso', 'rurale', 8500, 92.3, 'Rabe Marie', 'mairie.miantso@gov.mg'),
     ('BETAFO', 'BETAFO-C', 'Betafo', 'urbaine', 42000, 52.1, 'Randria Joseph', 'mairie.betafo@gov.mg'),
-    ('BETAFO', 'MANDROSOHASINA', 'Mandrosohasina', 'rurale', 15000, 112.5, 'Rasolofo Claire', 'mairie.mandrosohasina@gov.mg'),
-    ('ANTSIRABE-II', 'AMBOHIMANDROSO', 'Ambohimandroso', 'rurale', 18000, 85.7, 'Rakotonirina Pierre', 'mairie.ambohimandroso@gov.mg')
+    ('BETAFO', 'MANDROSOH', 'Mandrosohasina', 'rurale', 15000, 112.5, 'Rasolofo Claire', 'mairie.mandrosohasina@gov.mg'),
+    ('ANTSIR-II', 'AMBOHIMDR', 'Ambohimandroso', 'rurale', 18000, 85.7, 'Rakotonirina Pierre', 'mairie.ambohimandroso@gov.mg')
 ) AS c(district_code, code, nom, type, population, superficie, maire, contact_email)
 JOIN districts d ON d.code = c.district_code;
 
@@ -80,7 +80,7 @@ SELECT
 FROM regions r
 JOIN districts d ON d.region_id = r.id
 JOIN communes c ON c.district_id = d.id
-WHERE r.code = 'ANA' AND d.code = 'ANKAZOBE' AND c.code = 'ANKAZOBE-C'
+WHERE r.code = 'ANA' AND d.code = 'ANKAZOBE' AND c.code = 'ANKAZ-C'
 
 UNION ALL
 
@@ -145,7 +145,7 @@ FROM (VALUES
 ) AS rev(annee, trimestre, type_revenu, montant, date_versement)
 CROSS JOIN projets_miniers pm
 CROSS JOIN communes c
-WHERE pm.code = 'GRAPH-MOLO-001' AND c.code = 'ANKAZOBE-C';
+WHERE pm.code = 'GRAPH-MOLO-001' AND c.code = 'ANKAZ-C';
 
 -- ============================================================================
 -- 4. RUBRIQUES BUDGÉTAIRES (Catalogue)
@@ -266,7 +266,7 @@ SELECT
     'publie',
     NULL -- Sera défini par l'utilisateur lors de l'utilisation réelle
 FROM communes c
-WHERE c.code = 'ANKAZOBE-C';
+WHERE c.code = 'ANKAZ-C';
 
 -- Ajouter des lignes budgétaires d'exemple
 INSERT INTO lignes_budgetaires (compte_administratif_id, rubrique_id, valeurs)
@@ -298,7 +298,7 @@ CROSS JOIN (VALUES
 JOIN rubriques_budgetaires rb ON rb.code = data.rubrique_code
 WHERE ca.annee = 2024 AND EXISTS (
     SELECT 1 FROM communes c
-    WHERE c.id = ca.commune_id AND c.code = 'ANKAZOBE-C'
+    WHERE c.id = ca.commune_id AND c.code = 'ANKAZ-C'
 );
 
 -- ============================================================================
