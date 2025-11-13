@@ -9,6 +9,7 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For full-text search with trigrams
 
 -- ============================================================================
 -- 1. COLLECTIVITÉS TERRITORIALES
