@@ -14,57 +14,65 @@
           </div>
 
           <div class="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+            <!-- Validation ERROR Message -->
+            <div v-if="validationError" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-400 text-sm">
+              {{ validationError }}
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Année d'exercice <span class="text-red-500">*</span>
               </label>
-              <input v-model.number="form.annee_exercice" type="number" required min="2000" max="2100" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input v-model.number="form.annee" type="number" required min="2000" max="2100" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Type de collectivité <span class="text-red-500">*</span>
               </label>
-              <select v-model="form.collectivite_type" @change="onCollectiviteTypeChange" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="">Sélectionner</option>
+              <select v-model="collectiviteType" @change="onCollectiviteTypeChange" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option value="">Sélectionner le type</option>
                 <option value="region">Région</option>
                 <option value="district">District</option>
                 <option value="commune">Commune</option>
               </select>
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                ⚠️ Un compte administratif ne peut être lié qu'à UNE SEULE collectivité
+              </p>
             </div>
 
-            <div v-if="form.collectivite_type === 'region'">
+            <div v-if="collectiviteType === 'region'">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Région <span class="text-red-500">*</span>
               </label>
               <select v-model="form.region_id" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="">Sélectionner une région</option>
+                <option :value="null">Sélectionner une région</option>
                 <option v-for="region in regions" :key="region.id" :value="region.id">
-                  {{ region.nom }}
+                  {{ region.code }} - {{ region.nom }}
                 </option>
               </select>
             </div>
 
-            <div v-if="form.collectivite_type === 'district'">
+            <div v-if="collectiviteType === 'district'">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 District <span class="text-red-500">*</span>
               </label>
               <select v-model="form.district_id" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="">Sélectionner un district</option>
+                <option :value="null">Sélectionner un district</option>
                 <option v-for="district in districts" :key="district.id" :value="district.id">
-                  {{ district.nom }}
+                  {{ district.code }} - {{ district.nom }}
                 </option>
               </select>
             </div>
 
-            <div v-if="form.collectivite_type === 'commune'">
+            <div v-if="collectiviteType === 'commune'">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Commune <span class="text-red-500">*</span>
               </label>
               <select v-model="form.commune_id" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="">Sélectionner une commune</option>
+                <option :value="null">Sélectionner une commune</option>
                 <option v-for="commune in communes" :key="commune.id" :value="commune.id">
-                  {{ commune.nom }}
+                  {{ commune.code }} - {{ commune.nom }}
                 </option>
               </select>
             </div>
@@ -81,27 +89,11 @@
               </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Total recettes (MGA)
-                </label>
-                <input v-model.number="form.total_recettes" type="number" step="0.01" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Total dépenses (MGA)
-                </label>
-                <input v-model.number="form.total_depenses" type="number" step="0.01" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-              </div>
-            </div>
-
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Observations
+                Notes / Observations
               </label>
-              <textarea v-model="form.observations" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+              <textarea v-model="form.notes" rows="3" placeholder="Ajoutez des observations ou des notes..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
             </div>
           </div>
 
@@ -140,19 +132,18 @@ const { regions, fetchRegions } = useRegions()
 const { districts, fetchDistricts } = useDistricts()
 const { communes, fetchCommunes } = useCommunes()
 const saving = ref(false)
+const validationError = ref('')
+const collectiviteType = ref('')
 
 const isEditing = computed(() => !!props.compte)
 
 const form = ref<CompteAdministratifFormData>({
-  annee_exercice: new Date().getFullYear(),
-  collectivite_type: '',
-  region_id: null,
-  district_id: null,
+  annee: new Date().getFullYear(),
   commune_id: null,
+  district_id: null,
+  region_id: null,
   statut: 'brouillon',
-  total_recettes: null,
-  total_depenses: null,
-  observations: null
+  notes: null
 })
 
 onMounted(async () => {
@@ -161,22 +152,19 @@ onMounted(async () => {
 
 watch(() => props.compte, (newCompte) => {
   if (newCompte) {
-    // Determine collectivite_type
-    let type = ''
-    if (newCompte.commune_id) type = 'commune'
-    else if (newCompte.district_id) type = 'district'
-    else if (newCompte.region_id) type = 'region'
+    // Determine collectivite_type from the data
+    if (newCompte.commune_id) collectiviteType.value = 'commune'
+    else if (newCompte.district_id) collectiviteType.value = 'district'
+    else if (newCompte.region_id) collectiviteType.value = 'region'
+    else collectiviteType.value = ''
 
     form.value = {
-      annee_exercice: newCompte.annee_exercice,
-      collectivite_type: type,
-      region_id: newCompte.region_id,
-      district_id: newCompte.district_id,
+      annee: newCompte.annee,
       commune_id: newCompte.commune_id,
+      district_id: newCompte.district_id,
+      region_id: newCompte.region_id,
       statut: newCompte.statut,
-      total_recettes: newCompte.total_recettes,
-      total_depenses: newCompte.total_depenses,
-      observations: newCompte.observations
+      notes: newCompte.notes
     }
   } else {
     resetForm()
@@ -184,23 +172,24 @@ watch(() => props.compte, (newCompte) => {
 }, { immediate: true })
 
 function onCollectiviteTypeChange() {
+  // Reset all collectivite IDs when type changes (ENFORCE CHECK CONSTRAINT)
   form.value.region_id = null
   form.value.district_id = null
   form.value.commune_id = null
+  validationError.value = ''
 }
 
 function resetForm() {
   form.value = {
-    annee_exercice: new Date().getFullYear(),
-    collectivite_type: '',
-    region_id: null,
-    district_id: null,
+    annee: new Date().getFullYear(),
     commune_id: null,
+    district_id: null,
+    region_id: null,
     statut: 'brouillon',
-    total_recettes: null,
-    total_depenses: null,
-    observations: null
+    notes: null
   }
+  collectiviteType.value = ''
+  validationError.value = ''
 }
 
 function close() {
@@ -209,10 +198,28 @@ function close() {
 }
 
 async function handleSubmit() {
+  // VALIDATE CHECK CONSTRAINT: Only ONE collectivite must be selected
+  const hasCommune = form.value.commune_id !== null
+  const hasDistrict = form.value.district_id !== null
+  const hasRegion = form.value.region_id !== null
+
+  const countSelected = [hasCommune, hasDistrict, hasRegion].filter(Boolean).length
+
+  if (countSelected === 0) {
+    validationError.value = 'Vous devez sélectionner une collectivité (Région, District ou Commune)'
+    return
+  }
+
+  if (countSelected > 1) {
+    validationError.value = 'Un compte administratif ne peut être lié qu\'à UNE SEULE collectivité. Veuillez n\'en sélectionner qu\'une.'
+    return
+  }
+
+  validationError.value = ''
   saving.value = true
+
   try {
-    // Remove collectivite_type before saving (not in DB schema)
-    const { collectivite_type, ...dataToSave } = form.value
+    const dataToSave = { ...form.value }
 
     if (isEditing.value && props.compte) {
       // Update
@@ -233,9 +240,9 @@ async function handleSubmit() {
 
     emit('saved')
     close()
-  } catch (err) {
+  } catch (err: any) {
     console.error('Erreur lors de l\'enregistrement:', err)
-    alert('Erreur lors de l\'enregistrement du compte administratif')
+    validationError.value = err.message || 'Erreur lors de l\'enregistrement du compte administratif'
   } finally {
     saving.value = false
   }

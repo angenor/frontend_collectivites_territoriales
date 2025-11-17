@@ -2,8 +2,12 @@
 -- SCHEMA SQL - PLATEFORME DE SUIVI DES REVENUS MINIERS
 -- ============================================================================
 -- Base de données: PostgreSQL (Supabase)
--- Version: 1.0
--- Date: 2025-10-31
+-- Version: 1.1
+-- Date: 2025-11-17
+-- Mise à jour: Intégration des migrations 001 et 002
+--   - Ajout colonne applicable_a pour colonnes_dynamiques
+--   - Amélioration fonction calculer_valeurs_derivees()
+--   - Ajout vue v_equilibre_compte_administratif
 -- ============================================================================
 
 -- Enable necessary extensions
@@ -187,6 +191,7 @@ CREATE TABLE colonnes_dynamiques (
     est_calculee BOOLEAN DEFAULT FALSE,
     formule_calcul TEXT, -- Ex: "recouvrement - mandat_admis"
     format_affichage VARCHAR(100), -- Ex: "0,0.00" pour les montants
+    applicable_a VARCHAR(50) CHECK (applicable_a IN ('recette', 'depense', 'tous', 'equilibre')) DEFAULT 'tous',
     est_active BOOLEAN DEFAULT TRUE,
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -194,22 +199,23 @@ CREATE TABLE colonnes_dynamiques (
 );
 
 COMMENT ON TABLE colonnes_dynamiques IS 'Configuration des colonnes pour les tableaux dynamiques';
+COMMENT ON COLUMN colonnes_dynamiques.applicable_a IS 'Indique si la colonne s''applique aux recettes, dépenses, les deux ou l''équilibre';
 
 -- Insérer les colonnes standards
-INSERT INTO colonnes_dynamiques (code, nom, type_donnee, ordre, est_calculee) VALUES
-('compte', 'COMPTE', 'texte', 1, FALSE),
-('budget_primitif', 'BUDGET PRIMITIF', 'montant', 2, FALSE),
-('budget_additionnel', 'BUDGET ADDITIONNEL', 'montant', 3, FALSE),
-('modifications', 'MODIFICATIONS +/-', 'montant', 4, FALSE),
-('previsions_definitives', 'PREVISIONS DEFINITIVES (1)', 'montant', 5, TRUE),
-('engagement', 'ENGAGEMENT', 'montant', 6, FALSE),
-('or_admis', 'OR ADMIS (2)', 'montant', 7, FALSE),
-('mandat_admis', 'MANDAT ADMIS (2)', 'montant', 7, FALSE),
-('recouvrement', 'RECOUVREMENT', 'montant', 8, FALSE),
-('paiement', 'PAIEMENT', 'montant', 8, FALSE),
-('reste_recouvrer', 'RESTE A RECOUVRER', 'montant', 9, TRUE),
-('reste_payer', 'RESTE A PAYER', 'montant', 9, TRUE),
-('taux_execution', 'TAUX D''EXECUTION (2/1)', 'pourcentage', 10, TRUE);
+INSERT INTO colonnes_dynamiques (code, nom, type_donnee, ordre, est_calculee, applicable_a) VALUES
+('compte', 'COMPTE', 'texte', 1, FALSE, 'tous'),
+('budget_primitif', 'BUDGET PRIMITIF', 'montant', 2, FALSE, 'tous'),
+('budget_additionnel', 'BUDGET ADDITIONNEL', 'montant', 3, FALSE, 'tous'),
+('modifications', 'MODIFICATIONS +/-', 'montant', 4, FALSE, 'tous'),
+('previsions_definitives', 'PREVISIONS DEFINITIVES (1)', 'montant', 5, TRUE, 'tous'),
+('engagement', 'ENGAGEMENT', 'montant', 6, FALSE, 'depense'),
+('or_admis', 'OR ADMIS (2)', 'montant', 7, FALSE, 'recette'),
+('mandat_admis', 'MANDAT ADMIS (2)', 'montant', 7, FALSE, 'depense'),
+('recouvrement', 'RECOUVREMENT', 'montant', 8, FALSE, 'recette'),
+('paiement', 'PAIEMENT', 'montant', 8, FALSE, 'depense'),
+('reste_recouvrer', 'RESTE A RECOUVRER', 'montant', 9, TRUE, 'recette'),
+('reste_payer', 'RESTE A PAYER', 'montant', 9, TRUE, 'depense'),
+('taux_execution', 'TAUX D''EXECUTION (2/1)', 'pourcentage', 10, TRUE, 'tous');
 
 -- Table: Lignes Budgétaires (Données)
 CREATE TABLE lignes_budgetaires (
@@ -443,48 +449,105 @@ FOR EACH ROW EXECUTE FUNCTION increment_download_count();
 CREATE OR REPLACE FUNCTION calculer_valeurs_derivees()
 RETURNS TRIGGER AS $$
 DECLARE
-    colonnes RECORD;
-    valeur_calculee NUMERIC;
+    bp NUMERIC;
+    ba NUMERIC;
+    modif NUMERIC;
+    prev_def NUMERIC;
+    or_admis NUMERIC;
+    mandat_admis NUMERIC;
+    recouvrement NUMERIC;
+    paiement NUMERIC;
+    engagement NUMERIC;
+    rubrique_type VARCHAR(50);
 BEGIN
-    -- Parcourir les colonnes calculées
-    FOR colonnes IN
-        SELECT code, formule_calcul
-        FROM colonnes_dynamiques
-        WHERE est_calculee = TRUE AND est_active = TRUE
-    LOOP
-        -- Exemple simple: calculer "reste_recouvrer" = "or_admis" - "recouvrement"
-        IF colonnes.code = 'reste_recouvrer' THEN
+    -- Récupérer le type de rubrique (recette ou depense)
+    SELECT type INTO rubrique_type
+    FROM rubriques_budgetaires
+    WHERE id = NEW.rubrique_id;
+
+    -- Extraire les valeurs du JSONB (avec défaut à 0)
+    bp := COALESCE((NEW.valeurs->>'budget_primitif')::NUMERIC, 0);
+    ba := COALESCE((NEW.valeurs->>'budget_additionnel')::NUMERIC, 0);
+    modif := COALESCE((NEW.valeurs->>'modifications')::NUMERIC, 0);
+    or_admis := COALESCE((NEW.valeurs->>'or_admis')::NUMERIC, 0);
+    mandat_admis := COALESCE((NEW.valeurs->>'mandat_admis')::NUMERIC, 0);
+    recouvrement := COALESCE((NEW.valeurs->>'recouvrement')::NUMERIC, 0);
+    paiement := COALESCE((NEW.valeurs->>'paiement')::NUMERIC, 0);
+    engagement := COALESCE((NEW.valeurs->>'engagement')::NUMERIC, 0);
+
+    -- ========================================================================
+    -- CALCULS COMMUNS (Recettes ET Dépenses)
+    -- ========================================================================
+
+    -- 1. PRÉVISIONS DÉFINITIVES = Budget Primitif + Budget Additionnel + Modifications
+    prev_def := bp + ba + modif;
+    NEW.valeurs = jsonb_set(
+        NEW.valeurs,
+        ARRAY['previsions_definitives'],
+        to_jsonb(prev_def)
+    );
+
+    -- ========================================================================
+    -- CALCULS SPÉCIFIQUES AUX RECETTES
+    -- ========================================================================
+
+    IF rubrique_type = 'recette' THEN
+        -- 2. RESTE À RECOUVRER = OR Admis - Recouvrement
+        NEW.valeurs = jsonb_set(
+            NEW.valeurs,
+            ARRAY['reste_recouvrer'],
+            to_jsonb(or_admis - recouvrement)
+        );
+
+        -- 3. TAUX D'EXÉCUTION (Recettes) = (OR Admis / Prévisions Définitives) × 100
+        IF prev_def != 0 THEN
             NEW.valeurs = jsonb_set(
                 NEW.valeurs,
-                ARRAY['reste_recouvrer'],
-                to_jsonb(
-                    COALESCE((NEW.valeurs->>'or_admis')::NUMERIC, 0) -
-                    COALESCE((NEW.valeurs->>'recouvrement')::NUMERIC, 0)
-                )
+                ARRAY['taux_execution'],
+                to_jsonb(ROUND((or_admis / prev_def) * 100, 2))
+            );
+        ELSE
+            NEW.valeurs = jsonb_set(
+                NEW.valeurs,
+                ARRAY['taux_execution'],
+                to_jsonb(0)
             );
         END IF;
+    END IF;
 
-        -- Calculer le taux d'exécution
-        IF colonnes.code = 'taux_execution' THEN
-            IF COALESCE((NEW.valeurs->>'previsions_definitives')::NUMERIC, 0) != 0 THEN
-                NEW.valeurs = jsonb_set(
-                    NEW.valeurs,
-                    ARRAY['taux_execution'],
-                    to_jsonb(
-                        ROUND(
-                            (COALESCE((NEW.valeurs->>'or_admis')::NUMERIC, 0) /
-                            COALESCE((NEW.valeurs->>'previsions_definitives')::NUMERIC, 1)) * 100,
-                            2
-                        )
-                    )
-                );
-            END IF;
+    -- ========================================================================
+    -- CALCULS SPÉCIFIQUES AUX DÉPENSES
+    -- ========================================================================
+
+    IF rubrique_type = 'depense' THEN
+        -- 4. RESTE À PAYER = Mandat Admis - Paiement
+        NEW.valeurs = jsonb_set(
+            NEW.valeurs,
+            ARRAY['reste_payer'],
+            to_jsonb(mandat_admis - paiement)
+        );
+
+        -- 5. TAUX D'EXÉCUTION (Dépenses) = (Mandat Admis / Prévisions Définitives) × 100
+        IF prev_def != 0 THEN
+            NEW.valeurs = jsonb_set(
+                NEW.valeurs,
+                ARRAY['taux_execution'],
+                to_jsonb(ROUND((mandat_admis / prev_def) * 100, 2))
+            );
+        ELSE
+            NEW.valeurs = jsonb_set(
+                NEW.valeurs,
+                ARRAY['taux_execution'],
+                to_jsonb(0)
+            );
         END IF;
-    END LOOP;
+    END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION calculer_valeurs_derivees() IS 'Calcule automatiquement les valeurs dérivées (prévisions définitives, restes, taux) pour recettes et dépenses';
 
 CREATE TRIGGER trigger_calculer_valeurs_derivees
 BEFORE INSERT OR UPDATE ON lignes_budgetaires
@@ -550,6 +613,166 @@ FROM regions r
 JOIN revenus_miniers rm ON r.id = rm.region_id
 GROUP BY r.id, r.nom, rm.annee;
 
+-- Vue: Tableau d'équilibre du compte administratif
+CREATE OR REPLACE VIEW v_equilibre_compte_administratif AS
+WITH
+-- Agrégation des dépenses de fonctionnement
+depenses_fonctionnement AS (
+    SELECT
+        lb.compte_administratif_id,
+        rb.code,
+        rb.intitule,
+        SUM(COALESCE((lb.valeurs->>'mandat_admis')::NUMERIC, 0)) as mandat_admis,
+        SUM(COALESCE((lb.valeurs->>'paiement')::NUMERIC, 0)) as paiement,
+        SUM(COALESCE((lb.valeurs->>'reste_payer')::NUMERIC, 0)) as reste_payer
+    FROM lignes_budgetaires lb
+    JOIN rubriques_budgetaires rb ON lb.rubrique_id = rb.id
+    WHERE rb.type = 'depense'
+      AND rb.section = 'fonctionnement'
+      AND rb.niveau = 1  -- Seulement les comptes principaux (60, 61, 62, etc.)
+      AND rb.code ~ '^[0-9]+$'  -- Seulement les codes numériques
+    GROUP BY lb.compte_administratif_id, rb.code, rb.intitule
+),
+-- Agrégation des recettes de fonctionnement
+recettes_fonctionnement AS (
+    SELECT
+        lb.compte_administratif_id,
+        rb.code,
+        rb.intitule,
+        SUM(COALESCE((lb.valeurs->>'or_admis')::NUMERIC, 0)) as or_admis,
+        SUM(COALESCE((lb.valeurs->>'recouvrement')::NUMERIC, 0)) as recouvrement,
+        SUM(COALESCE((lb.valeurs->>'reste_recouvrer')::NUMERIC, 0)) as reste_recouvrer
+    FROM lignes_budgetaires lb
+    JOIN rubriques_budgetaires rb ON lb.rubrique_id = rb.id
+    WHERE rb.type = 'recette'
+      AND rb.section = 'fonctionnement'
+      AND rb.niveau = 1
+      AND rb.code ~ '^[0-9]+$'
+    GROUP BY lb.compte_administratif_id, rb.code, rb.intitule
+),
+-- Agrégation des dépenses d'investissement
+depenses_investissement AS (
+    SELECT
+        lb.compte_administratif_id,
+        rb.code,
+        rb.intitule,
+        SUM(COALESCE((lb.valeurs->>'mandat_admis')::NUMERIC, 0)) as mandat_admis,
+        SUM(COALESCE((lb.valeurs->>'paiement')::NUMERIC, 0)) as paiement,
+        SUM(COALESCE((lb.valeurs->>'reste_payer')::NUMERIC, 0)) as reste_payer
+    FROM lignes_budgetaires lb
+    JOIN rubriques_budgetaires rb ON lb.rubrique_id = rb.id
+    WHERE rb.type = 'depense'
+      AND rb.section = 'investissement'
+      AND rb.niveau = 1
+      AND rb.code ~ '^[0-9]+$'
+    GROUP BY lb.compte_administratif_id, rb.code, rb.intitule
+),
+-- Agrégation des recettes d'investissement
+recettes_investissement AS (
+    SELECT
+        lb.compte_administratif_id,
+        rb.code,
+        rb.intitule,
+        SUM(COALESCE((lb.valeurs->>'or_admis')::NUMERIC, 0)) as or_admis,
+        SUM(COALESCE((lb.valeurs->>'recouvrement')::NUMERIC, 0)) as recouvrement,
+        SUM(COALESCE((lb.valeurs->>'reste_recouvrer')::NUMERIC, 0)) as reste_recouvrer
+    FROM lignes_budgetaires lb
+    JOIN rubriques_budgetaires rb ON lb.rubrique_id = rb.id
+    WHERE rb.type = 'recette'
+      AND rb.section = 'investissement'
+      AND rb.niveau = 1
+      AND rb.code ~ '^[0-9]+$'
+    GROUP BY lb.compte_administratif_id, rb.code, rb.intitule
+),
+-- Totaux de fonctionnement
+totaux_fonctionnement AS (
+    SELECT
+        compte_administratif_id,
+        SUM(mandat_admis) as total_depenses_fonct,
+        SUM(paiement) as total_paiement_fonct
+    FROM depenses_fonctionnement
+    GROUP BY compte_administratif_id
+),
+totaux_recettes_fonct AS (
+    SELECT
+        compte_administratif_id,
+        SUM(or_admis) as total_recettes_fonct,
+        SUM(recouvrement) as total_recouvrement_fonct
+    FROM recettes_fonctionnement
+    GROUP BY compte_administratif_id
+)
+
+-- Vue finale avec structure du tableau d'équilibre
+SELECT
+    ca.id as compte_administratif_id,
+    ca.annee,
+    ca.commune_id,
+    ca.district_id,
+    ca.region_id,
+
+    -- Section Fonctionnement - Dépenses
+    jsonb_agg(DISTINCT jsonb_build_object(
+        'section', 'fonctionnement_depenses',
+        'compte', df.code,
+        'intitule', df.intitule,
+        'mandat_admis', df.mandat_admis,
+        'paiement', df.paiement,
+        'reste_payer', df.reste_payer
+    )) FILTER (WHERE df.code IS NOT NULL) as depenses_fonctionnement,
+
+    -- Section Fonctionnement - Recettes
+    jsonb_agg(DISTINCT jsonb_build_object(
+        'section', 'fonctionnement_recettes',
+        'compte', rf.code,
+        'intitule', rf.intitule,
+        'or_admis', rf.or_admis,
+        'recouvrement', rf.recouvrement,
+        'reste_recouvrer', rf.reste_recouvrer
+    )) FILTER (WHERE rf.code IS NOT NULL) as recettes_fonctionnement,
+
+    -- Section Investissement - Dépenses
+    jsonb_agg(DISTINCT jsonb_build_object(
+        'section', 'investissement_depenses',
+        'compte', di.code,
+        'intitule', di.intitule,
+        'mandat_admis', di.mandat_admis,
+        'paiement', di.paiement,
+        'reste_payer', di.reste_payer
+    )) FILTER (WHERE di.code IS NOT NULL) as depenses_investissement,
+
+    -- Section Investissement - Recettes
+    jsonb_agg(DISTINCT jsonb_build_object(
+        'section', 'investissement_recettes',
+        'compte', ri.code,
+        'intitule', ri.intitule,
+        'or_admis', ri.or_admis,
+        'recouvrement', ri.recouvrement,
+        'reste_recouvrer', ri.reste_recouvrer
+    )) FILTER (WHERE ri.code IS NOT NULL) as recettes_investissement,
+
+    -- Totaux et soldes
+    tf.total_depenses_fonct,
+    trf.total_recettes_fonct,
+    (trf.total_recettes_fonct - tf.total_depenses_fonct) as solde_fonctionnement
+
+FROM comptes_administratifs ca
+LEFT JOIN depenses_fonctionnement df ON ca.id = df.compte_administratif_id
+LEFT JOIN recettes_fonctionnement rf ON ca.id = rf.compte_administratif_id
+LEFT JOIN depenses_investissement di ON ca.id = di.compte_administratif_id
+LEFT JOIN recettes_investissement ri ON ca.id = ri.compte_administratif_id
+LEFT JOIN totaux_fonctionnement tf ON ca.id = tf.compte_administratif_id
+LEFT JOIN totaux_recettes_fonct trf ON ca.id = trf.compte_administratif_id
+GROUP BY
+    ca.id,
+    ca.annee,
+    ca.commune_id,
+    ca.district_id,
+    ca.region_id,
+    tf.total_depenses_fonct,
+    trf.total_recettes_fonct;
+
+COMMENT ON VIEW v_equilibre_compte_administratif IS 'Vue pour générer le tableau d''équilibre du compte administratif (comme dans l''Excel)';
+
 -- ============================================================================
 -- 11. INDEX POUR PERFORMANCE
 -- ============================================================================
@@ -573,6 +796,19 @@ CREATE INDEX idx_analytics_visites_commune ON analytics_visites(commune_id);
 -- Index full-text search
 CREATE INDEX idx_communes_nom_trgm ON communes USING gin (nom gin_trgm_ops);
 CREATE INDEX idx_rubriques_intitule_trgm ON rubriques_budgetaires USING gin (intitule gin_trgm_ops);
+
+-- ============================================================================
+-- 12. INSERTION DES DONNÉES INITIALES
+-- ============================================================================
+
+-- NOTE: Les rubriques budgétaires (437 rubriques) sont définies dans le fichier:
+--       migrations/002_insertion_rubriques_budgetaires_clean.sql
+--
+-- Pour insérer les rubriques budgétaires, exécutez:
+--   psql -d votre_base -f migrations/002_insertion_rubriques_budgetaires_clean.sql
+--
+-- Ce fichier contient toutes les rubriques budgétaires avec leur hiérarchie
+-- (niveaux 1, 2, 3) extraites du fichier Excel de référence.
 
 -- ============================================================================
 -- FIN DU SCHEMA

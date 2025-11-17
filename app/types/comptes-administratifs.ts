@@ -82,6 +82,7 @@ export interface ColonneDynamique {
   formule_calcul?: string | null
   format_affichage?: string | null
   est_active: boolean
+  applicable_a: 'recette' | 'depense' | 'tous' | 'equilibre' // Ajouté depuis migration 001
   description?: string | null
   created_at: string
   updated_at: string
@@ -103,12 +104,12 @@ export interface LigneBudgetaire {
 
 // Types pour les formulaires
 export interface CompteAdministratifFormData {
-  commune_id?: string | null
-  district_id?: string | null
-  region_id?: string | null
+  commune_id: string | null
+  district_id: string | null
+  region_id: string | null
   annee: number
   statut: 'brouillon' | 'valide' | 'publie' | 'archive'
-  notes?: string | null
+  notes: string | null
 }
 
 export interface CategorieRubriqueFormData {
@@ -145,6 +146,7 @@ export interface ColonneDynamiqueFormData {
   formule_calcul?: string | null
   format_affichage?: string | null
   est_active: boolean
+  applicable_a: 'recette' | 'depense' | 'tous' | 'equilibre'
   description?: string | null
 }
 

@@ -18,24 +18,27 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Code rubrique <span class="text-red-500">*</span>
               </label>
-              <input v-model="form.code_rubrique" type="text" required placeholder="Ex: 70, 701, 7011..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
+              <input v-model="form.code" type="text" required placeholder="Ex: 70, 701, 7011..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Libellé <span class="text-red-500">*</span>
+                Intitulé <span class="text-red-500">*</span>
               </label>
-              <input v-model="form.libelle" type="text" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              <input v-model="form.intitule" type="text" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Section <span class="text-red-500">*</span>
+                  Section
                 </label>
-                <select v-model="form.section" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <select v-model="form.section" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                  <option :value="null">Aucune</option>
                   <option value="fonctionnement">Fonctionnement</option>
                   <option value="investissement">Investissement</option>
+                  <option value="ordre">Ordre</option>
+                  <option value="equilibre">Équilibre</option>
                 </select>
               </div>
 
@@ -43,27 +46,35 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Type <span class="text-red-500">*</span>
                 </label>
-                <select v-model="form.type_rubrique" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <select v-model="form.type" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                   <option value="recette">Recette</option>
                   <option value="depense">Dépense</option>
+                  <option value="equilibre">Équilibre</option>
                 </select>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Chapitre
-                </label>
-                <input v-model="form.chapitre" type="text" placeholder="Ex: 70, 011..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
-              </div>
-
+            <div class="grid grid-cols-3 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Niveau <span class="text-red-500">*</span>
                 </label>
                 <input v-model.number="form.niveau" type="number" required min="1" max="5" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">1=Chapitre, 2=Article, 3=Compte...</p>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">1=Principal, 2=Sous-rubrique...</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Ordre <span class="text-red-500">*</span>
+                </label>
+                <input v-model.number="form.ordre" type="number" required min="0" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+              </div>
+
+              <div class="flex items-center pt-8">
+                <input v-model="form.est_calculee" type="checkbox" id="est_calculee" class="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+                <label for="est_calculee" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Calculée
+                </label>
               </div>
             </div>
 
@@ -74,9 +85,16 @@
               <select v-model="form.parent_id" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                 <option :value="null">Aucune (Rubrique de niveau 1)</option>
                 <option v-for="rubrique in parentRubriques" :key="rubrique.id" :value="rubrique.id">
-                  {{ rubrique.code_rubrique }} - {{ rubrique.libelle }}
+                  {{ rubrique.code }} - {{ rubrique.intitule }}
                 </option>
               </select>
+            </div>
+
+            <div v-if="form.est_calculee">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Formule de calcul
+              </label>
+              <input v-model="form.formule_calcul" type="text" placeholder="Ex: recouvrement - mandat_admis" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono">
             </div>
 
             <div>
@@ -87,8 +105,8 @@
             </div>
 
             <div class="flex items-center">
-              <input v-model="form.est_actif" type="checkbox" id="est_actif" class="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
-              <label for="est_actif" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <input v-model="form.est_active" type="checkbox" id="est_active" class="w-4 h-4 text-blue-600 bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-blue-500">
+              <label for="est_active" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Rubrique active
               </label>
             </div>
@@ -128,15 +146,18 @@ const parentRubriques = ref<RubriqueBudgetaire[]>([])
 const isEditing = computed(() => !!props.rubrique)
 
 const form = ref<RubriqueBudgetaireFormData>({
-  code_rubrique: '',
-  libelle: '',
+  code: '',
+  intitule: '',
+  type: 'recette',
   section: 'fonctionnement',
-  type_rubrique: 'recette',
-  chapitre: null,
   niveau: 1,
+  ordre: 0,
+  est_calculee: false,
+  formule_calcul: null,
+  est_active: true,
+  categorie_id: null,
   parent_id: null,
-  description: null,
-  est_actif: true
+  description: null
 })
 
 onMounted(async () => {
@@ -146,15 +167,18 @@ onMounted(async () => {
 watch(() => props.rubrique, (newRubrique) => {
   if (newRubrique) {
     form.value = {
-      code_rubrique: newRubrique.code_rubrique,
-      libelle: newRubrique.libelle,
+      code: newRubrique.code,
+      intitule: newRubrique.intitule,
+      type: newRubrique.type,
       section: newRubrique.section,
-      type_rubrique: newRubrique.type_rubrique,
-      chapitre: newRubrique.chapitre,
       niveau: newRubrique.niveau,
+      ordre: newRubrique.ordre,
+      est_calculee: newRubrique.est_calculee,
+      formule_calcul: newRubrique.formule_calcul,
+      est_active: newRubrique.est_active,
+      categorie_id: newRubrique.categorie_id,
       parent_id: newRubrique.parent_id,
-      description: newRubrique.description,
-      est_actif: newRubrique.est_actif
+      description: newRubrique.description
     }
   } else {
     resetForm()
@@ -177,15 +201,18 @@ async function loadParentRubriques() {
 
 function resetForm() {
   form.value = {
-    code_rubrique: '',
-    libelle: '',
+    code: '',
+    intitule: '',
+    type: 'recette',
     section: 'fonctionnement',
-    type_rubrique: 'recette',
-    chapitre: null,
     niveau: 1,
+    ordre: 0,
+    est_calculee: false,
+    formule_calcul: null,
+    est_active: true,
+    categorie_id: null,
     parent_id: null,
-    description: null,
-    est_actif: true
+    description: null
   }
 }
 

@@ -96,6 +96,18 @@
           >
             Rubriques
           </NuxtLink>
+          <NuxtLink
+            to="/admin/comptes-administratifs/lignes-budgetaires"
+            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Lignes Budgétaires
+          </NuxtLink>
+          <NuxtLink
+            to="/admin/comptes-administratifs/equilibre"
+            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Tableau d'Équilibre
+          </NuxtLink>
         </div>
 
         <!-- Section: Gestion -->
