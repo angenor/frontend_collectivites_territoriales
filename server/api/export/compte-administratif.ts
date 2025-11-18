@@ -45,6 +45,8 @@ export default defineEventHandler(async (event) => {
     if (compteError) throw compteError
 
     // 3. Récupérer toutes les rubriques avec leurs lignes budgétaires
+    // Utilisation de LEFT JOIN pour inclure TOUTES les rubriques (niveaux 1, 2, 3)
+    // même si elles n'ont pas de lignes budgétaires directes
     const { data: rubriquesRecettes, error: errorRecettes } = await supabase
       .from('rubriques_budgetaires')
       .select(`
@@ -55,10 +57,9 @@ export default defineEventHandler(async (event) => {
         section,
         niveau,
         ordre,
-        lignes_budgetaires!inner(valeurs)
+        lignes_budgetaires!left(valeurs, compte_administratif_id)
       `)
       .eq('type', 'recette')
-      .eq('lignes_budgetaires.compte_administratif_id', compte.id)
       .order('ordre')
 
     const { data: rubriquesDepenses, error: errorDepenses } = await supabase
@@ -71,14 +72,28 @@ export default defineEventHandler(async (event) => {
         section,
         niveau,
         ordre,
-        lignes_budgetaires!inner(valeurs)
+        lignes_budgetaires!left(valeurs, compte_administratif_id)
       `)
       .eq('type', 'depense')
-      .eq('lignes_budgetaires.compte_administratif_id', compte.id)
       .order('ordre')
 
     if (errorRecettes) throw errorRecettes
     if (errorDepenses) throw errorDepenses
+
+    // Filtrer les lignes budgétaires pour ne garder que celles du compte administratif
+    const rubriquesRecettesFiltrees = (rubriquesRecettes as any[] || []).map((rubrique: any) => ({
+      ...rubrique,
+      lignes_budgetaires: (rubrique.lignes_budgetaires || []).filter(
+        (ligne: any) => ligne.compte_administratif_id === compte.id
+      )
+    }))
+
+    const rubriquesDepensesFiltrees = (rubriquesDepenses as any[] || []).map((rubrique: any) => ({
+      ...rubrique,
+      lignes_budgetaires: (rubrique.lignes_budgetaires || []).filter(
+        (ligne: any) => ligne.compte_administratif_id === compte.id
+      )
+    }))
 
     // 4. Créer le fichier Excel
     const workbook = new ExcelJS.Workbook()
@@ -87,15 +102,15 @@ export default defineEventHandler(async (event) => {
 
     // 5. Créer la feuille RECETTES
     const wsRecettes = workbook.addWorksheet('RECETTE')
-    createRecettesSheet(wsRecettes, collectivite, annee as string, rubriquesRecettes || [])
+    createRecettesSheet(wsRecettes, collectivite, annee as string, rubriquesRecettesFiltrees)
 
     // 6. Créer la feuille DÉPENSES
     const wsDepenses = workbook.addWorksheet('DEPENSES')
-    createDepensesSheet(wsDepenses, collectivite, annee as string, rubriquesDepenses || [])
+    createDepensesSheet(wsDepenses, collectivite, annee as string, rubriquesDepensesFiltrees)
 
     // 7. Créer la feuille EQUILIBRE
     const wsEquilibre = workbook.addWorksheet('EQUILIBRE')
-    createEquilibreSheet(wsEquilibre, collectivite, annee as string, rubriquesRecettes || [], rubriquesDepenses || [])
+    createEquilibreSheet(wsEquilibre, collectivite, annee as string, rubriquesRecettesFiltrees, rubriquesDepensesFiltrees)
 
     // 8. Générer le buffer Excel
     const buffer = await workbook.xlsx.writeBuffer()
@@ -121,7 +136,7 @@ function createRecettesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   // En-tête du document
   ws.getCell('B2').value = 'TABLEAU DETAILLE DES RECETTES'
   ws.getCell('B2').font = { bold: true, size: 14 }
-  ws.mergeCells('B2:L2')
+  ws.mergeCells('B2:M2')
 
   ws.getCell('E4').value = `COLLECTIVITE : ${collectivite.nom} (${collectivite.code})`
   ws.getCell('E4').font = { bold: true }
@@ -130,7 +145,7 @@ function createRecettesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   // Titre de section
   ws.getCell('B6').value = 'RECETTES DE FONCTIONNEMENT'
   ws.getCell('B6').font = { bold: true, size: 12 }
-  ws.mergeCells('B6:L6')
+  ws.mergeCells('B6:M6')
 
   // En-têtes de colonnes (ligne 7)
   const headers = [
@@ -141,7 +156,9 @@ function createRecettesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
     { col: 'H', value: 'MODIFICATIONS +/-' },
     { col: 'I', value: 'PREVISIONS DEFINITIVES (1)' },
     { col: 'J', value: 'OR ADMIS (2)' },
-    { col: 'K', value: 'RECOUVREMENT' }
+    { col: 'K', value: 'RECOUVREMENT' },
+    { col: 'L', value: 'RESTE A RECOUVRER' },
+    { col: 'M', value: 'TAUX D\'EXECUTION (2)/(1)' }
   ]
 
   headers.forEach(({ col, value }) => {
@@ -170,7 +187,7 @@ function createRecettesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
     currentRow += 2
     ws.getCell(`B${currentRow}`).value = 'RECETTES D\'INVESTISSEMENT'
     ws.getCell(`B${currentRow}`).font = { bold: true, size: 12 }
-    ws.mergeCells(`B${currentRow}:L${currentRow}`)
+    ws.mergeCells(`B${currentRow}:M${currentRow}`)
     currentRow++
 
     currentRow = writeRubriqueData(ws, rubriquesSectionInvest, currentRow, 'recette')
@@ -187,6 +204,8 @@ function createRecettesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   ws.getColumn('I').width = 15
   ws.getColumn('J').width = 15
   ws.getColumn('K').width = 15
+  ws.getColumn('L').width = 15
+  ws.getColumn('M').width = 15
 }
 
 // Fonction pour créer la feuille DÉPENSES
@@ -194,7 +213,7 @@ function createDepensesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   // En-tête du document
   ws.getCell('B2').value = 'TABLEAU DETAILLE DES DEPENSES'
   ws.getCell('B2').font = { bold: true, size: 14 }
-  ws.mergeCells('B2:L2')
+  ws.mergeCells('B2:N2')
 
   ws.getCell('E4').value = `COLLECTIVITE : ${collectivite.nom} (${collectivite.code})`
   ws.getCell('E4').font = { bold: true }
@@ -203,7 +222,7 @@ function createDepensesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   // Titre de section
   ws.getCell('B6').value = 'DÉPENSES DE FONCTIONNEMENT'
   ws.getCell('B6').font = { bold: true, size: 12 }
-  ws.mergeCells('B6:L6')
+  ws.mergeCells('B6:N6')
 
   // En-têtes de colonnes (ligne 7)
   const headers = [
@@ -215,7 +234,9 @@ function createDepensesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
     { col: 'I', value: 'PREVISIONS DEFINITIVES (1)' },
     { col: 'J', value: 'ENGAGEMENT' },
     { col: 'K', value: 'MANDAT ADMIS' },
-    { col: 'L', value: 'PAIEMENT' }
+    { col: 'L', value: 'PAIEMENT' },
+    { col: 'M', value: 'RESTE A PAYER' },
+    { col: 'N', value: 'TAUX D\'EXECUTION (2)/(1)' }
   ]
 
   headers.forEach(({ col, value }) => {
@@ -244,7 +265,7 @@ function createDepensesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
     currentRow += 2
     ws.getCell(`B${currentRow}`).value = 'DÉPENSES D\'INVESTISSEMENT'
     ws.getCell(`B${currentRow}`).font = { bold: true, size: 12 }
-    ws.mergeCells(`B${currentRow}:L${currentRow}`)
+    ws.mergeCells(`B${currentRow}:N${currentRow}`)
     currentRow++
 
     currentRow = writeRubriqueData(ws, rubriquesSectionInvest, currentRow, 'depense')
@@ -262,19 +283,26 @@ function createDepensesSheet(ws: ExcelJS.Worksheet, collectivite: any, annee: st
   ws.getColumn('J').width = 15
   ws.getColumn('K').width = 15
   ws.getColumn('L').width = 15
+  ws.getColumn('M').width = 15
+  ws.getColumn('N').width = 15
 }
 
 // Fonction pour écrire les données de rubriques
 function writeRubriqueData(ws: ExcelJS.Worksheet, rubriques: any[], startRow: number, type: 'recette' | 'depense'): number {
   let currentRow = startRow
+  const rowMap = new Map<string, number>() // Map rubrique.id -> row number pour les formules SUM
 
   rubriques.forEach((rubrique: any) => {
     const valeurs = rubrique.lignes_budgetaires?.[0]?.valeurs || {}
+    const hasData = rubrique.lignes_budgetaires?.length > 0
 
     // Déterminer la colonne du code selon le niveau
     let codeCol = 'B'
     if (rubrique.niveau === 2) codeCol = 'C'
     else if (rubrique.niveau === 3) codeCol = 'D'
+
+    // Enregistrer la ligne pour cette rubrique (pour formules SUM)
+    rowMap.set(rubrique.id, currentRow)
 
     // Code
     ws.getCell(`${codeCol}${currentRow}`).value = rubrique.code
@@ -285,8 +313,14 @@ function writeRubriqueData(ws: ExcelJS.Worksheet, rubriques: any[], startRow: nu
     ws.getCell(`E${currentRow}`).font = { bold: rubrique.niveau === 1 }
     ws.getCell(`E${currentRow}`).alignment = { indent: rubrique.niveau - 1 }
 
-    // Valeurs budgétaires (seulement pour niveau 1)
-    if (rubrique.niveau === 1) {
+    // Déterminer si c'est une ligne feuille (niveau 3) ou une ligne parent
+    const children = rubriques.filter((r: any) => r.parent_id === rubrique.id)
+    const isLeaf = children.length === 0
+
+    // Si c'est une feuille ET a des données, écrire les valeurs
+    // Sinon, écrire des formules SUM() pour agréger les enfants
+    if (isLeaf && hasData) {
+      // Écrire les valeurs directement pour les feuilles
       ws.getCell(`F${currentRow}`).value = valeurs.budget_primitif || 0
       ws.getCell(`F${currentRow}`).numFmt = '#,##0.00'
 
@@ -296,9 +330,8 @@ function writeRubriqueData(ws: ExcelJS.Worksheet, rubriques: any[], startRow: nu
       ws.getCell(`H${currentRow}`).value = valeurs.modifications || 0
       ws.getCell(`H${currentRow}`).numFmt = '#,##0.00'
 
-      // Prévisions définitives = Budget primitif + budget additionnel + modifications
-      const prevDef = (valeurs.budget_primitif || 0) + (valeurs.budget_additionnel || 0) + (valeurs.modifications || 0)
-      ws.getCell(`I${currentRow}`).value = prevDef
+      // Prévisions définitives = F + G + H
+      ws.getCell(`I${currentRow}`).value = { formula: `F${currentRow}+G${currentRow}+H${currentRow}` }
       ws.getCell(`I${currentRow}`).numFmt = '#,##0.00'
 
       if (type === 'recette') {
@@ -307,6 +340,14 @@ function writeRubriqueData(ws: ExcelJS.Worksheet, rubriques: any[], startRow: nu
 
         ws.getCell(`K${currentRow}`).value = valeurs.recouvrement || 0
         ws.getCell(`K${currentRow}`).numFmt = '#,##0.00'
+
+        // RESTE À RECOUVRER = J - K
+        ws.getCell(`L${currentRow}`).value = { formula: `J${currentRow}-K${currentRow}` }
+        ws.getCell(`L${currentRow}`).numFmt = '#,##0.00'
+
+        // TAUX D'EXÉCUTION = J / I
+        ws.getCell(`M${currentRow}`).value = { formula: `IF(I${currentRow}=0,0,J${currentRow}/I${currentRow})` }
+        ws.getCell(`M${currentRow}`).numFmt = '0.00%'
       } else {
         ws.getCell(`J${currentRow}`).value = valeurs.engagement || 0
         ws.getCell(`J${currentRow}`).numFmt = '#,##0.00'
@@ -316,21 +357,72 @@ function writeRubriqueData(ws: ExcelJS.Worksheet, rubriques: any[], startRow: nu
 
         ws.getCell(`L${currentRow}`).value = valeurs.paiement || 0
         ws.getCell(`L${currentRow}`).numFmt = '#,##0.00'
-      }
 
-      // Bordures pour les lignes de niveau 1
-      const endCol = type === 'recette' ? 'K' : 'L'
-      for (let col = 'B'; col <= endCol; col = String.fromCharCode(col.charCodeAt(0) + 1)) {
-        ws.getCell(`${col}${currentRow}`).border = {
-          top: { style: 'thin' },
-          bottom: { style: 'thin' },
-          left: { style: 'thin' },
-          right: { style: 'thin' }
-        }
+        // RESTE À PAYER = K - L
+        ws.getCell(`M${currentRow}`).value = { formula: `K${currentRow}-L${currentRow}` }
+        ws.getCell(`M${currentRow}`).numFmt = '#,##0.00'
+
+        // TAUX D'EXÉCUTION = K / I
+        ws.getCell(`N${currentRow}`).value = { formula: `IF(I${currentRow}=0,0,K${currentRow}/I${currentRow})` }
+        ws.getCell(`N${currentRow}`).numFmt = '0.00%'
+      }
+    }
+
+    // Bordures pour toutes les lignes
+    const endCol = type === 'recette' ? 'M' : 'N'
+    for (let col = 'B'; col <= endCol; col = String.fromCharCode(col.charCodeAt(0) + 1)) {
+      ws.getCell(`${col}${currentRow}`).border = {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' }
       }
     }
 
     currentRow++
+  })
+
+  // Deuxième passe : ajouter les formules SUM() pour les parents
+  rubriques.forEach((rubrique: any) => {
+    const children = rubriques.filter((r: any) => r.parent_id === rubrique.id)
+    if (children.length > 0) {
+      const parentRow = rowMap.get(rubrique.id)!
+      const childRows = children.map(c => rowMap.get(c.id)!).filter(r => r !== undefined)
+
+      if (childRows.length > 0) {
+        const rangeList = childRows.map(r => `{COL}${r}`).join(',')
+
+        // Formules SUM pour chaque colonne budgétaire
+        const columns = type === 'recette'
+          ? ['F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']
+          : ['F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
+
+        columns.forEach(col => {
+          if (col === 'M' && type === 'recette') {
+            // TAUX pour recettes
+            ws.getCell(`${col}${parentRow}`).value = { formula: `IF(I${parentRow}=0,0,J${parentRow}/I${parentRow})` }
+            ws.getCell(`${col}${parentRow}`).numFmt = '0.00%'
+          } else if (col === 'N' && type === 'depense') {
+            // TAUX pour dépenses
+            ws.getCell(`${col}${parentRow}`).value = { formula: `IF(I${parentRow}=0,0,K${parentRow}/I${parentRow})` }
+            ws.getCell(`${col}${parentRow}`).numFmt = '0.00%'
+          } else if (col === 'L' && type === 'recette') {
+            // RESTE À RECOUVRER
+            ws.getCell(`${col}${parentRow}`).value = { formula: `J${parentRow}-K${parentRow}` }
+            ws.getCell(`${col}${parentRow}`).numFmt = '#,##0.00'
+          } else if (col === 'M' && type === 'depense') {
+            // RESTE À PAYER
+            ws.getCell(`${col}${parentRow}`).value = { formula: `K${parentRow}-L${parentRow}` }
+            ws.getCell(`${col}${parentRow}`).numFmt = '#,##0.00'
+          } else {
+            // SUM pour les autres colonnes
+            const formula = `SUM(${rangeList.replace(/{COL}/g, col)})`
+            ws.getCell(`${col}${parentRow}`).value = { formula }
+            ws.getCell(`${col}${parentRow}`).numFmt = '#,##0.00'
+          }
+        })
+      }
+    }
   })
 
   return currentRow
