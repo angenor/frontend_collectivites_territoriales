@@ -28,22 +28,13 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxt/test-utils',
     '@nuxt/ui',
-    '@nuxtjs/supabase'
+    // '@nuxtjs/supabase' // Désactivé - on utilise FastAPI directement
   ],
 
-  // Configuration Supabase
-  supabase: {
-    // Désactiver la redirection automatique vers /login
-    redirect: false
-  },
-
-  // Configuration des variables d'environnement pour Supabase
+  // Configuration des variables d'environnement
   runtimeConfig: {
     public: {
-      supabase: {
-        url: process.env.SUPABASE_URL,
-        key: process.env.SUPABASE_KEY,
-      }
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
     }
   }
 })
