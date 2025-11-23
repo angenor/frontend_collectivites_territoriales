@@ -47,10 +47,10 @@
             Régions
           </NuxtLink>
           <NuxtLink
-            to="/admin/collectivites/districts"
+            to="/admin/collectivites/departements"
             class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            Districts
+            Départements
           </NuxtLink>
           <NuxtLink
             to="/admin/collectivites/communes"
@@ -65,6 +65,18 @@
           <h3 class="px-4 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
             Projets Miniers
           </h3>
+          <NuxtLink
+            to="/admin/projets-miniers/types-minerais"
+            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Types de Minerais
+          </NuxtLink>
+          <NuxtLink
+            to="/admin/projets-miniers/societes"
+            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Sociétés Minières
+          </NuxtLink>
           <NuxtLink
             to="/admin/projets-miniers/projets"
             class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
