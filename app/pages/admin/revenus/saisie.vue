@@ -19,13 +19,14 @@
             Exercice <span class="text-red-500">*</span>
           </label>
           <select
-            v-model="selectedExercice"
+            v-model="selectedExerciceId"
+            @change="onExerciceChange"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           >
             <option value="">Sélectionner...</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
+            <option v-for="ex in exercices" :key="ex.id" :value="ex.id">
+              {{ ex.annee }}
+            </option>
           </select>
         </div>
 
@@ -35,18 +36,14 @@
             Période <span class="text-red-500">*</span>
           </label>
           <select
-            v-model="selectedPeriode"
-            :disabled="!selectedExercice"
+            v-model="selectedPeriodeId"
+            :disabled="!selectedExerciceId"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
           >
             <option value="">Sélectionner...</option>
-            <option value="T1">Trimestre 1</option>
-            <option value="T2">Trimestre 2</option>
-            <option value="T3">Trimestre 3</option>
-            <option value="T4">Trimestre 4</option>
-            <option value="S1">Semestre 1</option>
-            <option value="S2">Semestre 2</option>
-            <option value="ANNUEL">Annuel</option>
+            <option v-for="periode in filteredPeriodes" :key="periode.id" :value="periode.id">
+              {{ periode.nom }}
+            </option>
           </select>
         </div>
 
@@ -56,14 +53,14 @@
             Commune <span class="text-red-500">*</span>
           </label>
           <select
-            v-model="selectedCommune"
-            :disabled="!selectedPeriode"
+            v-model="selectedCommuneId"
+            :disabled="!selectedPeriodeId"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
           >
             <option value="">Sélectionner...</option>
-            <option value="1">Toamasina I</option>
-            <option value="2">Moramanga</option>
-            <option value="3">Ambatondrazaka</option>
+            <option v-for="commune in communes" :key="commune.id" :value="commune.id">
+              {{ commune.nom }}
+            </option>
           </select>
         </div>
 
@@ -73,13 +70,14 @@
             Projet Minier
           </label>
           <select
-            v-model="selectedProjet"
-            :disabled="!selectedCommune"
+            v-model="selectedProjetId"
+            :disabled="!selectedCommuneId"
             class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
           >
             <option value="">Tous</option>
-            <option value="1">QMM - Ilménite</option>
-            <option value="2">Ambatovy - Nickel</option>
+            <option v-for="projet in projets" :key="projet.id" :value="projet.id">
+              {{ projet.nom }}
+            </option>
           </select>
         </div>
       </div>
@@ -94,17 +92,23 @@
         </div>
         <button
           @click="loadData"
-          :disabled="!isFormValid"
+          :disabled="!isFormValid || loading"
           class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          Charger les données
+          {{ loading ? 'Chargement...' : 'Charger les données' }}
         </button>
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-12">
+      <Icon name="heroicons:arrow-path" class="w-12 h-12 mx-auto animate-spin text-gray-400" />
+      <p class="mt-4 text-gray-500">Chargement des données...</p>
+    </div>
+
     <!-- Data Entry Table -->
     <div
-      v-if="dataLoaded"
+      v-else-if="dataLoaded"
       class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
     >
       <!-- Table Header -->
@@ -114,7 +118,7 @@
             Tableau de Saisie
           </h3>
           <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            {{ selectedExercice }} • {{ selectedPeriode }} • Commune: Toamasina I
+            {{ getSelectedExercice()?.annee }} • {{ getSelectedPeriode()?.nom }} • {{ getSelectedCommune()?.nom }}
           </p>
         </div>
         <div class="flex items-center space-x-2">
@@ -122,19 +126,24 @@
             @click="importExcel"
             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-sm transition-colors text-sm cursor-pointer"
           >
-            📊 Importer Excel
+            <Icon name="heroicons:document-arrow-down" class="inline-block w-4 h-4 mr-1" />
+            Importer Excel
           </button>
           <button
             @click="saveDraft"
-            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-sm transition-colors text-sm cursor-pointer"
+            :disabled="saving"
+            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg shadow-sm transition-colors text-sm cursor-pointer disabled:opacity-50"
           >
-            💾 Enregistrer brouillon
+            <Icon name="heroicons:bookmark" class="inline-block w-4 h-4 mr-1" />
+            {{ saving ? 'Enregistrement...' : 'Enregistrer brouillon' }}
           </button>
           <button
             @click="validateData"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors text-sm cursor-pointer"
+            :disabled="saving"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors text-sm cursor-pointer disabled:opacity-50"
           >
-            ✓ Valider
+            <Icon name="heroicons:check-circle" class="inline-block w-4 h-4 mr-1" />
+            Valider
           </button>
         </div>
       </div>
@@ -164,7 +173,7 @@
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr
               v-for="(row, index) in tableData"
-              :key="row.id"
+              :key="row.rubrique_id"
               :class="[
                 row.niveau === 1 ? 'bg-blue-50 dark:bg-blue-900/20 font-bold' : '',
                 row.niveau === 2 ? 'bg-gray-50 dark:bg-gray-900/30 font-semibold' : '',
@@ -264,8 +273,14 @@
       <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <div class="text-sm text-gray-600 dark:text-gray-400">
-            <span class="mr-4">💾 Dernière sauvegarde: Il y a 2 minutes</span>
-            <span>📝 Statut: Brouillon</span>
+            <span v-if="lastSaved" class="mr-4">
+              <Icon name="heroicons:clock" class="inline-block w-4 h-4 mr-1" />
+              Dernière sauvegarde: {{ lastSaved }}
+            </span>
+            <span>
+              <Icon name="heroicons:document-text" class="inline-block w-4 h-4 mr-1" />
+              Statut: {{ isValidated ? 'Validé' : 'Brouillon' }}
+            </span>
           </div>
           <div class="flex items-center space-x-3">
             <button
@@ -276,13 +291,15 @@
             </button>
             <button
               @click="saveDraft"
-              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors cursor-pointer"
+              :disabled="saving"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
             >
               Enregistrer brouillon
             </button>
             <button
               @click="validateData"
-              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer"
+              :disabled="saving"
+              class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50"
             >
               Soumettre pour validation
             </button>
@@ -293,7 +310,7 @@
 
     <!-- Empty State -->
     <div
-      v-if="!dataLoaded"
+      v-if="!dataLoaded && !loading"
       class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center"
     >
       <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,142 +329,258 @@ definePageMeta({
   middleware: ['auth'],
 })
 
-const selectedExercice = ref('')
-const selectedPeriode = ref('')
-const selectedCommune = ref('')
-const selectedProjet = ref('')
-const dataLoaded = ref(false)
+const api = useApi()
 
+// State
+const exercices = ref<any[]>([])
+const periodes = ref<any[]>([])
+const communes = ref<any[]>([])
+const projets = ref<any[]>([])
+const rubriques = ref<any[]>([])
+
+const selectedExerciceId = ref('')
+const selectedPeriodeId = ref('')
+const selectedCommuneId = ref('')
+const selectedProjetId = ref('')
+
+const dataLoaded = ref(false)
+const loading = ref(false)
+const saving = ref(false)
+const tableData = ref<any[]>([])
+const lastSaved = ref('')
+const isValidated = ref(false)
+
+// Computed
 const isFormValid = computed(() => {
-  return selectedExercice.value && selectedPeriode.value && selectedCommune.value
+  return selectedExerciceId.value && selectedPeriodeId.value && selectedCommuneId.value
 })
 
-// Mock table data
-const tableData = ref([
-  {
-    id: '1',
-    code: 'R1',
-    nom: 'RECETTES TOTALES',
-    niveau: 1,
-    est_calculee: true,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-  {
-    id: '2',
-    code: 'R1.1',
-    nom: 'Recettes de fonctionnement',
-    niveau: 2,
-    est_calculee: false,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-  {
-    id: '3',
-    code: 'R1.1.1',
-    nom: 'Impôts et taxes',
-    niveau: 3,
-    est_calculee: false,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-  {
-    id: '4',
-    code: 'R1.1.2',
-    nom: 'Revenus miniers',
-    niveau: 3,
-    est_calculee: false,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-  {
-    id: '5',
-    code: 'D1',
-    nom: 'DÉPENSES TOTALES',
-    niveau: 1,
-    est_calculee: true,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-  {
-    id: '6',
-    code: 'S1',
-    nom: 'SOLDE',
-    niveau: 1,
-    est_calculee: true,
-    montant_prevu: 0,
-    montant_realise: 0,
-    ecart: 0,
-    taux_realisation: 0,
-  },
-])
+const filteredPeriodes = computed(() => {
+  if (!selectedExerciceId.value) return []
+  return periodes.value.filter(p => p.exercice_id === selectedExerciceId.value)
+})
 
-const loadData = () => {
-  dataLoaded.value = true
-  // TODO: Load data from API
-  console.log('Loading data for:', {
-    exercice: selectedExercice.value,
-    periode: selectedPeriode.value,
-    commune: selectedCommune.value,
-    projet: selectedProjet.value,
-  })
+const getSelectedExercice = () => {
+  return exercices.value.find(e => e.id === selectedExerciceId.value)
+}
+
+const getSelectedPeriode = () => {
+  return periodes.value.find(p => p.id === selectedPeriodeId.value)
+}
+
+const getSelectedCommune = () => {
+  return communes.value.find(c => c.id === selectedCommuneId.value)
+}
+
+// Lifecycle
+onMounted(async () => {
+  await Promise.all([
+    fetchExercices(),
+    fetchCommunes(),
+    fetchProjets(),
+    fetchRubriques(),
+    fetchPeriodes()
+  ])
+})
+
+// Methods
+const fetchExercices = async () => {
+  try {
+    exercices.value = await api.get('/api/v1/exercices/exercices')
+  } catch (error) {
+    console.error('Erreur chargement exercices:', error)
+  }
+}
+
+const fetchPeriodes = async () => {
+  try {
+    periodes.value = await api.get('/api/v1/exercices/periodes')
+  } catch (error) {
+    console.error('Erreur chargement périodes:', error)
+  }
+}
+
+const fetchCommunes = async () => {
+  try {
+    communes.value = await api.get('/api/v1/geo/communes')
+  } catch (error) {
+    console.error('Erreur chargement communes:', error)
+  }
+}
+
+const fetchProjets = async () => {
+  try {
+    projets.value = await api.get('/api/v1/projets-miniers/projets')
+  } catch (error) {
+    console.error('Erreur chargement projets:', error)
+  }
+}
+
+const fetchRubriques = async () => {
+  try {
+    rubriques.value = await api.get('/api/v1/rubriques/')
+  } catch (error) {
+    console.error('Erreur chargement rubriques:', error)
+  }
+}
+
+const onExerciceChange = () => {
+  // Reset période when exercice changes
+  selectedPeriodeId.value = ''
+}
+
+const loadData = async () => {
+  if (!isFormValid.value) return
+
+  try {
+    loading.value = true
+
+    // Build table structure from rubriques
+    const tableStructure = rubriques.value.map(rubrique => ({
+      rubrique_id: rubrique.id,
+      code: rubrique.code,
+      nom: rubrique.nom,
+      niveau: rubrique.niveau,
+      est_calculee: rubrique.est_calculee,
+      montant_prevu: 0,
+      montant_realise: 0,
+      ecart: 0,
+      taux_realisation: 0,
+      revenu_id: null // Will be set if revenue exists
+    }))
+
+    // Load existing revenue data
+    const params = new URLSearchParams({
+      commune_id: selectedCommuneId.value,
+      periode_id: selectedPeriodeId.value
+    })
+
+    if (selectedProjetId.value) {
+      params.append('projet_minier_id', selectedProjetId.value)
+    }
+
+    const existingRevenus = await api.get(`/api/v1/revenus/search?${params.toString()}`)
+
+    // Merge existing data with table structure
+    existingRevenus.forEach((revenu: any) => {
+      const row = tableStructure.find(r => r.rubrique_id === revenu.rubrique_id)
+      if (row) {
+        row.revenu_id = revenu.id
+        row.montant_prevu = parseFloat(revenu.montant_prevu || 0)
+        row.montant_realise = parseFloat(revenu.montant || 0)
+        row.ecart = parseFloat(revenu.ecart || 0)
+        row.taux_realisation = parseFloat(revenu.taux_realisation || 0)
+      }
+    })
+
+    tableData.value = tableStructure
+    dataLoaded.value = true
+
+    // Calculate all rows to ensure consistency
+    tableData.value.forEach((_, index) => calculateRow(index))
+
+  } catch (error: any) {
+    console.error('Erreur chargement données:', error)
+    alert(error.message || 'Erreur lors du chargement des données')
+  } finally {
+    loading.value = false
+  }
 }
 
 const calculateRow = (index: number) => {
   const row = tableData.value[index]
 
-  // Calculate écart
-  row.ecart = row.montant_realise - row.montant_prevu
+  // Only calculate for non-calculated rows
+  if (!row.est_calculee) {
+    // Calculate écart
+    row.ecart = row.montant_realise - row.montant_prevu
 
-  // Calculate taux de réalisation
-  if (row.montant_prevu > 0) {
-    row.taux_realisation = (row.montant_realise / row.montant_prevu) * 100
-  } else {
-    row.taux_realisation = 0
+    // Calculate taux de réalisation
+    if (row.montant_prevu > 0) {
+      row.taux_realisation = (row.montant_realise / row.montant_prevu) * 100
+    } else {
+      row.taux_realisation = 0
+    }
   }
 
-  // TODO: Recalculate formulas for calculated rows
+  // TODO: Recalculate formulas for calculated rows based on their children
 }
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('fr-MG', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value)
+  }).format(value || 0)
+}
+
+const saveDraft = async () => {
+  await saveData(false)
+}
+
+const validateData = async () => {
+  if (confirm('Êtes-vous sûr de vouloir soumettre ces données pour validation?')) {
+    await saveData(true)
+  }
+}
+
+const saveData = async (validate: boolean = false) => {
+  try {
+    saving.value = true
+
+    // Save only non-calculated rows
+    const rowsToSave = tableData.value.filter(row => !row.est_calculee)
+
+    for (const row of rowsToSave) {
+      const data = {
+        commune_id: selectedCommuneId.value,
+        rubrique_id: row.rubrique_id,
+        periode_id: selectedPeriodeId.value,
+        projet_minier_id: selectedProjetId.value || null,
+        montant: row.montant_realise,
+        montant_prevu: row.montant_prevu
+      }
+
+      if (row.revenu_id) {
+        // Update existing revenue
+        await api.put(`/api/v1/revenus/${row.revenu_id}`, data)
+      } else {
+        // Create new revenue
+        const created = await api.post('/api/v1/revenus/', data)
+        row.revenu_id = created.id
+      }
+    }
+
+    lastSaved.value = new Date().toLocaleTimeString('fr-FR')
+    isValidated.value = validate
+
+    if (validate) {
+      alert('Données soumises avec succès pour validation')
+    } else {
+      alert('Brouillon enregistré avec succès')
+    }
+  } catch (error: any) {
+    console.error('Erreur sauvegarde:', error)
+    alert(error.response?.data?.detail || 'Erreur lors de la sauvegarde')
+  } finally {
+    saving.value = false
+  }
 }
 
 const importExcel = () => {
-  console.log('Import Excel')
-  // TODO: Implement Excel import
-}
-
-const saveDraft = () => {
-  console.log('Save draft')
-  // TODO: Save to API as draft
-}
-
-const validateData = () => {
-  console.log('Validate data')
-  // TODO: Submit for validation
+  // Redirect to Excel import page
+  navigateTo('/admin/import/excel')
 }
 
 const cancel = () => {
   if (confirm('Êtes-vous sûr de vouloir annuler? Les modifications non sauvegardées seront perdues.')) {
     dataLoaded.value = false
-    selectedExercice.value = ''
-    selectedPeriode.value = ''
-    selectedCommune.value = ''
-    selectedProjet.value = ''
+    selectedExerciceId.value = ''
+    selectedPeriodeId.value = ''
+    selectedCommuneId.value = ''
+    selectedProjetId.value = ''
+    tableData.value = []
+    lastSaved.value = ''
+    isValidated.value = false
   }
 }
 </script>

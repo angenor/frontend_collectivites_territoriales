@@ -91,10 +91,10 @@
           </NuxtLink>
         </div>
 
-        <!-- Section: Comptes Administratifs -->
+        <!-- Section: Revenus Miniers -->
         <div class="pt-4">
           <h3 class="px-4 mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
-            Comptes Administratifs
+            Revenus Miniers
           </h3>
           <NuxtLink
             to="/admin/exercices"
@@ -103,16 +103,22 @@
             Exercices Fiscaux
           </NuxtLink>
           <NuxtLink
-            to="/admin/comptes-administratifs/comptes"
+            to="/admin/revenus/saisie"
             class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            Comptes
+            Saisie des Revenus
           </NuxtLink>
           <NuxtLink
             to="/admin/comptes-administratifs/rubriques"
             class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             Rubriques
+          </NuxtLink>
+          <NuxtLink
+            to="/admin/comptes-administratifs/comptes"
+            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            Comptes
           </NuxtLink>
           <NuxtLink
             to="/admin/comptes-administratifs/lignes-budgetaires"

@@ -1,47 +1,47 @@
-# PLAN D'IMPLÉMENTATION DU BACK-OFFICE
+# PLAN D'IMPLï¿½MENTATION DU BACK-OFFICE
 ## Plateforme de Suivi des Revenus Miniers - TI Madagascar
 
 ---
 
-## <¯ OBJECTIFS DU BACK-OFFICE
+## <ï¿½ OBJECTIFS DU BACK-OFFICE
 
-- Interface d'administration sécurisée et intuitive
-- Gestion complète du contenu sans intervention technique
-- Suivi en temps réel des activités et statistiques
-- Gestion des utilisateurs avec contrôle d'accès par rôles
-- Outils de communication (newsletter, messagerie sécurisée)
-- Tableaux de bord analytiques pour la prise de décision
+- Interface d'administration sï¿½curisï¿½e et intuitive
+- Gestion complï¿½te du contenu sans intervention technique
+- Suivi en temps rï¿½el des activitï¿½s et statistiques
+- Gestion des utilisateurs avec contrï¿½le d'accï¿½s par rï¿½les
+- Outils de communication (newsletter, messagerie sï¿½curisï¿½e)
+- Tableaux de bord analytiques pour la prise de dï¿½cision
 
 ---
 
-## = 1. AUTHENTIFICATION & SÉCURITÉ
+## = 1. AUTHENTIFICATION & Sï¿½CURITï¿½
 
-### 1.1 Système d'authentification
-- **Login sécurisé** avec email/mot de passe
+### 1.1 Systï¿½me d'authentification
+- **Login sï¿½curisï¿½** avec email/mot de passe
 - **Authentification JWT** (JSON Web Token)
 - **Sessions utilisateur** avec timeout automatique
 - **Double authentification (2FA)** optionnelle pour administrateurs
 - **Gestion des mots de passe**
-  - Réinitialisation par email
-  - Politique de complexité
-  - Expiration périodique
+  - Rï¿½initialisation par email
+  - Politique de complexitï¿½
+  - Expiration pï¿½riodique
   - Historique des mots de passe
 
-### 1.2 Gestion des rôles et permissions
-- **Rôles prédéfinis** :
-  - Super Administrateur (accès total)
+### 1.2 Gestion des rï¿½les et permissions
+- **Rï¿½les prï¿½dï¿½finis** :
+  - Super Administrateur (accï¿½s total)
   - Administrateur (gestion contenu + utilisateurs)
-  - Éditeur (gestion contenu uniquement)
-  - Gestionnaire Commune (accès limité à sa commune)
+  - ï¿½diteur (gestion contenu uniquement)
+  - Gestionnaire Commune (accï¿½s limitï¿½ ï¿½ sa commune)
   - Visualiseur (lecture seule)
 
 - **Permissions granulaires** :
   - CRUD sur chaque module
-  - Export de données
-  - Validation de données
+  - Export de donnï¿½es
+  - Validation de donnï¿½es
   - Gestion des utilisateurs
-  - Accès aux statistiques
-  - Configuration système
+  - Accï¿½s aux statistiques
+  - Configuration systï¿½me
 
 ---
 
@@ -49,84 +49,84 @@
 
 ### 2.1 Module Utilisateurs
 - **Liste des utilisateurs** avec filtres et recherche
-  - Filtres : rôle, statut (actif/inactif), commune, date création
+  - Filtres : rï¿½le, statut (actif/inactif), commune, date crï¿½ation
   - Recherche : nom, email, username
-  - Tri : alphabétique, date création, dernier login
+  - Tri : alphabï¿½tique, date crï¿½ation, dernier login
 
-- **Création/Modification d'utilisateur**
-  - Informations personnelles (nom, prénom, email, téléphone)
-  - Attribution de rôle
-  - Rattachement à une commune (optionnel)
-  - Activation/Désactivation du compte
+- **Crï¿½ation/Modification d'utilisateur**
+  - Informations personnelles (nom, prï¿½nom, email, tï¿½lï¿½phone)
+  - Attribution de rï¿½le
+  - Rattachement ï¿½ une commune (optionnel)
+  - Activation/Dï¿½sactivation du compte
   - Envoi automatique d'email de bienvenue
 
-- **Gestion des rôles**
-  - Création de rôles personnalisés
-  - Configuration des permissions par rôle
-  - Affectation de permissions spécifiques
+- **Gestion des rï¿½les**
+  - Crï¿½ation de rï¿½les personnalisï¿½s
+  - Configuration des permissions par rï¿½le
+  - Affectation de permissions spï¿½cifiques
 
 - **Historique des connexions**
   - Date/heure du dernier login
   - Adresse IP
-  - Appareil utilisé
-  - Tentatives de connexion échouées
+  - Appareil utilisï¿½
+  - Tentatives de connexion ï¿½chouï¿½es
 
 ---
 
-## =Ê 3. GESTION DES DONNÉES GÉOGRAPHIQUES
+## =ï¿½ 3. GESTION DES DONNï¿½ES Gï¿½OGRAPHIQUES
 
-### 3.1 Module Régions
-- **Liste des régions** de Madagascar
-- **CRUD Régions** :
-  - Code région (unique)
+### 3.1 Module Rï¿½gions
+- **Liste des rï¿½gions** de Madagascar
+- **CRUD Rï¿½gions** :
+  - Code rï¿½gion (unique)
   - Nom
   - Description
   - Statut (actif/inactif)
-- **Statistiques par région** :
-  - Nombre de départements
+- **Statistiques par rï¿½gion** :
+  - Nombre de dï¿½partements
   - Nombre de communes
   - Total des revenus miniers
 
-### 3.2 Module Départements
-- **Liste des départements** avec filtrage par région
-- **CRUD Départements** :
-  - Code département
+### 3.2 Module Dï¿½partements
+- **Liste des dï¿½partements** avec filtrage par rï¿½gion
+- **CRUD Dï¿½partements** :
+  - Code dï¿½partement
   - Nom
-  - Région de rattachement
+  - Rï¿½gion de rattachement
   - Description
   - Statut
-- **Statistiques par département** :
+- **Statistiques par dï¿½partement** :
   - Nombre de communes
   - Projets miniers actifs
-  - Revenus collectés
+  - Revenus collectï¿½s
 
 ### 3.3 Module Communes
 - **Liste des communes** avec filtres multiples
-  - Par région
-  - Par département
+  - Par rï¿½gion
+  - Par dï¿½partement
   - Par statut
-  - Par présence de projets miniers
+  - Par prï¿½sence de projets miniers
 
 - **CRUD Communes** :
   - Code commune
   - Nom
-  - Département de rattachement
-  - Région de rattachement
+  - Dï¿½partement de rattachement
+  - Rï¿½gion de rattachement
   - Population
   - Superficie
   - Description
   - Statut
 
 - **Tableau de bord par commune** :
-  - Projets miniers associés
-  - Revenus par année
-  - Évolution des revenus (graphiques)
-  - Documents associés
-  - Utilisateurs rattachés
+  - Projets miniers associï¿½s
+  - Revenus par annï¿½e
+  - ï¿½volution des revenus (graphiques)
+  - Documents associï¿½s
+  - Utilisateurs rattachï¿½s
 
 ---
 
-## Ï 4. GESTION DES PROJETS MINIERS
+## ï¿½ 4. GESTION DES PROJETS MINIERS
 
 ### 4.1 Module Types de Minerais
 - **Liste des types de minerais** (or, nickel, cobalt, chrome, etc.)
@@ -136,210 +136,210 @@
   - Description
   - Statut
 
-### 4.2 Module Sociétés Minières
-- **Liste des sociétés minières**
-- **CRUD Sociétés** :
+### 4.2 Module Sociï¿½tï¿½s Miniï¿½res
+- **Liste des sociï¿½tï¿½s miniï¿½res**
+- **CRUD Sociï¿½tï¿½s** :
   - Code unique
   - Nom commercial
   - Raison sociale
-  - NIF (Numéro d'Identification Fiscale)
-  - STAT (numéro statistique)
+  - NIF (Numï¿½ro d'Identification Fiscale)
+  - STAT (numï¿½ro statistique)
   - Adresse
-  - Téléphone
+  - Tï¿½lï¿½phone
   - Email
   - Statut
 
-- **Fiche détaillée société** :
+- **Fiche dï¿½taillï¿½e sociï¿½tï¿½** :
   - Projets miniers actifs
   - Historique des projets
-  - Revenus générés par projet
-  - Documents légaux
+  - Revenus gï¿½nï¿½rï¿½s par projet
+  - Documents lï¿½gaux
 
 ### 4.3 Module Projets Miniers
 - **Liste des projets** avec filtres :
-  - Par société minière
+  - Par sociï¿½tï¿½ miniï¿½re
   - Par type de minerai
-  - Par commune/région
-  - Par statut (actif, suspendu, terminé)
-  - Par période
+  - Par commune/rï¿½gion
+  - Par statut (actif, suspendu, terminï¿½)
+  - Par pï¿½riode
 
 - **CRUD Projets miniers** :
   - Code unique
   - Nom du projet
-  - Société minière
+  - Sociï¿½tï¿½ miniï¿½re
   - Type de minerai
   - Commune d'implantation
-  - Date de début
+  - Date de dï¿½but
   - Date de fin
   - Statut
   - Description
 
 - **Tableau de bord projet** :
-  - Revenus générés par période
-  - Communes bénéficiaires
-  - Évolution temporelle
-  - Documents associés
+  - Revenus gï¿½nï¿½rï¿½s par pï¿½riode
+  - Communes bï¿½nï¿½ficiaires
+  - ï¿½volution temporelle
+  - Documents associï¿½s
 
 ---
 
-## =° 5. GESTION DES REVENUS MINIERS (MODULE CENTRAL)
+## =ï¿½ 5. GESTION DES REVENUS MINIERS (MODULE CENTRAL)
 
 ### 5.1 Module Exercices Fiscaux
-- **Liste des exercices** (années fiscales)
+- **Liste des exercices** (annï¿½es fiscales)
 - **CRUD Exercices** :
-  - Année
-  - Date de début
+  - Annï¿½e
+  - Date de dï¿½but
   - Date de fin
-  - Statut (ouvert/clôturé)
+  - Statut (ouvert/clï¿½turï¿½)
 
-- **Clôture d'exercice** :
-  - Validation des données
+- **Clï¿½ture d'exercice** :
+  - Validation des donnï¿½es
   - Verrouillage des modifications
-  - Génération de rapports annuels
+  - Gï¿½nï¿½ration de rapports annuels
 
-### 5.2 Module Périodes
-- **Gestion des périodes** par exercice
+### 5.2 Module Pï¿½riodes
+- **Gestion des pï¿½riodes** par exercice
   - Mensuel, Trimestriel, Semestriel, Annuel
-- **CRUD Périodes** :
+- **CRUD Pï¿½riodes** :
   - Code
   - Nom
   - Exercice de rattachement
-  - Date début/fin
-  - Type de période
+  - Date dï¿½but/fin
+  - Type de pï¿½riode
   - Ordre d'affichage
 
-### 5.3 Module Catégories de Rubriques
-- **Gestion des catégories** pour organiser les rubriques
-- **CRUD Catégories** :
+### 5.3 Module Catï¿½gories de Rubriques
+- **Gestion des catï¿½gories** pour organiser les rubriques
+- **CRUD Catï¿½gories** :
   - Code unique
   - Nom
   - Description
   - Ordre d'affichage
 
-### 5.4 Module Rubriques (FONCTIONNALITÉ CLÉ)
-**Interface "sans code" pour gérer les lignes du tableau**
+### 5.4 Module Rubriques (FONCTIONNALITï¿½ CLï¿½)
+**Interface "sans code" pour gï¿½rer les lignes du tableau**
 
-- **Arborescence des rubriques** (structure hiérarchique)
+- **Arborescence des rubriques** (structure hiï¿½rarchique)
   - Rubriques principales (niveau 1)
   - Sous-rubriques (niveaux 2, 3, etc.)
-  - Glisser-déposer pour réorganiser
+  - Glisser-dï¿½poser pour rï¿½organiser
   - Indentation visuelle
 
 - **CRUD Rubriques** :
   - Code unique
   - Nom de la rubrique
-  - Catégorie
-  - Rubrique parent (pour hiérarchie)
-  - Niveau dans la hiérarchie
+  - Catï¿½gorie
+  - Rubrique parent (pour hiï¿½rarchie)
+  - Niveau dans la hiï¿½rarchie
   - Ordre d'affichage
-  - Type (recette, dépense, solde, autre)
-  - Formule de calcul (si rubrique calculée)
+  - Type (recette, dï¿½pense, solde, autre)
+  - Formule de calcul (si rubrique calculï¿½e)
   - Afficher total (oui/non)
   - Description
   - Statut
 
 - **Formules de calcul** :
-  - Interface visuelle pour créer des formules
-  - Référencement d'autres rubriques
-  - Opérateurs : +, -, *, /, ()
-  - Prévisualisation du résultat
+  - Interface visuelle pour crï¿½er des formules
+  - Rï¿½fï¿½rencement d'autres rubriques
+  - Opï¿½rateurs : +, -, *, /, ()
+  - Prï¿½visualisation du rï¿½sultat
   - Validation de formule
 
-- **Prévisualisation** :
-  - Voir le tableau tel qu'il apparaîtra en front-office
-  - Tester l'affichage avec données réelles
+- **Prï¿½visualisation** :
+  - Voir le tableau tel qu'il apparaï¿½tra en front-office
+  - Tester l'affichage avec donnï¿½es rï¿½elles
 
-### 5.5 Module Colonnes Personnalisées
+### 5.5 Module Colonnes Personnalisï¿½es
 **Ajout de colonnes dynamiques sans coder**
 
-- **Liste des colonnes personnalisées**
+- **Liste des colonnes personnalisï¿½es**
 - **CRUD Colonnes** :
   - Code unique
   - Nom de la colonne
-  - Type de données (texte, nombre, date, booléen, JSON)
+  - Type de donnï¿½es (texte, nombre, date, boolï¿½en, JSON)
   - Ordre d'affichage
   - Obligatoire (oui/non)
   - Visible (oui/non)
-  - Éditable (oui/non)
-  - Valeur par défaut
+  - ï¿½ditable (oui/non)
+  - Valeur par dï¿½faut
 
-- **Aperçu tableau dynamique** :
-  - Visualisation des colonnes personnalisées
-  - Réorganisation par glisser-déposer
+- **Aperï¿½u tableau dynamique** :
+  - Visualisation des colonnes personnalisï¿½es
+  - Rï¿½organisation par glisser-dï¿½poser
   - Masquer/Afficher colonnes
 
 ### 5.6 Module Saisie des Revenus
-**Interface de saisie des données financières**
+**Interface de saisie des donnï¿½es financiï¿½res**
 
 - **Tableau de saisie interactif** :
-  - Sélection : Commune + Période + Exercice
-  - Affichage automatique des rubriques configurées
+  - Sï¿½lection : Commune + Pï¿½riode + Exercice
+  - Affichage automatique des rubriques configurï¿½es
   - Saisie en ligne (inline editing)
   - Auto-sauvegarde
-  - Calcul automatique des rubriques calculées
-  - Validation des données
+  - Calcul automatique des rubriques calculï¿½es
+  - Validation des donnï¿½es
 
-- **Formulaire de saisie détaillé** :
+- **Formulaire de saisie dï¿½taillï¿½** :
   - Commune
   - Rubrique
-  - Période
+  - Pï¿½riode
   - Projet minier (optionnel)
-  - Montant réalisé
-  - Montant prévu (budget)
-  - Écart (auto-calculé)
-  - Taux de réalisation (auto-calculé)
+  - Montant rï¿½alisï¿½
+  - Montant prï¿½vu (budget)
+  - ï¿½cart (auto-calculï¿½)
+  - Taux de rï¿½alisation (auto-calculï¿½)
   - Observations
   - Documents justificatifs (upload)
 
-- **Import de données** :
+- **Import de donnï¿½es** :
   - Upload fichier Excel
-  - Mapping colonnes Excel ’ Rubriques
-  - Prévisualisation avant import
-  - Validation des données
+  - Mapping colonnes Excel ï¿½ Rubriques
+  - Prï¿½visualisation avant import
+  - Validation des donnï¿½es
   - Import en masse
 
 - **Validation des revenus** :
-  - Workflow de validation (brouillon ’ validé)
+  - Workflow de validation (brouillon ï¿½ validï¿½)
   - Historique des validations
   - Commentaires de validation
 
 ### 5.7 Tableaux de Bord Revenus
 - **Vue d'ensemble** :
   - Total revenus par exercice
-  - Évolution année par année
-  - Top 10 communes bénéficiaires
-  - Répartition par type de minerai
-  - Répartition par région
+  - ï¿½volution annï¿½e par annï¿½e
+  - Top 10 communes bï¿½nï¿½ficiaires
+  - Rï¿½partition par type de minerai
+  - Rï¿½partition par rï¿½gion
 
 - **Graphiques interactifs** :
-  - Évolution temporelle (courbes)
+  - ï¿½volution temporelle (courbes)
   - Comparaison communes (barres)
-  - Répartition (camemberts)
-  - Carte géographique (heatmap)
+  - Rï¿½partition (camemberts)
+  - Carte gï¿½ographique (heatmap)
 
-- **Filtres avancés** :
-  - Par commune/département/région
-  - Par exercice/période
+- **Filtres avancï¿½s** :
+  - Par commune/dï¿½partement/rï¿½gion
+  - Par exercice/pï¿½riode
   - Par projet minier
   - Par rubrique
   - Par statut de validation
 
 ---
 
-## =Ä 6. GESTION DES DOCUMENTS
+## =ï¿½ 6. GESTION DES DOCUMENTS
 
 ### 6.1 Module Types de Documents
-- **Configuration des types** acceptés
+- **Configuration des types** acceptï¿½s
 - **CRUD Types de documents** :
   - Code unique
   - Nom
   - Description
-  - Extensions autorisées (.pdf, .xlsx, .docx, etc.)
+  - Extensions autorisï¿½es (.pdf, .xlsx, .docx, etc.)
   - Taille maximale (Mo)
 
 ### 6.2 Module Documents
-- **Bibliothèque de documents** :
-  - Liste avec miniatures/icônes
+- **Bibliothï¿½que de documents** :
+  - Liste avec miniatures/icï¿½nes
   - Filtres : type, commune, exercice, tags
   - Recherche plein texte dans les documents
   - Vue liste / Vue grille
@@ -353,152 +353,152 @@
 - **CRUD Documents** :
   - Titre
   - Type de document
-  - Commune associée
-  - Exercice associé
-  - Revenu associé
+  - Commune associï¿½e
+  - Exercice associï¿½
+  - Revenu associï¿½
   - Description
-  - Tags (mots-clés)
+  - Tags (mots-clï¿½s)
   - Fichier
 
-- **Prévisualisation** :
-  - Lecteur PDF intégré
-  - Prévisualisation Office (si possible)
-  - Téléchargement
+- **Prï¿½visualisation** :
+  - Lecteur PDF intï¿½grï¿½
+  - Prï¿½visualisation Office (si possible)
+  - Tï¿½lï¿½chargement
 
 - **Moteur de recherche** :
   - Recherche full-text dans le contenu extrait
   - Recherche par tags
-  - Recherche par métadonnées
-  - Filtres combinés
-  - Résultats avec pertinence
+  - Recherche par mï¿½tadonnï¿½es
+  - Filtres combinï¿½s
+  - Rï¿½sultats avec pertinence
 
 ### 6.3 Indexation automatique
 - **Extraction de texte** :
-  - PDF ’ texte
-  - Word ’ texte
-  - Excel ’ texte
+  - PDF ï¿½ texte
+  - Word ï¿½ texte
+  - Excel ï¿½ texte
   - Stockage dans `contenu_texte`
 
-- **Réindexation** :
-  - Réindexer un document
-  - Réindexation en masse
+- **Rï¿½indexation** :
+  - Rï¿½indexer un document
+  - Rï¿½indexation en masse
 
 ---
 
-## =ð 7. GESTION DE LA NEWSLETTER
+## =ï¿½ 7. GESTION DE LA NEWSLETTER
 
-### 7.1 Module Abonnés
-- **Liste des abonnés** :
-  - Filtres : statut (actif/inactif, confirmé/non confirmé)
+### 7.1 Module Abonnï¿½s
+- **Liste des abonnï¿½s** :
+  - Filtres : statut (actif/inactif, confirmï¿½/non confirmï¿½)
   - Recherche : email, nom
   - Export CSV/Excel
 
-- **CRUD Abonnés** :
+- **CRUD Abonnï¿½s** :
   - Email
   - Nom
-  - Prénom
+  - Prï¿½nom
   - Statut
   - Date de confirmation
   - Date d'inscription
 
 - **Actions en masse** :
-  - Activer/Désactiver
+  - Activer/Dï¿½sactiver
   - Supprimer
   - Exporter
 
 - **Validation des abonnements** :
   - Email de confirmation automatique
-  - Lien de désabonnement
+  - Lien de dï¿½sabonnement
 
 ### 7.2 Module Campagnes Newsletter
 - **Liste des campagnes** :
-  - Filtres : statut (brouillon, programmée, envoyée)
-  - Tri : date création, date envoi
+  - Filtres : statut (brouillon, programmï¿½e, envoyï¿½e)
+  - Tri : date crï¿½ation, date envoi
 
-- **Création de campagne** :
+- **Crï¿½ation de campagne** :
   - Titre
   - Sujet de l'email
-  - Éditeur WYSIWYG pour le contenu
-  - Aperçu email
-  - Choix des destinataires (tous, sélection)
+  - ï¿½diteur WYSIWYG pour le contenu
+  - Aperï¿½u email
+  - Choix des destinataires (tous, sï¿½lection)
   - Programmation d'envoi
 
 - **Statistiques campagne** :
   - Nombre de destinataires
-  - Nombre d'envoyés
+  - Nombre d'envoyï¿½s
   - Taux d'ouverture
   - Nombre de clics
   - Graphiques d'engagement
 
 - **Templates d'email** :
-  - Modèles prédéfinis
+  - Modï¿½les prï¿½dï¿½finis
   - Personnalisation (logo, couleurs)
   - Variables dynamiques (nom, commune, etc.)
 
 ---
 
-## =¬ 8. MESSAGERIE SÉCURISÉE
+## =ï¿½ 8. MESSAGERIE Sï¿½CURISï¿½E
 
-### 8.1 Module Messages Sécurisés
-- **Boîte de réception** :
-  - Messages reçus
-  - Messages envoyés
-  - Messages archivés
-  - Filtres : lu/non lu, priorité, commune
+### 8.1 Module Messages Sï¿½curisï¿½s
+- **Boï¿½te de rï¿½ception** :
+  - Messages reï¿½us
+  - Messages envoyï¿½s
+  - Messages archivï¿½s
+  - Filtres : lu/non lu, prioritï¿½, commune
 
-- **Création de message** :
+- **Crï¿½ation de message** :
   - Destinataire (utilisateur)
   - Sujet
-  - Contenu (éditeur riche)
-  - Commune associée
-  - Priorité (basse, normale, haute, urgente)
+  - Contenu (ï¿½diteur riche)
+  - Commune associï¿½e
+  - Prioritï¿½ (basse, normale, haute, urgente)
   - Fichiers joints
 
 - **Notifications** :
   - Badge de nouveaux messages
   - Email de notification (optionnel)
-  - Notification push (si implémenté)
+  - Notification push (si implï¿½mentï¿½)
 
-- **Sécurité** :
+- **Sï¿½curitï¿½** :
   - Chiffrement des messages
   - Audit trail (qui a lu, quand)
-  - Possibilité de suppression côté destinataire
+  - Possibilitï¿½ de suppression cï¿½tï¿½ destinataire
 
-### 8.2 Intégration GlobalLeaks (optionnel)
+### 8.2 Intï¿½gration GlobalLeaks (optionnel)
 - **Configuration GlobalLeaks** :
   - URL du serveur GlobalLeaks
-  - Clés d'API
-  - Mapping des catégories
+  - Clï¿½s d'API
+  - Mapping des catï¿½gories
 
-- **Réception de dénonciations** :
+- **Rï¿½ception de dï¿½nonciations** :
   - Synchronisation automatique
   - Affichage dans le back-office
   - Workflow de traitement
-  - Anonymat préservé
+  - Anonymat prï¿½servï¿½
 
 ---
 
-## =Ê 9. STATISTIQUES ET LOGS
+## =ï¿½ 9. STATISTIQUES ET LOGS
 
 ### 9.1 Tableau de bord Statistiques
 - **Statistiques de visites** :
   - Visites par jour/semaine/mois
-  - Pages les plus consultées
-  - Durée moyenne de session
-  - Géolocalisation des visiteurs (si disponible)
-  - Graphiques d'évolution
+  - Pages les plus consultï¿½es
+  - Durï¿½e moyenne de session
+  - Gï¿½olocalisation des visiteurs (si disponible)
+  - Graphiques d'ï¿½volution
 
-- **Statistiques de téléchargements** :
-  - Nombre de téléchargements par jour/semaine/mois
-  - Types d'exports les plus utilisés (Excel, Word, PDF)
-  - Documents les plus téléchargés
-  - Téléchargements par commune/région
+- **Statistiques de tï¿½lï¿½chargements** :
+  - Nombre de tï¿½lï¿½chargements par jour/semaine/mois
+  - Types d'exports les plus utilisï¿½s (Excel, Word, PDF)
+  - Documents les plus tï¿½lï¿½chargï¿½s
+  - Tï¿½lï¿½chargements par commune/rï¿½gion
   - Graphiques de tendance
 
 - **Statistiques utilisateurs** :
   - Utilisateurs actifs vs inactifs
   - Connexions par jour
-  - Utilisateurs par rôle
+  - Utilisateurs par rï¿½le
   - Utilisateurs par commune
 
 ### 9.2 Logs de Visites
@@ -507,39 +507,39 @@
   - Filtres : page, utilisateur, date, IP
   - Export CSV
 
-- **Détails d'une visite** :
-  - Page visitée
-  - Utilisateur (si connecté)
+- **Dï¿½tails d'une visite** :
+  - Page visitï¿½e
+  - Utilisateur (si connectï¿½)
   - Adresse IP
   - User Agent (navigateur)
   - Session ID
-  - Durée
+  - Durï¿½e
 
-### 9.3 Logs de Téléchargements
-- **Liste des téléchargements** :
+### 9.3 Logs de Tï¿½lï¿½chargements
+- **Liste des tï¿½lï¿½chargements** :
   - Filtres : type d'export, document, commune, exercice, utilisateur, date
   - Export CSV
 
-- **Détails** :
-  - Document/export téléchargé
+- **Dï¿½tails** :
+  - Document/export tï¿½lï¿½chargï¿½
   - Type d'export
-  - Commune/exercice concerné
+  - Commune/exercice concernï¿½
   - Utilisateur
   - IP
   - Date/heure
 
-### 9.4 Logs d'Activités Système
+### 9.4 Logs d'Activitï¿½s Systï¿½me
 - **Journal d'audit** :
   - Toutes les actions CRUD
-  - Connexions/déconnexions
-  - Filtres : utilisateur, action, entité, date
+  - Connexions/dï¿½connexions
+  - Filtres : utilisateur, action, entitï¿½, date
   - Recherche
 
-- **Détails d'une activité** :
+- **Dï¿½tails d'une activitï¿½** :
   - Utilisateur
   - Action (CREATE, UPDATE, DELETE, LOGIN, LOGOUT)
-  - Entité concernée (table)
-  - ID de l'entité
+  - Entitï¿½ concernï¿½e (table)
+  - ID de l'entitï¿½
   - Anciennes valeurs (JSON)
   - Nouvelles valeurs (JSON)
   - IP
@@ -547,15 +547,15 @@
   - Date/heure
 
 - **Analyse comportementale** :
-  - Activités suspectes
-  - Tentatives d'accès non autorisées
+  - Activitï¿½s suspectes
+  - Tentatives d'accï¿½s non autorisï¿½es
   - Modifications sensibles
 
 ---
 
-## ™ 10. CONFIGURATION SYSTÈME
+## ï¿½ 10. CONFIGURATION SYSTï¿½ME
 
-### 10.1 Paramètres Généraux
+### 10.1 Paramï¿½tres Gï¿½nï¿½raux
 - **Informations site** :
   - Nom du site
   - Logo
@@ -566,120 +566,120 @@
 - **Configuration email** :
   - Serveur SMTP
   - Port
-  - Email expéditeur
-  - Nom expéditeur
+  - Email expï¿½diteur
+  - Nom expï¿½diteur
   - Authentification
 
 - **Maintenance** :
-  - Mode maintenance (activer/désactiver)
+  - Mode maintenance (activer/dï¿½sactiver)
   - Message de maintenance
-  - IPs autorisées en mode maintenance
+  - IPs autorisï¿½es en mode maintenance
 
-### 10.2 Sécurité
+### 10.2 Sï¿½curitï¿½
 - **Politique de mot de passe** :
   - Longueur minimale
-  - Complexité requise
+  - Complexitï¿½ requise
   - Expiration (jours)
-  - Réutilisation interdite
+  - Rï¿½utilisation interdite
 
 - **Tentatives de connexion** :
   - Nombre max de tentatives
-  - Durée de blocage
+  - Durï¿½e de blocage
   - IP blacklist/whitelist
 
 - **Sessions** :
-  - Durée de session
-  - Timeout d'inactivité
+  - Durï¿½e de session
+  - Timeout d'inactivitï¿½
 
 ### 10.3 Sauvegardes
 - **Configuration backups** :
-  - Fréquence automatique
-  - Rétention (nombre de backups)
+  - Frï¿½quence automatique
+  - Rï¿½tention (nombre de backups)
   - Emplacement de stockage
 
 - **Actions manuelles** :
-  - Créer backup maintenant
+  - Crï¿½er backup maintenant
   - Restaurer un backup
-  - Télécharger backup
+  - Tï¿½lï¿½charger backup
   - Liste des backups
 
-### 10.4 Mise à jour et Maintenance
-- **Vérification des mises à jour** :
+### 10.4 Mise ï¿½ jour et Maintenance
+- **Vï¿½rification des mises ï¿½ jour** :
   - Framework
-  - Dépendances
-  - Alertes de sécurité
+  - Dï¿½pendances
+  - Alertes de sï¿½curitï¿½
 
-- **Historique des mises à jour** :
+- **Historique des mises ï¿½ jour** :
   - Version
   - Date
   - Changelog
 
 - **Outils de diagnostic** :
-  - État de santé du système
-  - Connexion base de données
+  - ï¿½tat de santï¿½ du systï¿½me
+  - Connexion base de donnï¿½es
   - Espace disque
   - Performance
 
 ---
 
-## =ñ 11. INTERFACE UTILISATEUR DU BACK-OFFICE
+## =ï¿½ 11. INTERFACE UTILISATEUR DU BACK-OFFICE
 
 ### 11.1 Navigation et Layout
-- **Sidebar (menu latéral)** avec sections :
-  - <à Tableau de bord (Dashboard)
-  - =e Utilisateurs & Rôles
-  - =ú Géographie (Régions/Départements/Communes)
-  - Ï Projets Miniers
-  - =° Revenus Miniers
-  - =Ê Rubriques & Tableaux
-  - =Ä Documents
-  - =ð Newsletter
-  - =¬ Messages Sécurisés
-  - =È Statistiques & Logs
-  - ™ Configuration
+- **Sidebar (menu latï¿½ral)** avec sections :
+  - <ï¿½ Tableau de bord (Dashboard)
+  - =e Utilisateurs & Rï¿½les
+  - =ï¿½ Gï¿½ographie (Rï¿½gions/Dï¿½partements/Communes)
+  - ï¿½ Projets Miniers
+  - =ï¿½ Revenus Miniers
+  - =ï¿½ Rubriques & Tableaux
+  - =ï¿½ Documents
+  - =ï¿½ Newsletter
+  - =ï¿½ Messages Sï¿½curisï¿½s
+  - =ï¿½ Statistiques & Logs
+  - ï¿½ Configuration
 
-- **Top bar (barre supérieure)** :
+- **Top bar (barre supï¿½rieure)** :
   - Logo + Nom de l'organisation
   - Notifications (badge)
   - Messages non lus (badge)
   - Profil utilisateur (dropdown)
-  - Déconnexion
+  - Dï¿½connexion
 
 - **Breadcrumbs** (fil d'Ariane)
   - Navigation contextuelle
 
-### 11.2 Composants Réutilisables
+### 11.2 Composants Rï¿½utilisables
 - **DataTables** :
   - Tri multi-colonnes
   - Filtres par colonne
   - Recherche globale
   - Pagination
   - Export (CSV, Excel, PDF)
-  - Actions en masse (sélection multiple)
-  - Actions par ligne (éditer, supprimer, voir)
+  - Actions en masse (sï¿½lection multiple)
+  - Actions par ligne (ï¿½diter, supprimer, voir)
 
 - **Formulaires** :
-  - Validation en temps réel
+  - Validation en temps rï¿½el
   - Messages d'erreur clairs
-  - Champs requis marqués
+  - Champs requis marquï¿½s
   - Auto-sauvegarde (brouillon)
   - Boutons : Enregistrer, Annuler, Supprimer
 
 - **Modals/Dialogs** :
   - Confirmation de suppression
   - Alertes
-  - Prévisualisation
-  - Édition rapide
+  - Prï¿½visualisation
+  - ï¿½dition rapide
 
 - **Charts/Graphiques** :
-  - Courbes d'évolution
+  - Courbes d'ï¿½volution
   - Barres comparatives
   - Camemberts/Donut
-  - Cartes géographiques
+  - Cartes gï¿½ographiques
   - Interactifs (zoom, filtres)
 
 - **Notifications/Toasts** :
-  - Succès (vert)
+  - Succï¿½s (vert)
   - Erreur (rouge)
   - Avertissement (orange)
   - Information (bleu)
@@ -697,20 +697,20 @@
   - Actions swipe
   - Optimisation tactile
 
-### 11.4 Accessibilité
+### 11.4 Accessibilitï¿½
 - **Normes WCAG 2.1** :
   - Navigation au clavier
-  - Lecteur d'écran compatible
+  - Lecteur d'ï¿½cran compatible
   - Contraste suffisant
   - Textes alternatifs
 
 - **Mode sombre** :
   - Toggle light/dark mode
-  - Préférence sauvegardée
+  - Prï¿½fï¿½rence sauvegardï¿½e
 
 ---
 
-## = 12. FONCTIONNALITÉS TRANSVERSALES
+## = 12. FONCTIONNALITï¿½S TRANSVERSALES
 
 ### 12.1 Recherche Globale
 - **Barre de recherche** dans le top bar
@@ -722,11 +722,11 @@
   - Utilisateurs
   - Rubriques
 
-- **Résultats groupés** par type
+- **Rï¿½sultats groupï¿½s** par type
 - **Suggestions automatiques** (autocomplete)
-- **Accès rapide** au résultat
+- **Accï¿½s rapide** au rï¿½sultat
 
-### 12.2 Export de Données
+### 12.2 Export de Donnï¿½es
 - **Formats disponibles** :
   - Excel (.xlsx)
   - CSV
@@ -734,117 +734,117 @@
   - Word (.docx) pour rapports
 
 - **Options d'export** :
-  - Sélection visible
-  - Sélection complète
-  - Filtres appliqués
+  - Sï¿½lection visible
+  - Sï¿½lection complï¿½te
+  - Filtres appliquï¿½s
   - Tout
 
 - **Personnalisation** :
   - Choix des colonnes
   - Ordre des colonnes
   - Format de date
-  - Logo/En-tête
+  - Logo/En-tï¿½te
 
-### 12.3 Import de Données
+### 12.3 Import de Donnï¿½es
 - **Import Excel/CSV** :
   - Upload fichier
-  - Détection automatique des colonnes
-  - Mapping manuel si nécessaire
-  - Validation des données
+  - Dï¿½tection automatique des colonnes
+  - Mapping manuel si nï¿½cessaire
+  - Validation des donnï¿½es
   - Rapport d'erreurs
-  - Aperçu avant import
+  - Aperï¿½u avant import
   - Import ou Annuler
 
 ### 12.4 Gestion des Erreurs
 - **Messages d'erreur** clairs et actionnables
-- **Validation côté client** (temps réel)
-- **Validation côté serveur** (sécurité)
-- **Retry automatique** pour erreurs réseau
+- **Validation cï¿½tï¿½ client** (temps rï¿½el)
+- **Validation cï¿½tï¿½ serveur** (sï¿½curitï¿½)
+- **Retry automatique** pour erreurs rï¿½seau
 - **Mode offline** (si pertinent)
 
 ### 12.5 Aide Contextuelle
 - **Tooltips** sur les champs
-- **Guide utilisateur** intégré
+- **Guide utilisateur** intï¿½grï¿½
 - **FAQ** par module
-- **Vidéos tutoriels** (si disponible)
+- **Vidï¿½os tutoriels** (si disponible)
 - **Support contact**
 
 ---
 
-## <¨ 13. CHARTE GRAPHIQUE
+## <ï¿½ 13. CHARTE GRAPHIQUE
 
-### 13.1 Identité Visuelle
+### 13.1 Identitï¿½ Visuelle
 - **Charte graphique** fournie par TI MG
 - **Couleurs principales** :
   - Couleur primaire (TI MG)
   - Couleur secondaire
   - Couleur accent
-  - Couleurs de statut (succès, erreur, warning, info)
+  - Couleurs de statut (succï¿½s, erreur, warning, info)
 
 - **Typographie** :
   - Police principale (titres)
   - Police secondaire (corps de texte)
-  - Tailles définies
+  - Tailles dï¿½finies
 
 ### 13.2 Composants UI
 - **Boutons** :
   - Primaire (action principale)
   - Secondaire (actions secondaires)
-  - Tertiaire (actions légères)
+  - Tertiaire (actions lï¿½gï¿½res)
   - Danger (actions destructives)
-  - Icônes + texte
+  - Icï¿½nes + texte
 
 - **Cartes (Cards)** :
   - Bordures subtiles
-  - Ombres légères
-  - Espacement cohérent
+  - Ombres lï¿½gï¿½res
+  - Espacement cohï¿½rent
 
 - **Badges/Pills** :
-  - Statuts (actif, inactif, validé, etc.)
+  - Statuts (actif, inactif, validï¿½, etc.)
   - Compteurs
 
 ---
 
-## =Ë 14. WORKFLOW ET PROCESSUS MÉTIER
+## =ï¿½ 14. WORKFLOW ET PROCESSUS Mï¿½TIER
 
 ### 14.1 Workflow Saisie de Revenus
-1. **Création brouillon** :
-   - Éditeur saisit les données
+1. **Crï¿½ation brouillon** :
+   - ï¿½diteur saisit les donnï¿½es
    - Auto-sauvegarde
    - Validation formelle
 
 2. **Soumission pour validation** :
-   - Vérification complétude
+   - Vï¿½rification complï¿½tude
    - Notification au validateur
 
 3. **Validation** :
    - Administrateur/Gestionnaire valide
-   - Ajout de commentaires si nécessaire
-   - Données verrouillées après validation
+   - Ajout de commentaires si nï¿½cessaire
+   - Donnï¿½es verrouillï¿½es aprï¿½s validation
 
 4. **Publication** :
-   - Données visibles en front-office
-   - Génération automatique de rapports
+   - Donnï¿½es visibles en front-office
+   - Gï¿½nï¿½ration automatique de rapports
 
 ### 14.2 Workflow Gestion des Documents
 1. **Upload** :
    - Utilisateur upload document
    - Extraction automatique du contenu (indexation)
-   - Attribution métadonnées
+   - Attribution mï¿½tadonnï¿½es
 
-2. **Modération** (optionnel) :
-   - Vérification par administrateur
+2. **Modï¿½ration** (optionnel) :
+   - Vï¿½rification par administrateur
    - Validation/Rejet
 
 3. **Publication** :
    - Document disponible en recherche
-   - Téléchargeable selon permissions
+   - Tï¿½lï¿½chargeable selon permissions
 
 ### 14.3 Workflow Newsletter
-1. **Création campagne** :
-   - Rédaction contenu
-   - Sélection destinataires
-   - Prévisualisation
+1. **Crï¿½ation campagne** :
+   - Rï¿½daction contenu
+   - Sï¿½lection destinataires
+   - Prï¿½visualisation
 
 2. **Programmation** :
    - Date/heure d'envoi
@@ -860,53 +860,53 @@
 
 ---
 
-## =€ 15. PERFORMANCE ET OPTIMISATION
+## =ï¿½ 15. PERFORMANCE ET OPTIMISATION
 
 ### 15.1 Optimisations Frontend
 - **Lazy loading** des composants
 - **Pagination** des listes longues
 - **Debouncing** des recherches
-- **Mise en cache** des données fréquentes
+- **Mise en cache** des donnï¿½es frï¿½quentes
 - **Compression** des assets
 
 ### 15.2 Optimisations Backend
-- **Indexation** des tables critiques (déjà dans schema.sql)
-- **Requêtes optimisées** (éviter N+1)
-- **Pagination** côté serveur
-- **Cache** Redis (si nécessaire)
-- **Compression** des réponses
+- **Indexation** des tables critiques (dï¿½jï¿½ dans schema.sql)
+- **Requï¿½tes optimisï¿½es** (ï¿½viter N+1)
+- **Pagination** cï¿½tï¿½ serveur
+- **Cache** Redis (si nï¿½cessaire)
+- **Compression** des rï¿½ponses
 
 ### 15.3 Monitoring
-- **Temps de réponse** des endpoints
-- **Utilisation mémoire**
+- **Temps de rï¿½ponse** des endpoints
+- **Utilisation mï¿½moire**
 - **Utilisation CPU**
 - **Espace disque**
-- **Alertes** si seuils dépassés
+- **Alertes** si seuils dï¿½passï¿½s
 
 ---
 
-## >ê 16. TESTING ET QUALITÉ
+## >ï¿½ 16. TESTING ET QUALITï¿½
 
 ### 16.1 Tests Fonctionnels
 - **Tests manuels** :
   - Checklist par module
-  - Scénarios utilisateurs
-  - Tests de non-régression
+  - Scï¿½narios utilisateurs
+  - Tests de non-rï¿½gression
 
-- **Tests automatisés** (si ressources disponibles) :
+- **Tests automatisï¿½s** (si ressources disponibles) :
   - Tests unitaires
-  - Tests d'intégration
+  - Tests d'intï¿½gration
   - Tests end-to-end
 
-### 16.2 Assurance Qualité
-- **Validation des données** à tous les niveaux
+### 16.2 Assurance Qualitï¿½
+- **Validation des donnï¿½es** ï¿½ tous les niveaux
 - **Gestion des droits** stricte
 - **Logs complets** pour audit
 - **Rollback** en cas d'erreur critique
 
 ---
 
-## =Ú 17. DOCUMENTATION ET FORMATION
+## =ï¿½ 17. DOCUMENTATION ET FORMATION
 
 ### 17.1 Documentation Technique
 - **Documentation du code** :
@@ -916,28 +916,28 @@
 
 - **API Documentation** :
   - Swagger/OpenAPI
-  - Endpoints documentés
-  - Exemples de requêtes
+  - Endpoints documentï¿½s
+  - Exemples de requï¿½tes
 
 ### 17.2 Guide Utilisateur
 - **Manuel d'utilisation** :
-  - Par rôle (Admin, Éditeur, etc.)
+  - Par rï¿½le (Admin, ï¿½diteur, etc.)
   - Par module
-  - Captures d'écran annotées
+  - Captures d'ï¿½cran annotï¿½es
   - Cas d'usage
 
 - **FAQ** :
-  - Questions fréquentes
-  - Résolution de problèmes courants
+  - Questions frï¿½quentes
+  - Rï¿½solution de problï¿½mes courants
 
 ### 17.3 Formation
 - **Formation des administrateurs** :
-  - Session en présentiel/distanciel
+  - Session en prï¿½sentiel/distanciel
   - Prise en main de chaque module
   - Bonnes pratiques
   - Q&R
 
-- **Formation des éditeurs** :
+- **Formation des ï¿½diteurs** :
   - Focus sur saisie de revenus
   - Gestion des documents
   - Workflow de validation
@@ -948,66 +948,66 @@
 
 ---
 
-## =' 18. MAINTENANCE ET ÉVOLUTION
+## =' 18. MAINTENANCE ET ï¿½VOLUTION
 
-### 18.1 Maintenance Préventive
-- **Mises à jour régulières** :
+### 18.1 Maintenance Prï¿½ventive
+- **Mises ï¿½ jour rï¿½guliï¿½res** :
   - Framework
-  - Dépendances
-  - Patches de sécurité
+  - Dï¿½pendances
+  - Patches de sï¿½curitï¿½
 
-- **Vérifications périodiques** :
-  - Intégrité base de données
+- **Vï¿½rifications pï¿½riodiques** :
+  - Intï¿½gritï¿½ base de donnï¿½es
   - Backups
   - Logs d'erreurs
   - Performance
 
 ### 18.2 Maintenance Corrective
 - **Correction de bugs** :
-  - Système de ticketing
+  - Systï¿½me de ticketing
   - Priorisation (critique, haute, normale, basse)
-  - Délai de résolution selon priorité
+  - Dï¿½lai de rï¿½solution selon prioritï¿½
 
 - **Support technique** :
-  - Disponibilité 2 ans minimum (sans frais)
-  - Temps de réponse < 24h pour bugs critiques
-  - Temps de réponse < 48h pour bugs normaux
+  - Disponibilitï¿½ 2 ans minimum (sans frais)
+  - Temps de rï¿½ponse < 24h pour bugs critiques
+  - Temps de rï¿½ponse < 48h pour bugs normaux
 
-### 18.3 Évolution
-- **Demandes d'évolution** :
+### 18.3 ï¿½volution
+- **Demandes d'ï¿½volution** :
   - Collecte des besoins utilisateurs
   - Priorisation
-  - Planning de développement
+  - Planning de dï¿½veloppement
 
-- **Nouvelles fonctionnalités** :
+- **Nouvelles fonctionnalitï¿½s** :
   - Processus de validation
-  - Tests en pré-production
-  - Déploiement progressif
+  - Tests en prï¿½-production
+  - Dï¿½ploiement progressif
 
 ---
 
-## =Ê 19. MÉTRIQUES DE SUCCÈS
+## =ï¿½ 19. Mï¿½TRIQUES DE SUCCï¿½S
 
 ### 19.1 KPIs Back-Office
 - **Adoption utilisateurs** :
   - Nombre d'utilisateurs actifs
-  - Fréquence de connexion
+  - Frï¿½quence de connexion
   - Taux d'utilisation par module
 
-- **Qualité des données** :
-  - Taux de complétude
+- **Qualitï¿½ des donnï¿½es** :
+  - Taux de complï¿½tude
   - Taux de validation
-  - Données saisies par mois
+  - Donnï¿½es saisies par mois
 
 - **Performance** :
   - Temps de chargement pages < 2s
-  - Disponibilité > 99.5%
-  - Temps de réponse API < 500ms
+  - Disponibilitï¿½ > 99.5%
+  - Temps de rï¿½ponse API < 500ms
 
 - **Satisfaction utilisateurs** :
-  - Enquête de satisfaction
+  - Enquï¿½te de satisfaction
   - Nombre de tickets support
-  - Feedbacks positifs/négatifs
+  - Feedbacks positifs/nï¿½gatifs
 
 ### 19.2 KPIs Front-Office (impact indirect)
 - **Visites** :
@@ -1015,87 +1015,84 @@
   - Pages vues
   - Taux de rebond
 
-- **Téléchargements** :
-  - Nombre de téléchargements
-  - Types d'exports utilisés
+- **Tï¿½lï¿½chargements** :
+  - Nombre de tï¿½lï¿½chargements
+  - Types d'exports utilisï¿½s
 
 - **Engagement** :
-  - Abonnés newsletter
+  - Abonnï¿½s newsletter
   - Taux d'ouverture newsletter
-  - Partages sur réseaux sociaux
+  - Partages sur rï¿½seaux sociaux
 
 ---
 
-## <¯ 20. PRIORISATION DES FONCTIONNALITÉS
+## <ï¿½ 20. PRIORISATION DES FONCTIONNALITï¿½S
 
-### Phase 1 - MVP (Fonctionnalités Essentielles)
-**Priorité CRITIQUE** :
+### Phase 1 - MVP (Fonctionnalitï¿½s Essentielles)
+**Prioritï¿½ CRITIQUE** :
 1. Authentification & Gestion des utilisateurs
-2. Gestion des Régions/Départements/Communes
+2. Gestion des Rï¿½gions/Dï¿½partements/Communes
 3. Gestion des Rubriques (tableau dynamique)
 4. Saisie des Revenus
 5. Export Excel/Word
 6. Dashboard principal avec statistiques de base
 
-### Phase 2 - Fonctionnalités Importantes
-**Priorité HAUTE** :
+### Phase 2 - Fonctionnalitï¿½s Importantes
+**Prioritï¿½ HAUTE** :
 1. Gestion des Projets Miniers
 2. Gestion des Documents + Moteur de recherche
-3. Gestion des Périodes et Exercices
-4. Colonnes personnalisées (extensibilité)
-5. Logs de visites et téléchargements
-6. Import de données Excel
+3. Gestion des Pï¿½riodes et Exercices
+4. Colonnes personnalisï¿½es (extensibilitï¿½)
+5. Logs de visites et tï¿½lï¿½chargements
+6. Import de donnï¿½es Excel
 
-### Phase 3 - Fonctionnalités Complémentaires
-**Priorité MOYENNE** :
-1. Newsletter (abonnés + campagnes)
-2. Messagerie sécurisée
-3. Logs d'activités système
-4. Tableaux de bord avancés (graphiques)
-5. Configuration système
+### Phase 3 - Fonctionnalitï¿½s Complï¿½mentaires
+**Prioritï¿½ MOYENNE** :
+1. Newsletter (abonnï¿½s + campagnes)
+2. Messagerie sï¿½curisï¿½e
+3. Logs d'activitï¿½s systï¿½me
+4. Tableaux de bord avancï¿½s (graphiques)
+5. Configuration systï¿½me
 6. Validation workflow
 
 ### Phase 4 - Nice to Have
-**Priorité BASSE** :
-1. Intégration GlobalLeaks
-2. Mode sombre
+**Prioritï¿½ BASSE** :
+<!-- 1. Intï¿½gration GlobalLeaks -->
 3. Notifications push
-4. Double authentification (2FA)
-5. API publique
-6. Export PDF avancé
+6. Export PDF avancï¿½
 
 ---
 
 ##  21. CHECKLIST DE VALIDATION FINALE
 
-### 21.1 Fonctionnalités
-- [ ] Tous les modules MVP implémentés et testés
-- [ ] Authentification sécurisée fonctionnelle
-- [ ] CRUD complet sur toutes les entités
-- [ ] Tableau dynamique (rubriques + colonnes) opérationnel
+### 21.1 Fonctionnalitï¿½s
+- [ ] Tous les modules MVP implï¿½mentï¿½s et testï¿½s
+- [ ] Authentification sï¿½curisï¿½e fonctionnelle
+- [ ] CRUD complet sur toutes les entitï¿½s
+- [ ] Tableau dynamique (rubriques + colonnes) opï¿½rationnel
 - [ ] Export Excel/Word fonctionnel
-- [ ] Moteur de recherche documents opérationnel
+- [ ] Moteur de recherche documents opï¿½rationnel
 - [ ] Newsletter (inscription + envoi) fonctionnelle
-- [ ] Statistiques visites/téléchargements disponibles
+- [ ] Statistiques visites/tï¿½lï¿½chargements disponibles
 
-### 21.2 Sécurité
-- [ ] JWT implémenté correctement
-- [ ] Permissions par rôle respectées
+### 21.2 Sï¿½curitï¿½
+- [ ] JWT implï¿½mentï¿½ correctement
+- [ ] Permissions par rï¿½le respectï¿½es
 - [ ] Protection CSRF
 - [ ] Validation des inputs
-- [ ] Mots de passe hashés (bcrypt)
-- [ ] HTTPS activé (production)
-- [ ] Logs d'audit activés
+- [ ] Mots de passe hashï¿½s (bcrypt)
+- [ ] HTTPS activï¿½ (production)
+- [ ] Logs d'audit activï¿½s
 
 ### 21.3 Performance
 - [ ] Temps de chargement < 2s
-- [ ] Pagination implémentée
-- [ ] Index base de données créés
-- [ ] Requêtes optimisées
-- [ ] Cache activé (si nécessaire)
+- [ ] Pagination implï¿½mentï¿½e
+- [ ] Index base de donnï¿½es crï¿½ï¿½s
+- [ ] Requï¿½tes optimisï¿½es
+- [ ] Cache activï¿½ (si nï¿½cessaire)
 
 ### 21.4 UX/UI
-- [ ] Design conforme à la charte graphique
+- [ ] Design conforme ï¿½ la charte graphique
 - [ ] Responsive (desktop, tablette, mobile)
 - [ ] Navigation intuitive
 - [ ] Messages d'erreur clairs
@@ -1104,47 +1101,47 @@
 ### 21.5 Documentation
 - [ ] Guide utilisateur complet
 - [ ] Documentation technique
-- [ ] Code commenté et clair
-- [ ] README à jour
+- [ ] Code commentï¿½ et clair
+- [ ] README ï¿½ jour
 
 ### 21.6 Formation
-- [ ] Formation administrateurs effectuée
-- [ ] Formation éditeurs effectuée
+- [ ] Formation administrateurs effectuï¿½e
+- [ ] Formation ï¿½diteurs effectuï¿½e
 - [ ] Support mis en place
 
 ---
 
-## =Þ 22. SUPPORT ET CONTACT
+## =ï¿½ 22. SUPPORT ET CONTACT
 
 ### 22.1 Organisation
 - **Client** : PCQVP Madagascar / TI MG
 - **Contact** : vramaherison@transparency.mg
 
-### 22.2 Service Après-Vente
-- **Durée** : 2 ans minimum (sans frais supplémentaires)
+### 22.2 Service Aprï¿½s-Vente
+- **Durï¿½e** : 2 ans minimum (sans frais supplï¿½mentaires)
 - **Services inclus** :
-  - Fluidité et responsivité du site
+  - Fluiditï¿½ et responsivitï¿½ du site
   - Correction de bugs et erreurs
-  - Mises à jour Framework et logiciels
+  - Mises ï¿½ jour Framework et logiciels
   - Support technique
 
 ---
 
-## <Á CONCLUSION
+## <ï¿½ CONCLUSION
 
-Ce plan couvre l'ensemble des fonctionnalités du back-office conformément au cahier des charges et au modèle de données.
+Ce plan couvre l'ensemble des fonctionnalitï¿½s du back-office conformï¿½ment au cahier des charges et au modï¿½le de donnï¿½es.
 
-**Points clés de réussite** :
+**Points clï¿½s de rï¿½ussite** :
 1. **Interface "sans code"** pour la gestion des rubriques et colonnes
-2. **Sécurité renforcée** avec authentification et permissions granulaires
-3. **Tableaux de bord** pour suivi et prise de décision
-4. **Extensibilité** pour futures évolutions
+2. **Sï¿½curitï¿½ renforcï¿½e** avec authentification et permissions granulaires
+3. **Tableaux de bord** pour suivi et prise de dï¿½cision
+4. **Extensibilitï¿½** pour futures ï¿½volutions
 5. **Documentation et formation** pour adoption utilisateur
 
-**Prochaines étapes** :
+**Prochaines ï¿½tapes** :
 1. Validation du plan avec TI MG
-2. Priorisation des phases de développement
+2. Priorisation des phases de dï¿½veloppement
 3. Conception des maquettes UI (Adobe XD)
-4. Développement itératif par module
+4. Dï¿½veloppement itï¿½ratif par module
 5. Tests et ajustements
 6. Formation et mise en production
