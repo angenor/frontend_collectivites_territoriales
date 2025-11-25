@@ -783,6 +783,176 @@ const exportExcel = async () => {
       XLSX.utils.book_append_sheet(wb, wsDepenses, 'DEPENSES')
     }
 
+    // ===== SHEET 3: EQUILIBRE =====
+    const equilibreData: any[] = []
+
+    // Title
+    equilibreData.push([`TABLEAU D'EQUILIBRE DU COMPTE ADMINISTRATIF`])
+    equilibreData.push([])
+    equilibreData.push([`COLLECTIVITE : ${commune.nom}`])
+    equilibreData.push([`EXERCICE : ${exercice.annee}`])
+    equilibreData.push([])
+
+    // Calculate totals
+    let totalRecettesBP = 0, totalRecettesBA = 0, totalRecettesMod = 0, totalRecettesPrevDef = 0
+    let totalRecettesOrAdmis = 0, totalRecettesRecouvrement = 0, totalRecettesRaR = 0
+
+    let totalDepensesBP = 0, totalDepensesBA = 0, totalDepensesMod = 0, totalDepensesPrevDef = 0
+    let totalDepensesEngagement = 0, totalDepensesMandatAdmis = 0, totalDepensesPaiement = 0, totalDepensesRaP = 0
+
+    rubriquesRecette.forEach((rubrique: any) => {
+      tableauData.periodes.forEach((periode: any) => {
+        const donnee = tableauData.donnees?.[rubrique.id]?.[periode.id]
+        if (donnee) {
+          totalRecettesBP += donnee.budget_primitif || 0
+          totalRecettesBA += donnee.budget_additionnel || 0
+          totalRecettesMod += donnee.modifications || 0
+          totalRecettesPrevDef += donnee.previsions_definitives || 0
+          totalRecettesOrAdmis += donnee.ordre_recette_admis || 0
+          totalRecettesRecouvrement += donnee.recouvrement || 0
+          totalRecettesRaR += donnee.reste_a_recouvrer || 0
+        }
+      })
+    })
+
+    rubriquesDepense.forEach((rubrique: any) => {
+      tableauData.periodes.forEach((periode: any) => {
+        const donnee = tableauData.donnees?.[rubrique.id]?.[periode.id]
+        if (donnee) {
+          totalDepensesBP += donnee.budget_primitif || 0
+          totalDepensesBA += donnee.budget_additionnel || 0
+          totalDepensesMod += donnee.modifications || 0
+          totalDepensesPrevDef += donnee.previsions_definitives || 0
+          totalDepensesEngagement += donnee.engagement || 0
+          totalDepensesMandatAdmis += donnee.mandat_admis || 0
+          totalDepensesPaiement += donnee.paiement || 0
+          totalDepensesRaP += donnee.reste_a_payer || 0
+        }
+      })
+    })
+
+    // Soldes
+    const soldeOrAdmis = totalRecettesOrAdmis - totalDepensesMandatAdmis
+    const soldeRecouvrement = totalRecettesRecouvrement - totalDepensesPaiement
+
+    // Headers
+    equilibreData.push(['', 'DEPENSES', '', '', '', 'RECETTES', '', ''])
+    equilibreData.push(['Libellé', 'Budget Primitif', 'Prév. Définitives', 'Réalisé', 'Reste à payer', 'Budget Primitif', 'Prév. Définitives', 'Réalisé', 'Reste à recouvrer'])
+
+    // Section fonctionnement - summary row
+    equilibreData.push([])
+    equilibreData.push(['SECTION FONCTIONNEMENT', '', '', '', '', '', '', ''])
+    equilibreData.push([])
+
+    equilibreData.push([
+      'TOTAL DEPENSES',
+      totalDepensesBP.toFixed(2),
+      totalDepensesPrevDef.toFixed(2),
+      totalDepensesMandatAdmis.toFixed(2),
+      totalDepensesRaP.toFixed(2),
+      'TOTAL RECETTES',
+      totalRecettesPrevDef.toFixed(2),
+      totalRecettesOrAdmis.toFixed(2),
+      totalRecettesRaR.toFixed(2)
+    ])
+
+    equilibreData.push([])
+    equilibreData.push([])
+
+    // Solde
+    equilibreData.push(['RESULTAT (Recettes - Dépenses)'])
+    equilibreData.push([])
+    equilibreData.push([
+      'Solde sur Prévisions',
+      '',
+      '',
+      '',
+      '',
+      '',
+      (totalRecettesPrevDef - totalDepensesPrevDef).toFixed(2),
+      '',
+      ''
+    ])
+    equilibreData.push([
+      'Solde sur Réalisations (OR ADMIS - MANDAT ADMIS)',
+      '',
+      '',
+      '',
+      '',
+      '',
+      soldeOrAdmis.toFixed(2),
+      soldeOrAdmis >= 0 ? 'EXCEDENT' : 'DEFICIT',
+      ''
+    ])
+    equilibreData.push([
+      'Solde sur Encaissements (RECOUVREMENT - PAIEMENT)',
+      '',
+      '',
+      '',
+      '',
+      '',
+      soldeRecouvrement.toFixed(2),
+      soldeRecouvrement >= 0 ? 'EXCEDENT' : 'DEFICIT',
+      ''
+    ])
+
+    equilibreData.push([])
+    equilibreData.push([])
+
+    // Taux d'exécution
+    const tauxExecRecettes = totalRecettesPrevDef > 0 ? ((totalRecettesOrAdmis / totalRecettesPrevDef) * 100).toFixed(2) : '0.00'
+    const tauxExecDepenses = totalDepensesPrevDef > 0 ? ((totalDepensesMandatAdmis / totalDepensesPrevDef) * 100).toFixed(2) : '0.00'
+
+    equilibreData.push(['INDICATEURS DE PERFORMANCE'])
+    equilibreData.push([])
+    equilibreData.push([
+      'Taux d\'exécution DEPENSES',
+      '',
+      '',
+      tauxExecDepenses + '%',
+      '',
+      'Taux d\'exécution RECETTES',
+      '',
+      tauxExecRecettes + '%',
+      ''
+    ])
+    equilibreData.push([
+      'Taux de recouvrement',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      totalRecettesOrAdmis > 0 ? ((totalRecettesRecouvrement / totalRecettesOrAdmis) * 100).toFixed(2) + '%' : '0.00%',
+      ''
+    ])
+    equilibreData.push([
+      'Taux de paiement',
+      '',
+      '',
+      totalDepensesMandatAdmis > 0 ? ((totalDepensesPaiement / totalDepensesMandatAdmis) * 100).toFixed(2) + '%' : '0.00%',
+      '',
+      '',
+      '',
+      '',
+      ''
+    ])
+
+    const wsEquilibre = XLSX.utils.aoa_to_sheet(equilibreData)
+    wsEquilibre['!cols'] = [
+      { wch: 45 },  // Libellé
+      { wch: 18 },  // Dépenses BP
+      { wch: 18 },  // Dépenses Prév Def
+      { wch: 18 },  // Dépenses Réalisé
+      { wch: 18 },  // Dépenses RAP
+      { wch: 18 },  // Recettes BP
+      { wch: 18 },  // Recettes Prév Def
+      { wch: 18 },  // Recettes Réalisé
+      { wch: 18 }   // Recettes RAR
+    ]
+    XLSX.utils.book_append_sheet(wb, wsEquilibre, 'EQUILIBRE')
+
     // Generate Excel file and download
     XLSX.writeFile(wb, `compte_administratif_${commune.code}_${exercice.annee}.xlsx`)
 
