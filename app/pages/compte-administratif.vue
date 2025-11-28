@@ -90,8 +90,8 @@ const description = computed(() => {
   return {
     titre: 'Description',
     contenu: `
-      <p>La commune de <strong>${compteAffi.value.commune.nom}</strong> se situe dans le district de <strong>${compteAffi.value.district.nom}</strong>,
-      région <strong>${compteAffi.value.region.nom}</strong>. Cette zone est reconnue pour ses activités minières significatives,
+      <p>La commune de <strong>${compteAffi.value.commune.nom}</strong> se situe dans la région <strong>${compteAffi.value.region.nom}</strong>,
+      province de <strong>${compteAffi.value.province.nom}</strong>. Cette zone est reconnue pour ses activités minières significatives,
       notamment l'exploitation de minerais critiques essentiels à la transition énergétique mondiale.</p>
 
       <h3>Contexte minier local</h3>
@@ -274,9 +274,9 @@ const formatDate = (dateStr: string | undefined): string => {
             <div class="w-auto bg-white/85 dark:bg-gray-900/85 backdrop-blur-xl px-6 py-3 rounded-xl shadow-lg border border-white/50 dark:border-gray-700/50">
               <div class="flex flex-wrap justify-center items-center gap-2 text-lg sm:text-xl text-gray-700 dark:text-gray-300">
                 <font-awesome-icon icon="map-marker-alt" class="text-red-500 dark:text-red-400" />
-                <span class="font-semibold">{{ compteAffi.region.nom }}</span>
+                <span class="font-semibold">{{ compteAffi.province.nom }}</span>
                 <font-awesome-icon icon="chevron-right" class="text-sm text-gray-400" />
-                <span class="font-semibold">{{ compteAffi.district.nom }}</span>
+                <span class="font-semibold">{{ compteAffi.region.nom }}</span>
                 <font-awesome-icon icon="chevron-right" class="text-sm text-gray-400" />
                 <span class="font-bold text-blue-600 dark:text-blue-400">{{ compteAffi.commune.nom }}</span>
               </div>

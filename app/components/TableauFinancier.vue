@@ -87,7 +87,7 @@ const handleTelecharger = (format: 'excel' | 'word') => {
                   <font-awesome-icon icon="map-marker-alt" class="text-xs" />
                   Localisation
                 </p>
-                <p class="text-white font-semibold">{{ compte.region.nom }} → {{ compte.district.nom }}</p>
+                <p class="text-white font-semibold">{{ compte.province.nom }} → {{ compte.region.nom }}</p>
                 <p class="text-white font-bold text-lg">{{ compte.commune.nom }}</p>
               </div>
               <div v-if="compte.commune.maire" class="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">

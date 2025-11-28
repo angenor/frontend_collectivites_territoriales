@@ -3,16 +3,16 @@
  * Ces données seront remplacées par des données Supabase plus tard
  */
 
-export interface Region {
+export interface Province {
   id: string
   code: string
   nom: string
   population?: number
 }
 
-export interface District {
+export interface Region {
   id: string
-  regionId: string
+  provinceId: string
   code: string
   nom: string
   population?: number
@@ -20,7 +20,7 @@ export interface District {
 
 export interface Commune {
   id: string
-  districtId: string
+  regionId: string
   code: string
   nom: string
   type: 'urbaine' | 'rurale'
@@ -45,8 +45,8 @@ export interface LigneBudgetaire {
 export interface CompteAdministratif {
   annee: number
   commune: Commune
-  district: District
   region: Region
+  province: Province
   statut: 'brouillon' | 'valide' | 'publie'
   datePublication?: string
   dateMiseAJour?: string
@@ -55,31 +55,60 @@ export interface CompteAdministratif {
 }
 
 export const useMockData = () => {
-  // Données mock des régions
+  // Données mock des provinces de Madagascar
+  const provinces: Province[] = [
+    { id: 'p1', code: 'TANA', nom: 'Antananarivo', population: 6500000 },
+    { id: 'p2', code: 'FIAN', nom: 'Fianarantsoa', population: 4200000 },
+    { id: 'p3', code: 'TOLI', nom: 'Toliara', population: 3100000 },
+    { id: 'p4', code: 'MAHA', nom: 'Mahajanga', population: 2800000 },
+    { id: 'p5', code: 'ANTS', nom: 'Antsiranana', population: 1800000 },
+    { id: 'p6', code: 'TOAM', nom: 'Toamasina', population: 3200000 }
+  ]
+
+  // Données mock des régions de Madagascar
   const regions: Region[] = [
-    { id: '1', code: 'ANA', nom: 'Analamanga', population: 3618128 },
-    { id: '2', code: 'VAK', nom: 'Vakinankaratra', population: 2074358 },
-    { id: '3', code: 'ATS', nom: 'Atsinanana', population: 1484403 },
-    { id: '4', code: 'ITI', nom: 'Itasy', population: 897962 },
-    { id: '5', code: 'BOE', nom: 'Boeny', population: 931171 }
+    // Province Antsiranana
+    { id: 'r1', provinceId: 'p5', code: 'DIANA', nom: 'Diana', population: 890000 },
+    { id: 'r2', provinceId: 'p5', code: 'SAVA', nom: 'Sava', population: 980000 },
+
+    // Province Antananarivo
+    { id: 'r4', provinceId: 'p1', code: 'ANALAMANGA', nom: 'Analamanga', population: 3618000 },
+    { id: 'r3', provinceId: 'p1', code: 'ITASY', nom: 'Itasy', population: 897000 },
+    { id: 'r5', provinceId: 'p1', code: 'VAKINANKARATRA', nom: 'Vakinankaratra', population: 2074000 },
+    { id: 'r6', provinceId: 'p1', code: 'BONGOLAVA', nom: 'Bongolava', population: 458000 },
+
+    // Province Fianarantsoa
+    { id: 'r7', provinceId: 'p2', code: 'AMORON', nom: "Amoron'i Mania", population: 833000 },
+    { id: 'r8', provinceId: 'p2', code: 'HMATSIATRA', nom: 'Haute Matsiatra', population: 1447000 },
+    { id: 'r9', provinceId: 'p2', code: 'VATOVAVY', nom: 'Vatovavy-Fitovinany', population: 1435000 },
+    { id: 'r10', provinceId: 'p2', code: 'IHOROMBE', nom: 'Ihorombe', population: 418000 },
+    { id: 'r11', provinceId: 'p2', code: 'ATSIMO-ATS', nom: 'Atsimo-Atsinanana', population: 1026000 },
+
+    // Province Mahajanga
+    { id: 'r12', provinceId: 'p4', code: 'BETSIBOKA', nom: 'Betsiboka', population: 394000 },
+    { id: 'r13', provinceId: 'p4', code: 'BOENY', nom: 'Boeny', population: 931000 },
+    { id: 'r14', provinceId: 'p4', code: 'MELAKY', nom: 'Melaky', population: 309000 },
+    { id: 'r15', provinceId: 'p4', code: 'SOFIA', nom: 'Sofia', population: 1500000 },
+
+    // Province Toamasina
+    { id: 'r16', provinceId: 'p6', code: 'ATSINANANA', nom: 'Atsinanana', population: 1484000 },
+    { id: 'r17', provinceId: 'p6', code: 'ALAOTRA', nom: 'Alaotra-Mangoro', population: 1255000 },
+    { id: 'r18', provinceId: 'p6', code: 'ANALANJIROFO', nom: 'Analanjirofo', population: 1152000 },
+
+    // Province Toliara
+    { id: 'r19', provinceId: 'p3', code: 'MENABE', nom: 'Menabe', population: 700000 },
+    { id: 'r20', provinceId: 'p3', code: 'ATSIMO-AND', nom: 'Atsimo-Andrefana', population: 1799000 },
+    { id: 'r21', provinceId: 'p3', code: 'ANDROY', nom: 'Androy', population: 903000 },
+    { id: 'r22', provinceId: 'p3', code: 'ANOSY', nom: 'Anosy', population: 809000 }
   ]
 
-  // Données mock des districts
-  const districts: District[] = [
-    { id: 'd1', regionId: '1', code: 'ANKAZOBE', nom: 'Ankazobe', population: 215000 },
-    { id: 'd2', regionId: '1', code: 'ANJOZOROBE', nom: 'Anjozorobe', population: 285000 },
-    { id: 'd3', regionId: '1', code: 'ANTANA-REN', nom: 'Antananarivo Renivohitra', population: 1300000 },
-    { id: 'd4', regionId: '2', code: 'ANTSIRABE-I', nom: 'Antsirabe I', population: 257500 },
-    { id: 'd5', regionId: '2', code: 'BETAFO', nom: 'Betafo', population: 298000 },
-    { id: 'd6', regionId: '3', code: 'TOAMASINA-I', nom: 'Toamasina I', population: 485000 }
-  ]
-
-  // Données mock des communes
+  // Données mock des communes (quelques exemples)
   const communes: Commune[] = [
+    // Région Analamanga
     {
       id: 'c1',
-      districtId: 'd1',
-      code: 'ANKAZOBE-C',
+      regionId: 'r4',
+      code: 'ANKAZOBE',
       nom: 'Ankazobe',
       type: 'urbaine',
       population: 35000,
@@ -87,7 +116,7 @@ export const useMockData = () => {
     },
     {
       id: 'c2',
-      districtId: 'd1',
+      regionId: 'r4',
       code: 'AMBATOMANGA',
       nom: 'Ambatomanga',
       type: 'rurale',
@@ -96,17 +125,19 @@ export const useMockData = () => {
     },
     {
       id: 'c3',
-      districtId: 'd1',
+      regionId: 'r4',
       code: 'MIANTSO',
       nom: 'Miantso',
       type: 'rurale',
       population: 8500,
       maire: 'Rabe Marie'
     },
+
+    // Région Vakinankaratra
     {
       id: 'c4',
-      districtId: 'd5',
-      code: 'BETAFO-C',
+      regionId: 'r5',
+      code: 'BETAFO',
       nom: 'Betafo',
       type: 'urbaine',
       population: 42000,
@@ -114,12 +145,34 @@ export const useMockData = () => {
     },
     {
       id: 'c5',
-      districtId: 'd5',
+      regionId: 'r5',
       code: 'MANDROSOHASINA',
       nom: 'Mandrosohasina',
       type: 'rurale',
       population: 15000,
       maire: 'Rasolofo Claire'
+    },
+
+    // Région Atsinanana
+    {
+      id: 'c6',
+      regionId: 'r16',
+      code: 'TOAMASINA-I',
+      nom: 'Toamasina I',
+      type: 'urbaine',
+      population: 485000,
+      maire: 'Andrianjafy Michel'
+    },
+
+    // Région Boeny
+    {
+      id: 'c7',
+      regionId: 'r13',
+      code: 'MAHAJANGA-I',
+      nom: 'Mahajanga I',
+      type: 'urbaine',
+      population: 320000,
+      maire: 'Ramanantoanina Sophie'
     }
   ]
 
@@ -516,14 +569,14 @@ export const useMockData = () => {
     }
   ]
 
-  // Fonction pour obtenir les districts d'une région
-  const getDistrictsByRegion = (regionId: string): District[] => {
-    return districts.filter(d => d.regionId === regionId)
+  // Fonction pour obtenir les régions d'une province
+  const getRegionsByProvince = (provinceId: string): Region[] => {
+    return regions.filter(r => r.provinceId === provinceId)
   }
 
-  // Fonction pour obtenir les communes d'un district
-  const getCommunesByDistrict = (districtId: string): Commune[] => {
-    return communes.filter(c => c.districtId === districtId)
+  // Fonction pour obtenir les communes d'une région
+  const getCommunesByRegion = (regionId: string): Commune[] => {
+    return communes.filter(c => c.regionId === regionId)
   }
 
   // Fonction pour obtenir un compte administratif mock
@@ -531,17 +584,17 @@ export const useMockData = () => {
     const commune = communes.find(c => c.id === communeId)
     if (!commune) return null
 
-    const district = districts.find(d => d.id === commune.districtId)
-    if (!district) return null
-
-    const region = regions.find(r => r.id === district.regionId)
+    const region = regions.find(r => r.id === commune.regionId)
     if (!region) return null
+
+    const province = provinces.find(p => p.id === region.provinceId)
+    if (!province) return null
 
     return {
       annee,
       commune,
-      district,
       region,
+      province,
       statut: 'publie',
       datePublication: '2024-06-15',
       dateMiseAJour: '2024-10-28',
@@ -551,11 +604,11 @@ export const useMockData = () => {
   }
 
   return {
+    provinces,
     regions,
-    districts,
     communes,
-    getDistrictsByRegion,
-    getCommunesByDistrict,
+    getRegionsByProvince,
+    getCommunesByRegion,
     getCompteAdministratif
   }
 }

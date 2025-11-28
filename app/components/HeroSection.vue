@@ -3,7 +3,7 @@ const emit = defineEmits<{
   search: [communeId: string, annee: number]
 }>()
 
-const { regions, getDistrictsByRegion, getCommunesByDistrict } = useMockData()
+const { provinces, getRegionsByProvince, getCommunesByRegion } = useMockData()
 const { isDark } = useDarkMode()
 
 // Logo dynamique basé sur le thème
@@ -14,20 +14,20 @@ const logoSrc = computed(() => {
 })
 
 // États
+const selectedProvince = ref<string>('')
 const selectedRegion = ref<string>('')
-const selectedDistrict = ref<string>('')
 const selectedCommune = ref<string>('')
 const selectedAnnee = ref<number>(2024)
 
 // Listes filtrées
-const districts = computed(() => {
-  if (!selectedRegion.value) return []
-  return getDistrictsByRegion(selectedRegion.value)
+const regions = computed(() => {
+  if (!selectedProvince.value) return []
+  return getRegionsByProvince(selectedProvince.value)
 })
 
 const communes = computed(() => {
-  if (!selectedDistrict.value) return []
-  return getCommunesByDistrict(selectedDistrict.value)
+  if (!selectedRegion.value) return []
+  return getCommunesByRegion(selectedRegion.value)
 })
 
 // Années disponibles
@@ -37,33 +37,33 @@ const annees = computed(() => {
 })
 
 // Compteurs pour les labels
-const totalRegions = computed(() => regions.length)
+const totalProvinces = computed(() => provinces.length)
 
-const totalDistrictsForRegion = computed(() => {
-  if (!selectedRegion.value) return 0
-  return districts.value.length
+const totalRegionsForProvince = computed(() => {
+  if (!selectedProvince.value) return 0
+  return regions.value.length
+})
+
+const totalCommunesForProvince = computed(() => {
+  if (!selectedProvince.value) return 0
+  // Calculer le total de communes pour toutes les régions de la province sélectionnée
+  return regions.value.reduce((total, region) => {
+    return total + getCommunesByRegion(region.id).length
+  }, 0)
 })
 
 const totalCommunesForRegion = computed(() => {
   if (!selectedRegion.value) return 0
-  // Calculer le total de communes pour tous les districts de la région sélectionnée
-  return districts.value.reduce((total, district) => {
-    return total + getCommunesByDistrict(district.id).length
-  }, 0)
-})
-
-const totalCommunesForDistrict = computed(() => {
-  if (!selectedDistrict.value) return 0
   return communes.value.length
 })
 
 // Réinitialiser les sélections en cascade
-watch(selectedRegion, () => {
-  selectedDistrict.value = ''
+watch(selectedProvince, () => {
+  selectedRegion.value = ''
   selectedCommune.value = ''
 })
 
-watch(selectedDistrict, () => {
+watch(selectedRegion, () => {
   selectedCommune.value = ''
 })
 
@@ -166,13 +166,13 @@ const handleSearch = async () => {
 
             <!-- Grille de sélection -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <!-- Région avec compteur -->
+              <!-- Province avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                   <font-awesome-icon icon="map-marker-alt" class="text-blue-500 dark:text-blue-400" />
-                  <span>Région</span>
+                  <span>Province</span>
                   <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
-                    {{ totalRegions }}
+                    {{ totalProvinces }}
                   </span>
                 </label>
                 <div class="relative">
@@ -180,8 +180,46 @@ const handleSearch = async () => {
                     <font-awesome-icon icon="globe" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
                   </div>
                   <select
-                    v-model="selectedRegion"
+                    v-model="selectedProvince"
                     class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
+                  >
+                    <option value="">Sélectionner...</option>
+                    <option v-for="province in provinces" :key="province.id" :value="province.id">
+                      {{ province.nom }}
+                    </option>
+                  </select>
+                  <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
+                  </div>
+                </div>
+                <!-- Compteur Régions/Communes pour la province sélectionnée -->
+                <Transition name="fade">
+                  <div v-if="selectedProvince" class="mt-2 text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                    <font-awesome-icon icon="info-circle" class="text-blue-500 dark:text-blue-400" />
+                    <span>{{ totalRegionsForProvince }} régions, {{ totalCommunesForProvince }} communes</span>
+                  </div>
+                </Transition>
+              </div>
+
+              <!-- Région avec compteur -->
+              <div class="relative">
+                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
+                  <font-awesome-icon icon="building" class="text-green-500 dark:text-green-400" />
+                  <span>Région</span>
+                  <Transition name="fade" mode="out-in">
+                    <span v-if="selectedProvince" :key="totalRegionsForProvince" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
+                      {{ totalRegionsForProvince }}
+                    </span>
+                  </Transition>
+                </label>
+                <div class="relative">
+                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <font-awesome-icon icon="landmark" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <select
+                    v-model="selectedRegion"
+                    :disabled="!selectedProvince"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">Sélectionner...</option>
                     <option v-for="region in regions" :key="region.id" :value="region.id">
@@ -192,49 +230,11 @@ const handleSearch = async () => {
                     <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
                   </div>
                 </div>
-                <!-- Compteur Districts/Communes pour la région sélectionnée -->
+                <!-- Compteur Communes pour la région sélectionnée -->
                 <Transition name="fade">
                   <div v-if="selectedRegion" class="mt-2 text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                    <font-awesome-icon icon="info-circle" class="text-blue-500 dark:text-blue-400" />
-                    <span>{{ totalDistrictsForRegion }} districts, {{ totalCommunesForRegion }} communes</span>
-                  </div>
-                </Transition>
-              </div>
-
-              <!-- District avec compteur -->
-              <div class="relative">
-                <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  <font-awesome-icon icon="building" class="text-green-500 dark:text-green-400" />
-                  <span>District</span>
-                  <Transition name="fade" mode="out-in">
-                    <span v-if="selectedRegion" :key="totalDistrictsForRegion" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
-                      {{ totalDistrictsForRegion }}
-                    </span>
-                  </Transition>
-                </label>
-                <div class="relative">
-                  <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <font-awesome-icon icon="landmark" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
-                  </div>
-                  <select
-                    v-model="selectedDistrict"
-                    :disabled="!selectedRegion"
-                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <option value="">Sélectionner...</option>
-                    <option v-for="district in districts" :key="district.id" :value="district.id">
-                      {{ district.nom }}
-                    </option>
-                  </select>
-                  <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <font-awesome-icon icon="chevron-down" class="w-4 h-4 text-gray-400 dark:text-gray-300" />
-                  </div>
-                </div>
-                <!-- Compteur Communes pour le district sélectionné -->
-                <Transition name="fade">
-                  <div v-if="selectedDistrict" class="mt-2 text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
                     <font-awesome-icon icon="info-circle" class="text-green-500 dark:text-green-400" />
-                    <span>{{ totalCommunesForDistrict }} communes</span>
+                    <span>{{ totalCommunesForRegion }} communes</span>
                   </div>
                 </Transition>
               </div>
@@ -245,8 +245,8 @@ const handleSearch = async () => {
                   <font-awesome-icon icon="users" class="text-purple-500 dark:text-purple-400" />
                   <span>Commune</span>
                   <Transition name="fade" mode="out-in">
-                    <span v-if="selectedDistrict" :key="totalCommunesForDistrict" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200">
-                      {{ totalCommunesForDistrict }}
+                    <span v-if="selectedRegion" :key="totalCommunesForRegion" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200">
+                      {{ totalCommunesForRegion }}
                     </span>
                   </Transition>
                 </label>
@@ -256,7 +256,7 @@ const handleSearch = async () => {
                   </div>
                   <select
                     v-model="selectedCommune"
-                    :disabled="!selectedDistrict"
+                    :disabled="!selectedRegion"
                     class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">Sélectionner...</option>
@@ -321,12 +321,12 @@ const handleSearch = async () => {
                     <p class="text-sm text-blue-800 dark:text-blue-300 flex items-center gap-2 flex-wrap">
                       <span class="flex items-center gap-1 font-medium">
                         <font-awesome-icon icon="map-marker-alt" class="text-blue-600 dark:text-blue-400" />
-                        {{ regions.find(r => r.id === selectedRegion)?.nom }}
+                        {{ provinces.find(p => p.id === selectedProvince)?.nom }}
                       </span>
                       <font-awesome-icon icon="arrow-right" class="text-gray-400" />
                       <span class="flex items-center gap-1 font-medium">
                         <font-awesome-icon icon="building" class="text-green-600 dark:text-green-400" />
-                        {{ districts.find(d => d.id === selectedDistrict)?.nom }}
+                        {{ regions.find(r => r.id === selectedRegion)?.nom }}
                       </span>
                       <font-awesome-icon icon="arrow-right" class="text-gray-400" />
                       <span class="flex items-center gap-1 font-medium">
@@ -351,12 +351,12 @@ const handleSearch = async () => {
             <div class="flex items-center gap-4">
               <div class="bg-blue-500/20 p-3 rounded-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <p class="text-3xl font-bold text-white">22</p>
-                <p class="text-sm text-blue-100">Régions</p>
+                <p class="text-3xl font-bold text-white">6</p>
+                <p class="text-sm text-blue-100">Provinces</p>
               </div>
             </div>
           </div>
@@ -365,12 +365,12 @@ const handleSearch = async () => {
             <div class="flex items-center gap-4">
               <div class="bg-green-500/20 p-3 rounded-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
               <div>
-                <p class="text-3xl font-bold text-white">119</p>
-                <p class="text-sm text-blue-100">Communes</p>
+                <p class="text-3xl font-bold text-white">22</p>
+                <p class="text-sm text-blue-100">Régions</p>
               </div>
             </div>
           </div>
