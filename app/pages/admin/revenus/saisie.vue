@@ -597,6 +597,56 @@ const exportExcel = async () => {
       return
     }
 
+    // Appeler le nouvel endpoint backend qui génère l'Excel stylé
+    const response = await fetch(`http://localhost:8000/api/v1/revenus/export-excel/${commune.code}/${exercice.annee}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la génération de l\'export')
+    }
+
+    // Télécharger le fichier
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `compte_administratif_${commune.code}_${exercice.annee}.xlsx`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    alert('Export réussi!')
+  } catch (error: any) {
+    console.error('Erreur export:', error)
+    alert(error.message || 'Erreur lors de l\'export')
+  } finally {
+    exporting.value = false
+  }
+}
+
+// Ancienne fonction (gardée en commentaire pour référence)
+const exportExcelOld = async () => {
+  if (!isFormValid.value) {
+    alert('Veuillez sélectionner l\'exercice, la période et la commune')
+    return
+  }
+
+  try {
+    exporting.value = true
+
+    const commune = getSelectedCommune()
+    const exercice = getSelectedExercice()
+
+    if (!commune || !exercice) {
+      alert('Erreur: commune ou exercice non trouvé')
+    return
+    }
+
     // Call backend API to get tableau data
     const tableauData = await api.get(`/api/v1/revenus/tableau/${commune.code}/${exercice.annee}`)
 
