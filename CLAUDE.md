@@ -33,9 +33,6 @@ Pages in `app/pages/` are automatically converted to routes:
 - `pages/index.vue` → `/`
 - `pages/about.vue` → `/about`
 - `pages/contact.vue` → `/contact`
-- `pages/dashboard.vue` → `/dashboard`
-- `pages/blog/index.vue` → `/blog`
-- `pages/blog/[id].vue` → `/blog/:id` (dynamic route)
 
 ### Layout System
 
@@ -80,10 +77,7 @@ Key Nuxt modules in `nuxt.config.ts`:
 
 ## Project Documentation
 
-- **Requirements**: `bank/cahier_des_charges/TIMG_PCQVP_TdR_Prestataire-Conception-Plateforme-Web.pdf`
-- **Data Tables**: `bank/cahier_des_charges/Tableaux_de_Compte_Administratif.xlsx`
-- **Database Schema**: `bank/modele_de_donnees/schema.sql` - Complete PostgreSQL schema with tables, triggers, views, and indexes
-- **Data Model**: `bank/modele_de_donnees/mcd.md` - Conceptual data model with detailed entity descriptions, relationships, and business rules
+- **Requirements**: `bank/cahier_des_charges/cahier_des_charges_PCQVP_Plateforme_TdR_Conception.md`
 
 ## Dark Mode Implementation
 
