@@ -507,7 +507,7 @@ const formatDate = (dateStr: string | undefined): string => {
             </div>
 
             <!-- Bloc 4 : Grille de cartes informatives -->
-            <!-- <div class="grid md:grid-cols-3 gap-6">
+            <div class="grid md:grid-cols-3 gap-6">
               
               <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all group">
                 <div class="relative h-48 overflow-hidden">
@@ -597,7 +597,7 @@ const formatDate = (dateStr: string | undefined): string => {
                   </a>
                 </div>
               </div>
-            </div> -->
+            </div>
 
             <!-- Section Galerie Photos (Exemple) -->
             <div class="mt-8 space-y-4">
