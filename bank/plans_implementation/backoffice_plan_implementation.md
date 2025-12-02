@@ -121,54 +121,68 @@
 ## Phase 2 : Authentification
 
 ### 2.1 Composable d'authentification
-- [ ] `composables/useAuth.ts` :
-  - [ ] État réactif : `user`, `isAuthenticated`, `isLoading`, `error`
-  - [ ] `login(email, password)` - Connexion via API
-  - [ ] `logout()` - Déconnexion et nettoyage
-  - [ ] `refreshToken()` - Rafraîchissement automatique du token
-  - [ ] `register(data)` - Inscription (admin seulement)
-  - [ ] `updatePassword(oldPassword, newPassword)` - Changement mot de passe
-  - [ ] `resetPassword(email)` - Demande de réinitialisation
-  - [ ] Persistance du token dans localStorage/cookie
-  - [ ] Intercepteur axios/fetch pour injection du token Bearer
+- [x] `composables/useAuth.ts` :
+  - [x] État réactif : `user`, `isAuthenticated`, `isLoading`, `error`
+  - [x] `login(email, password)` - Connexion via API
+  - [x] `logout()` - Déconnexion et nettoyage
+  - [x] `refreshAccessToken()` - Rafraîchissement automatique du token
+  - [ ] `register(data)` - Inscription (admin seulement) - *via page admin*
+  - [x] `changePassword(oldPassword, newPassword)` - Changement mot de passe
+  - [x] `requestPasswordReset(email)` - Demande de réinitialisation
+  - [x] `confirmPasswordReset(token, newPassword)` - Confirmation réinitialisation
+  - [x] Persistance du token dans localStorage
+  - [x] `authFetch()` - Requêtes authentifiées avec refresh automatique
+  - [x] `getAuthHeaders()` - Headers Authorization pour requêtes API
 
 ### 2.2 Pages d'authentification
-- [ ] `pages/auth/login.vue` :
-  - [ ] Formulaire email/mot de passe
-  - [ ] Validation côté client (Vee-Validate ou native)
-  - [ ] Gestion des erreurs (identifiants incorrects, compte désactivé)
-  - [ ] Lien "Mot de passe oublié"
-  - [ ] Redirection vers `/admin` après connexion
-- [ ] `pages/auth/forgot-password.vue` :
-  - [ ] Formulaire email
-  - [ ] Confirmation d'envoi
-- [ ] `pages/auth/reset-password.vue` :
-  - [ ] Formulaire nouveau mot de passe
-  - [ ] Validation du token dans l'URL
-  - [ ] Redirection vers login après succès
+- [x] `pages/auth/login.vue` :
+  - [x] Formulaire email/mot de passe avec design TI Madagascar
+  - [x] Validation côté client (native)
+  - [x] Gestion des erreurs (identifiants incorrects, compte désactivé)
+  - [x] Lien "Mot de passe oublié"
+  - [x] Redirection vers `/admin` après connexion
+  - [x] Toggle affichage mot de passe
+  - [x] Panneau branding avec logo TI
+- [x] `pages/auth/forgot-password.vue` :
+  - [x] Formulaire email
+  - [x] Confirmation d'envoi avec message de succès
+  - [x] Option de renvoi d'email
+- [x] `pages/auth/reset-password.vue` :
+  - [x] Formulaire nouveau mot de passe avec confirmation
+  - [x] Indicateur de force du mot de passe
+  - [x] Validation du token dans l'URL
+  - [x] Redirection vers login après succès
+  - [x] Gestion du token invalide/expiré
 
 ### 2.3 Gestion des sessions
-- [ ] Refresh token automatique avant expiration
-- [ ] Déconnexion automatique si token invalide
+- [x] Refresh token automatique sur erreur 401
+- [x] Déconnexion automatique si token invalide
 - [ ] Affichage des sessions actives (optionnel)
+
+### 2.4 Middleware
+- [x] `middleware/auth.ts` amélioré :
+  - [x] Protection des routes `/admin/*`
+  - [x] Redirection vers login avec URL de retour
+  - [x] Redirection des utilisateurs connectés vers admin
 
 ---
 
 ## Phase 3 : Layout et Navigation Admin
 
 ### 3.1 Layout admin
-- [ ] `layouts/admin.vue` :
-  - [ ] Sidebar responsive (collapsible sur mobile)
-  - [ ] Header avec :
-    - [ ] Logo TI Madagascar
-    - [ ] Bouton toggle sidebar
-    - [ ] Toggle dark/light mode
-    - [ ] Menu utilisateur (profil, déconnexion)
-  - [ ] Breadcrumb dynamique
-  - [ ] Zone de contenu principal avec transitions
+- [x] `layouts/admin.vue` :
+  - [x] Sidebar responsive (collapsible sur mobile)
+  - [x] Header avec :
+    - [x] Logo TI Madagascar
+    - [x] Bouton toggle sidebar
+    - [x] Toggle dark/light mode
+    - [x] Menu utilisateur (profil, déconnexion)
+  - [x] Breadcrumb dynamique
+  - [x] Zone de contenu principal avec transitions
+  - [x] Persistance de l'état collapsed dans localStorage
 
 ### 3.2 Navigation sidebar
-- [ ] Structure de menu :
+- [x] Structure de menu complète :
   ```
   Dashboard
   ├── Données Financières
@@ -195,15 +209,20 @@
   │   └── Journal d'audit
   └── Paramètres
   ```
-- [ ] Indicateurs visuels pour la page active
+- [x] Indicateurs visuels pour la page active
+- [x] Submenus avec animation d'ouverture/fermeture
+- [x] Auto-ouverture des parents actifs
 - [ ] Badges pour notifications (ex: abonnés newsletter en attente)
 - [ ] Permissions : masquer les items selon le rôle utilisateur
 
 ### 3.3 Composants de base admin
-- [ ] `components/admin/Sidebar.vue`
-- [ ] `components/admin/Header.vue`
-- [ ] `components/admin/Breadcrumb.vue`
-- [ ] `components/admin/UserMenu.vue`
+- [x] `components/admin/Sidebar.vue` - Navigation complète avec submenus
+- [x] `components/admin/Header.vue` - Recherche, notifications, toggle theme
+- [x] `components/admin/Breadcrumb.vue` - Navigation dynamique
+- [x] `components/admin/UserMenu.vue` - Dropdown avec profil et déconnexion
+
+### 3.4 Dashboard (placeholder)
+- [x] `pages/admin/index.vue` - Page d'accueil avec KPIs et actions rapides
 
 ---
 
@@ -675,8 +694,8 @@
 | Phase | Description | Avancement |
 |-------|-------------|------------|
 | 1 | Charte Graphique et Design System | 80% |
-| 2 | Authentification | 0% |
-| 3 | Layout et Navigation Admin | 0% |
+| 2 | Authentification | 95% |
+| 3 | Layout et Navigation Admin | 90% |
 | 4 | Composants Réutilisables | 0% |
 | 5 | Service API | 0% |
 | 6 | Dashboard Admin | 0% |
@@ -694,18 +713,18 @@
 | 18 | Optimisation et Performance | 0% |
 | 19 | Déploiement | 0% |
 
-**Avancement global estimé : 5%**
+**Avancement global estimé : 15%**
 
 ---
 
 ## Prochaines actions prioritaires
 
-1. **Phase 1** - Définir la charte graphique (couleurs, typographies, tokens CSS)
-2. **Phase 2** - Implémenter `useAuth.ts` et les pages de login
-3. **Phase 3** - Créer le layout admin avec sidebar
+1. ~~**Phase 1** - Définir la charte graphique (couleurs, typographies, tokens CSS)~~ ✅ 80%
+2. ~~**Phase 2** - Implémenter `useAuth.ts` et les pages de login~~ ✅ 95%
+3. ~~**Phase 3** - Créer le layout admin avec sidebar~~ ✅ 90%
 4. **Phase 4** - Développer les composants UI de base (DataTable, Modal, Toast)
 5. **Phase 5** - Configurer les services API avec typage
-6. **Phase 6** - Créer le dashboard admin
+6. **Phase 6** - Créer le dashboard admin complet
 
 ---
 

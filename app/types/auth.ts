@@ -5,47 +5,76 @@
 export interface User {
   id: string
   email: string
-  username: string
   nom: string
   prenom?: string
   role: Role
   commune_id?: string
-  telephone?: string
   actif: boolean
   email_verifie: boolean
-  dernier_login?: string
+  derniere_connexion?: string
   created_at: string
   updated_at: string
+  nom_complet?: string
+  is_admin?: boolean
+  is_editor?: boolean
 }
 
 export interface Role {
   id: string
-  code: string
+  code: 'admin' | 'editeur' | 'lecteur' | 'commune'
   nom: string
   description?: string
-  permissions?: any
+  permissions?: Record<string, boolean>
   actif: boolean
 }
 
 export interface LoginCredentials {
-  username: string
+  email: string
   password: string
 }
 
 export interface RegisterData {
   email: string
-  username: string
   nom: string
   prenom?: string
   password: string
-  telephone?: string
+  role_code?: string
+  commune_id?: string
+}
+
+export interface Token {
+  access_token: string
+  refresh_token: string
+  token_type: string
 }
 
 export interface LoginResponse {
-  access_token: string
-  token_type: string
+  token: Token
+  user: User
 }
 
 export interface AuthError {
   detail: string
+}
+
+export interface PasswordResetRequest {
+  email: string
+}
+
+export interface PasswordResetConfirm {
+  token: string
+  new_password: string
+}
+
+export interface PasswordChange {
+  current_password: string
+  new_password: string
+}
+
+export interface Session {
+  id: string
+  ip_address?: string
+  user_agent?: string
+  created_at: string
+  is_current: boolean
 }
