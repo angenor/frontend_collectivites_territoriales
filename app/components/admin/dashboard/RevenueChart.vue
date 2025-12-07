@@ -58,6 +58,11 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick } from 'vue'
+import * as am5 from '@amcharts/amcharts5'
+import * as am5xy from '@amcharts/amcharts5/xy'
+import am5themes_Animated from '@amcharts/amcharts5/themes/Animated'
+
 interface ChartData {
   period: string
   recettes: number
@@ -93,35 +98,31 @@ watch(selectedPeriod, (value) => {
 })
 
 // Initialize amCharts
-let chart: any = null
+let root: am5.Root | null = null
 
-const initChart = async () => {
+const initChart = () => {
   if (!chartRef.value || !props.data.length) return
 
-  // Dynamically import amCharts (only on client)
-  const am5 = await import('@amcharts/amcharts5')
-  const am5xy = await import('@amcharts/amcharts5/xy')
-  const am5themes_Animated = await import('@amcharts/amcharts5/themes/Animated')
-
-  // Dispose existing chart
-  if (chart) {
-    chart.dispose()
+  // Dispose existing root
+  if (root) {
+    root.dispose()
   }
 
   // Create root
-  const root = am5.Root.new(chartRef.value)
+  root = am5.Root.new(chartRef.value)
 
   // Set theme
-  root.setThemes([am5themes_Animated.default.new(root)])
+  root.setThemes([am5themes_Animated.new(root)])
 
   // Create chart
-  chart = root.container.children.push(
+  const chart = root.container.children.push(
     am5xy.XYChart.new(root, {
       panX: false,
       panY: false,
       wheelX: 'none',
       wheelY: 'none',
       paddingLeft: 0,
+      layout: root.verticalLayout,
     })
   )
 
@@ -131,42 +132,63 @@ const initChart = async () => {
       categoryField: 'period',
       renderer: am5xy.AxisRendererX.new(root, {
         minGridDistance: 30,
+        cellStartLocation: 0.1,
+        cellEndLocation: 0.9,
       }),
     })
   )
   xAxis.data.setAll(props.data)
 
+  // Style X axis labels
+  xAxis.get('renderer').labels.template.setAll({
+    fontSize: 11,
+    fill: am5.color('#6b7280'),
+  })
+
   // Create Y axis
   const yAxis = chart.yAxes.push(
     am5xy.ValueAxis.new(root, {
       renderer: am5xy.AxisRendererY.new(root, {}),
-      numberFormat: '#a',
+      numberFormat: "#.#a' Ar'",
     })
   )
+
+  // Style Y axis labels
+  yAxis.get('renderer').labels.template.setAll({
+    fontSize: 11,
+    fill: am5.color('#6b7280'),
+  })
 
   // Create series function
   const createSeries = (name: string, field: string, color: string) => {
     const series = chart.series.push(
-      am5xy.ColumnSeries.new(root, {
+      am5xy.ColumnSeries.new(root!, {
         name,
         xAxis,
         yAxis,
         valueYField: field,
         categoryXField: 'period',
-        tooltip: am5.Tooltip.new(root, {
-          labelText: '{name}: {valueY}',
+        tooltip: am5.Tooltip.new(root!, {
+          labelText: "{name}: {valueY.formatNumber('#,###')} Ar",
         }),
       })
     )
 
     series.columns.template.setAll({
-      width: am5.percent(80),
-      fillOpacity: 0.8,
+      cornerRadiusTL: 4,
+      cornerRadiusTR: 4,
+      strokeOpacity: 0,
+      fillOpacity: 0.9,
       fill: am5.color(color),
-      stroke: am5.color(color),
+    })
+
+    // Hover state
+    series.columns.template.states.create('hover', {
+      fillOpacity: 1,
     })
 
     series.data.setAll(props.data)
+    series.appear(1000)
 
     return series
   }
@@ -177,27 +199,36 @@ const initChart = async () => {
   createSeries('Revenus Miniers', 'revenus_miniers', '#3695d8')
 
   // Add cursor
-  chart.set('cursor', am5xy.XYCursor.new(root, {}))
+  chart.set('cursor', am5xy.XYCursor.new(root, {
+    behavior: 'none',
+  }))
+
+  // Animate on load
+  chart.appear(1000, 100)
 }
 
 // Watch for data changes
-watch(() => props.data, () => {
-  if (import.meta.client) {
-    initChart()
+watch(() => props.data, (newData) => {
+  if (import.meta.client && newData.length) {
+    nextTick(() => {
+      initChart()
+    })
   }
 }, { deep: true })
 
 // Initialize on mount
 onMounted(() => {
   if (import.meta.client && props.data.length) {
-    initChart()
+    nextTick(() => {
+      initChart()
+    })
   }
 })
 
 // Cleanup on unmount
 onUnmounted(() => {
-  if (chart) {
-    chart.dispose()
+  if (root) {
+    root.dispose()
   }
 })
 </script>

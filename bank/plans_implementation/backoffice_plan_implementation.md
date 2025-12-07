@@ -629,76 +629,113 @@
 ## Phase 13 : Gestion Newsletter
 
 ### 13.1 Abonnés
-- [ ] `pages/admin/newsletter/index.vue` :
-  - [ ] Liste des abonnés avec statut (actif, inactif)
-  - [ ] Filtres : statut, date inscription
-  - [ ] Recherche par email
-  - [ ] Actions : activer, désactiver, supprimer
-  - [ ] Export CSV/Excel
-- [ ] `pages/admin/newsletter/[id].vue` :
-  - [ ] Détail abonné
-  - [ ] Historique des actions
+- [x] `pages/admin/newsletter/index.vue` :
+  - [x] Liste des abonnés avec statut (actif, inactif, désabonné)
+  - [x] Filtres : statut, recherche par email/nom
+  - [x] Recherche par email
+  - [x] Actions : activer, désactiver, supprimer avec confirmation
+  - [x] Export CSV/Excel
+  - [x] Import de fichiers (CSV, XLSX)
+  - [x] Cartes statistiques (total, actifs, inactifs, désabonnés)
+  - [x] Graphique évolution des inscriptions
+  - [x] Pagination
+  - [x] Modal de création d'abonné
+- [x] `pages/admin/newsletter/[id].vue` :
+  - [x] Détail abonné avec avatar coloré
+  - [x] Mode édition des informations
+  - [x] Historique des actions (inscription, confirmation, emails)
+  - [x] Statistiques de l'abonné (emails reçus, ouverts, clics)
+  - [x] Préférences de l'abonné
+  - [x] Zone de danger avec suppression
 
 ### 13.2 Statistiques newsletter
-- [ ] Carte : nombre total d'abonnés
-- [ ] Graphique : évolution des inscriptions
-- [ ] Taux de désinscription
+- [x] Carte : nombre total d'abonnés (dans index.vue)
+- [x] Graphique : évolution des inscriptions (dans index.vue)
+- [x] Taux de croissance (dans stats)
 
 ---
 
 ## Phase 14 : Statistiques et Audit
 
 ### 14.1 Tableau de bord statistiques
-- [ ] `pages/admin/statistiques/index.vue` :
-  - [ ] KPIs globaux
-  - [ ] Graphiques interactifs
-  - [ ] Filtres temporels (7j, 30j, 90j, année)
+- [x] `pages/admin/statistiques/index.vue` :
+  - [x] KPIs globaux (collectivités, comptes, projets, utilisateurs)
+  - [x] Graphiques interactifs (revenus par année, comptes par statut)
+  - [x] Filtres temporels (7j, 30j, 90j, année)
+  - [x] Statistiques de visite (résumé)
+  - [x] Téléchargements (résumé + top documents)
+  - [x] Activité récente (dernières actions)
+  - [x] Évolution des visites
 
 ### 14.2 Statistiques de visite
-- [ ] `pages/admin/statistiques/visites.vue` :
-  - [ ] Pages les plus visitées
-  - [ ] Évolution par jour/semaine/mois
-  - [ ] Source du trafic (si trackée)
-  - [ ] Téléchargements de documents
+- [x] `pages/admin/statistiques/visites.vue` :
+  - [x] Pages les plus visitées (avec classement)
+  - [x] Évolution par jour avec graphique
+  - [x] Visites par région
+  - [x] Origine géographique par pays (avec drapeaux)
+  - [x] Téléchargements de documents (total + top 5)
+  - [x] KPIs détaillés (visites, visiteurs, pages vues, durée, rebond)
 
 ### 14.3 Journal d'audit
-- [ ] `pages/admin/statistiques/audit.vue` :
-  - [ ] Liste des actions (création, modification, suppression)
-  - [ ] Filtres : table, utilisateur, action, date
-  - [ ] Détail du changement (avant/après)
-  - [ ] Export
+- [x] `pages/admin/statistiques/audit.vue` :
+  - [x] Liste des actions (création, modification, suppression, connexion)
+  - [x] Filtres : table, action, période
+  - [x] Recherche dans les logs
+  - [x] Statistiques rapides par type d'action
+  - [x] Détail du changement (avant/après) via modal
+  - [x] Comparaison des valeurs modifiées
+  - [x] Export Excel
+  - [x] Pagination
 
 ---
 
 ## Phase 15 : Paramètres
 
 ### 15.1 Paramètres généraux
-- [ ] `pages/admin/parametres/index.vue` :
-  - [ ] Configuration de l'exercice en cours
-  - [ ] Paramètres de validation (seuils d'alerte)
-  - [ ] Configuration export (logos, en-têtes)
+- [x] `pages/admin/parametres/index.vue` :
+  - [x] Configuration de l'exercice en cours (année, statut, historique)
+  - [x] Paramètres de validation (seuils d'alerte, règles, équilibre)
+  - [x] Configuration export (logos, en-têtes, pied de page, contacts)
+  - [x] Paramètres plateforme (nom, maintenance, version)
+  - [x] Navigation par onglets (4 sections)
+  - [x] Détection des modifications non sauvegardées
 
 ### 15.2 Plan comptable
-- [ ] `pages/admin/parametres/plan-comptable.vue` :
-  - [ ] Vue arborescente du plan comptable
-  - [ ] Recherche par code/libellé
-  - [ ] Édition des libellés (admin seulement)
+- [x] `pages/admin/parametres/plan-comptable.vue` :
+  - [x] Vue arborescente avec composant TreeNode récursif
+  - [x] Onglets Recettes / Dépenses
+  - [x] Recherche par code/libellé avec highlight
+  - [x] Compteur de résultats
+  - [x] Bouton tout déplier/réduire
+  - [x] Édition des libellés (admin seulement) via modal
+  - [x] Structure hiérarchique Madagascar (sections 60-71)
 
 ---
 
 ## Phase 16 : Exports et Téléchargements
 
 ### 16.1 Génération côté client
-- [ ] `composables/useExport.ts` :
-  - [ ] `exportToExcel(data, filename)` - Export xlsx
-  - [ ] `exportToCsv(data, filename)` - Export CSV
-  - [ ] `exportToPdf(element, filename)` - Export PDF (html2pdf)
-  - [ ] `printElement(element)` - Impression
+- [x] `composables/useExport.ts` :
+  - [x] `exportToExcel(data, options)` - Export xlsx avec XLSX.js
+  - [x] `exportToCsv(data, options)` - Export CSV avec BOM UTF-8
+  - [x] `exportToPdf(element, options)` - Export PDF avec html2pdf.js
+  - [x] `exportTableToPdf(data, options)` - Export tableau vers PDF
+  - [x] `printElement(element, options)` - Impression d'élément
+  - [x] `printTable(data, options)` - Impression de tableau
+  - [x] État de progression (`exportProgress`)
+  - [x] Utilitaires (`generateFilename`, `formatValue`, `downloadFile`)
 
 ### 16.2 Téléchargement depuis API
-- [ ] Gestion des blobs pour fichiers volumineux
-- [ ] Indicateur de progression
-- [ ] Gestion des erreurs
+- [x] `downloadWithProgress(url, filename, onProgress)` - Téléchargement avec progression réelle
+- [x] `downloadBlobWithProgress(blob, filename)` - Téléchargement de Blob avec progression
+- [x] Gestion des erreurs avec notifications toast
+
+### 16.3 Types et interfaces
+- [x] `ExportColumn` - Configuration des colonnes d'export
+- [x] `ExportOptions` - Options d'export (filename, title, columns, etc.)
+- [x] `PdfExportOptions` - Options PDF (orientation, format, margin, scale)
+- [x] `PrintOptions` - Options d'impression (title, styles, removeElements)
+- [x] `ExportProgress` - État de progression (status, progress, message)
 
 ---
 
@@ -781,15 +818,15 @@
 | 10 | Gestion du CMS | 100% |
 | 11 | Gestion des Documents | 100% |
 | 12 | Gestion des Utilisateurs | 100% |
-| 13 | Gestion Newsletter | 0% |
-| 14 | Statistiques et Audit | 0% |
-| 15 | Paramètres | 0% |
-| 16 | Exports et Téléchargements | 0% |
+| 13 | Gestion Newsletter | 100% |
+| 14 | Statistiques et Audit | 100% |
+| 15 | Paramètres | 100% |
+| 16 | Exports et Téléchargements | 100% |
 | 17 | Tests | 0% |
 | 18 | Optimisation et Performance | 0% |
 | 19 | Déploiement | 0% |
 
-**Avancement global estimé : 63%**
+**Avancement global estimé : 82%**
 
 ---
 
@@ -807,8 +844,13 @@
 10. ~~**Phase 10** - Implémenter la gestion du CMS~~ ✅ 100%
 11. ~~**Phase 11** - Implémenter la gestion des documents~~ ✅ 100%
 12. ~~**Phase 12** - Implémenter la gestion des utilisateurs~~ ✅ 100%
-13. **Phase 13** - Implémenter la gestion newsletter
-14. **Phase 14** - Implémenter statistiques et audit
+13. ~~**Phase 13** - Implémenter la gestion newsletter~~ ✅ 100%
+14. ~~**Phase 14** - Implémenter statistiques et audit~~ ✅ 100%
+15. ~~**Phase 15** - Implémenter les paramètres~~ ✅ 100%
+16. ~~**Phase 16** - Implémenter exports et téléchargements~~ ✅ 100%
+17. **Phase 17** - Configuration des tests (Vitest, Vue Test Utils)
+18. **Phase 18** - Optimisation et performance
+19. **Phase 19** - Déploiement Firebase
 
 ---
 

@@ -49,6 +49,11 @@ export default defineNuxtConfig({
     // '@nuxtjs/supabase' // Désactivé - on utilise FastAPI directement
   ],
 
+  // Auto-import des services
+  imports: {
+    dirs: ['services'],
+  },
+
   // Configuration des variables d'environnement
   runtimeConfig: {
     public: {
