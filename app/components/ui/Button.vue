@@ -5,9 +5,10 @@
     :href="href"
     :type="componentType === 'button' ? type : undefined"
     :disabled="disabled || loading"
+    :style="variantStyles"
     :class="[
       'inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer',
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+      'focus:outline-none',
       sizeClasses,
       variantClasses,
       block ? 'w-full' : '',
@@ -137,53 +138,84 @@ const spinnerColor = computed(() => {
   return 'white'
 })
 
-// Variant classes
+// Variant classes - Using !important via inline styles for critical colors
 const variantClasses = computed(() => {
   const variants = {
     primary: [
-      'bg-[var(--color-primary)] text-white',
-      'hover:bg-[var(--color-primary-600)]',
-      'focus-visible:ring-[var(--color-primary)]/50',
+      'hover:brightness-110',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     secondary: [
-      'bg-[var(--color-secondary)] text-white',
-      'hover:bg-[var(--color-secondary-dark)]',
-      'focus-visible:ring-[var(--color-secondary)]/50',
+      'hover:brightness-110',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     outline: [
-      'bg-transparent text-[var(--color-primary)] border border-[var(--color-primary)]',
-      'hover:bg-[var(--color-primary-50)]',
-      'focus-visible:ring-[var(--color-primary)]/50',
+      'border',
+      'hover:brightness-95',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     ghost: [
-      'bg-transparent text-[var(--text-secondary)]',
-      'hover:bg-[var(--interactive-hover)] hover:text-[var(--text-primary)]',
-      'focus-visible:ring-[var(--color-primary)]/50',
+      'hover:bg-gray-100 dark:hover:bg-gray-800',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     danger: [
-      'bg-[var(--color-error)] text-white',
-      'hover:bg-[var(--color-error-dark)]',
-      'focus-visible:ring-[var(--color-error)]/50',
+      'hover:brightness-110',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     success: [
-      'bg-[var(--color-success)] text-white',
-      'hover:bg-[var(--color-success-dark)]',
-      'focus-visible:ring-[var(--color-success)]/50',
+      'hover:brightness-110',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
     ].join(' '),
 
     link: [
-      'bg-transparent text-[var(--color-primary)] underline underline-offset-2',
-      'hover:text-[var(--color-primary-700)] hover:no-underline',
-      'focus-visible:ring-[var(--color-primary)]/50',
-      'px-0 py-0', // Reset padding for link style
+      'underline underline-offset-2',
+      'hover:no-underline',
+      'focus-visible:ring-2 focus-visible:ring-offset-2',
+      'px-0 py-0',
     ].join(' '),
   }
   return variants[props.variant]
+})
+
+// Inline styles for reliable color application
+const variantStyles = computed(() => {
+  const styles: Record<string, Record<string, string>> = {
+    primary: {
+      backgroundColor: 'var(--color-primary)',
+      color: 'white',
+    },
+    secondary: {
+      backgroundColor: 'var(--color-secondary, #6b7280)',
+      color: 'white',
+    },
+    outline: {
+      backgroundColor: 'transparent',
+      color: 'var(--color-primary)',
+      borderColor: 'var(--color-primary)',
+    },
+    ghost: {
+      backgroundColor: 'transparent',
+      color: 'var(--text-secondary)',
+    },
+    danger: {
+      backgroundColor: 'var(--color-error)',
+      color: 'white',
+    },
+    success: {
+      backgroundColor: 'var(--color-success)',
+      color: 'white',
+    },
+    link: {
+      backgroundColor: 'transparent',
+      color: 'var(--color-primary)',
+    },
+  }
+  return styles[props.variant] || {}
 })
 
 // Handle click
