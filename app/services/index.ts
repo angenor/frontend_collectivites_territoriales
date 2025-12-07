@@ -16,6 +16,7 @@ export { useStatistiquesService } from './statistiques.service'
 export { useCMSService } from './cms.service'
 export { useImportService } from './import.service'
 export { useExportService } from './export.service'
+export { useTableauxService } from './tableaux.service'
 
 // Types réexportés
 export type { Societe, SocieteFormData } from './projets.service'

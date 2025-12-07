@@ -471,11 +471,10 @@ const loadComptes = async () => {
     const response = await comptesService.getComptes(params)
     comptes.value = response.items
     pagination.updateFromResponse(response)
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du chargement des comptes:', error)
-    // Données de démonstration en cas d'erreur API
-    comptes.value = generateMockComptes()
-    pagination.total.value = comptes.value.length
+    toast.error(error.message || 'Erreur lors du chargement des comptes administratifs')
+    comptes.value = []
   } finally {
     isLoading.value = false
   }
@@ -496,23 +495,27 @@ const generateMockComptes = (): CompteAdministratifWithStats[] => {
   const statuts = ['brouillon', 'valide', 'publie', 'publie', 'publie']
   const currentYear = new Date().getFullYear()
 
-  return communes.map((commune, index) => ({
-    id: String(index + 1),
-    commune_id: commune.id,
-    commune: commune as any,
-    district_id: null,
-    district: null,
-    region_id: null,
-    region: null,
-    annee: currentYear - (index % 3),
-    statut: statuts[index % statuts.length],
-    notes: null,
-    nombre_lignes: Math.floor(Math.random() * 50) + 20,
-    total_recettes: Math.floor(Math.random() * 500000000) + 100000000,
-    total_depenses: Math.floor(Math.random() * 400000000) + 80000000,
-    created_at: new Date(Date.now() - index * 86400000 * 30).toISOString(),
-    updated_at: new Date(Date.now() - index * 86400000 * 7).toISOString(),
-  }))
+  return communes.map((commune, index) => {
+    const exerciceId = (index % 3) + 1 // Mock exercice IDs: 1, 2, 3
+    return {
+      // Format ID: {commune_id}-{exercice_id} pour correspondre au backend
+      id: `${commune.id}-${exerciceId}`,
+      commune_id: commune.id,
+      commune: commune as any,
+      district_id: null,
+      district: null,
+      region_id: null,
+      region: null,
+      annee: currentYear - (index % 3),
+      statut: statuts[index % statuts.length],
+      notes: null,
+      nombre_lignes: Math.floor(Math.random() * 50) + 20,
+      total_recettes: Math.floor(Math.random() * 500000000) + 100000000,
+      total_depenses: Math.floor(Math.random() * 400000000) + 80000000,
+      created_at: new Date(Date.now() - index * 86400000 * 30).toISOString(),
+      updated_at: new Date(Date.now() - index * 86400000 * 7).toISOString(),
+    }
+  })
 }
 
 // Générer des données géographiques mock
@@ -559,13 +562,12 @@ const loadGeography = async () => {
     communes.value = communesData.items
     // Pas de districts dans la structure malgache (Province → Région → Commune)
     districts.value = []
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du chargement des données géographiques:', error)
-    // Données de démonstration en cas d'erreur API
-    const { mockRegions, mockDistricts, mockCommunes } = generateMockGeo()
-    regions.value = mockRegions
-    districts.value = mockDistricts
-    communes.value = mockCommunes
+    toast.error('Erreur lors du chargement des données géographiques')
+    regions.value = []
+    communes.value = []
+    districts.value = []
   }
 }
 

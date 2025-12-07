@@ -346,3 +346,9 @@ export interface ApiError {
   detail?: string
   errors?: Record<string, string[]>
 }
+
+// ============================================================================
+// TABLEAUX FINANCIERS (Comptes Administratifs)
+// ============================================================================
+
+export * from './tableaux'
