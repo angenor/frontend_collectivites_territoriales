@@ -11,7 +11,17 @@
     </div>
 
     <!-- KPI Cards -->
+    <div v-if="statsError" class="mb-8 bg-[var(--color-error)]/10 border border-[var(--color-error)]/30 rounded-xl p-4">
+      <div class="flex items-center gap-3 text-[var(--color-error)]">
+        <font-awesome-icon :icon="['fas', 'exclamation-triangle']" />
+        <span>{{ statsError }}</span>
+        <button @click="loadDashboardStats" class="ml-auto px-3 py-1 bg-[var(--color-error)] text-white rounded-lg text-sm hover:bg-[var(--color-error)]/80">
+          Réessayer
+        </button>
+      </div>
+    </div>
     <AdminDashboardKpiCards
+      v-else
       :stats="dashboardStats"
       :loading="statsLoading"
       class="mb-8"
@@ -21,7 +31,22 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
       <!-- Revenue Chart -->
       <div class="lg:col-span-2">
+        <div v-if="revenueError" class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6 shadow-sm h-full">
+          <h2 class="font-heading text-lg font-bold text-[var(--text-primary)] uppercase tracking-wide mb-4">
+            Évolution des Revenus
+          </h2>
+          <div class="h-64 flex items-center justify-center">
+            <div class="text-center">
+              <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="text-4xl text-[var(--color-error)] mb-3" />
+              <p class="text-[var(--text-secondary)] mb-3">{{ revenueError }}</p>
+              <button @click="loadRevenueData(selectedRevenuePeriod)" class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary)]/80">
+                Réessayer
+              </button>
+            </div>
+          </div>
+        </div>
         <AdminDashboardRevenueChart
+          v-else
           :data="revenueData"
           :loading="revenueLoading"
           @period-change="handlePeriodChange"
@@ -33,7 +58,22 @@
     </div>
 
     <!-- Recent Activity -->
+    <div v-if="activitiesError" class="mb-8 bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6 shadow-sm">
+      <h2 class="font-heading text-lg font-bold text-[var(--text-primary)] uppercase tracking-wide mb-4">
+        Activité Récente
+      </h2>
+      <div class="flex items-center justify-center py-8">
+        <div class="text-center">
+          <font-awesome-icon :icon="['fas', 'exclamation-triangle']" class="text-3xl text-[var(--color-error)] mb-3" />
+          <p class="text-[var(--text-secondary)] mb-3">{{ activitiesError }}</p>
+          <button @click="loadRecentActivities" class="px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm hover:bg-[var(--color-primary)]/80">
+            Réessayer
+          </button>
+        </div>
+      </div>
+    </div>
     <AdminDashboardRecentActivity
+      v-else
       :activities="recentActivities"
       :loading="activitiesLoading"
       class="mb-8"
@@ -75,24 +115,17 @@ const statistiquesService = useStatistiquesService()
 
 const dashboardStats = ref<DashboardStats | null>(null)
 const statsLoading = ref(true)
+const statsError = ref<string | null>(null)
 
 const loadDashboardStats = async () => {
   statsLoading.value = true
+  statsError.value = null
   try {
     dashboardStats.value = await statistiquesService.getDashboardStats()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du chargement des statistiques:', error)
-    // Utiliser des données de fallback en cas d'erreur
-    dashboardStats.value = {
-      communes_avec_donnees: 0,
-      communes_total: 1695,
-      total_recettes: 0,
-      total_depenses: 0,
-      projets_miniers_actifs: 0,
-      evolution_recettes: 0,
-      evolution_depenses: 0,
-      evolution_projets: 0,
-    }
+    statsError.value = error?.message || 'Impossible de charger les statistiques'
+    dashboardStats.value = null
   } finally {
     statsLoading.value = false
   }
@@ -111,10 +144,12 @@ interface ChartData {
 
 const revenueData = ref<ChartData[]>([])
 const revenueLoading = ref(true)
+const revenueError = ref<string | null>(null)
 const selectedRevenuePeriod = ref('12m')
 
 const loadRevenueData = async (period: string = '12m') => {
   revenueLoading.value = true
+  revenueError.value = null
   try {
     // Déterminer le nombre d'années à récupérer
     const annees = period === '6m' ? 1 : period === '12m' ? 1 : 3
@@ -128,10 +163,10 @@ const loadRevenueData = async (period: string = '12m') => {
       depenses: Math.round(item.total * 0.85), // Estimation des dépenses
       revenus_miniers: Math.round(item.total * 0.15), // Estimation revenus miniers
     }))
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du chargement des revenus:', error)
-    // Données de démonstration en cas d'erreur
-    revenueData.value = generateMockRevenueData(period)
+    revenueError.value = error?.message || 'Impossible de charger les revenus'
+    revenueData.value = []
   } finally {
     revenueLoading.value = false
   }
@@ -142,26 +177,6 @@ const handlePeriodChange = (period: string) => {
   loadRevenueData(period)
 }
 
-// Générer des données de démonstration
-const generateMockRevenueData = (period: string): ChartData[] => {
-  const months = period === '6m' ? 6 : period === '12m' ? 12 : 36
-  const data: ChartData[] = []
-  const now = new Date()
-
-  for (let i = months - 1; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const monthName = date.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' })
-
-    data.push({
-      period: monthName,
-      recettes: Math.round(150000000 + Math.random() * 100000000),
-      depenses: Math.round(120000000 + Math.random() * 80000000),
-      revenus_miniers: Math.round(20000000 + Math.random() * 30000000),
-    })
-  }
-
-  return data
-}
 
 // ============================================================================
 // RECENT ACTIVITIES
@@ -169,43 +184,17 @@ const generateMockRevenueData = (period: string): ChartData[] => {
 
 const recentActivities = ref<ActivityLog[]>([])
 const activitiesLoading = ref(true)
+const activitiesError = ref<string | null>(null)
 
 const loadRecentActivities = async () => {
   activitiesLoading.value = true
+  activitiesError.value = null
   try {
     recentActivities.value = await statistiquesService.getActiviteRecente({ limite: 5 })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erreur lors du chargement des activités:', error)
-    // Données de démonstration
-    recentActivities.value = [
-      {
-        id: '1',
-        action: 'create',
-        table_name: 'comptes_administratifs',
-        description: 'Nouvelle recette ajoutée pour Antananarivo-Renivohitra',
-        user_id: '1',
-        user_name: 'Jean Rakoto',
-        created_at: new Date().toISOString(),
-      },
-      {
-        id: '2',
-        action: 'update',
-        table_name: 'comptes_administratifs',
-        description: 'Compte administratif 2024 publié pour Toamasina I',
-        user_id: '2',
-        user_name: 'Marie Rabe',
-        created_at: new Date(Date.now() - 3600000).toISOString(),
-      },
-      {
-        id: '3',
-        action: 'import',
-        table_name: 'communes',
-        description: 'Import de données Excel - 25 communes',
-        user_id: '3',
-        user_name: 'Admin',
-        created_at: new Date(Date.now() - 7200000).toISOString(),
-      },
-    ]
+    activitiesError.value = error?.message || 'Impossible de charger les activités récentes'
+    recentActivities.value = []
   } finally {
     activitiesLoading.value = false
   }

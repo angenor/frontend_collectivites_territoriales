@@ -263,8 +263,9 @@ const menuGroups = computed<MenuGroup[]>(() => [
 
 // Check if route is active
 const isActive = (path: string) => {
-  if (path === '/admin') {
-    return route.path === '/admin'
+  // Exact match for dashboard and "Vue générale" pages
+  if (path === '/admin' || path === '/admin/statistiques') {
+    return route.path === path
   }
   return route.path.startsWith(path)
 }
