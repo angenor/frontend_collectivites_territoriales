@@ -128,7 +128,7 @@
           @click="loadUsers"
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-colors"
         >
-          <font-awesome-icon :icon="['fas', 'refresh']" />
+          <font-awesome-icon :icon="['fas', 'rotate']" />
           Réessayer
         </button>
       </div>

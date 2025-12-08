@@ -113,6 +113,18 @@ import {
   faAnglesRight,
   faXmark,
   faScaleBalanced,
+  // User management icons
+  faUserSlash,
+  faUserCheck,
+  faUserPlus,
+  faUserClock,
+  faUserShield,
+  faPen,
+  faDesktop,
+  faMobileScreen,
+  faTabletScreenButton,
+  faRotate,
+  faUsersSlash,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Regular icons
@@ -251,6 +263,18 @@ library.add(
   faAnglesRight,
   faXmark,
   faScaleBalanced,
+  // User management icons
+  faUserSlash,
+  faUserCheck,
+  faUserPlus,
+  faUserClock,
+  faUserShield,
+  faPen,
+  faDesktop,
+  faMobileScreen,
+  faTabletScreenButton,
+  faRotate,
+  faUsersSlash,
   // Regular
   farHeart,
   farStar,
