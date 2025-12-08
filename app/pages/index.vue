@@ -101,245 +101,198 @@ onUnmounted(() => {
 
     <!-- Contenu principal -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-12">
-      <!-- Section Statistiques -->
-      <section v-if="dashboardStats || isLoadingStats" class="py-8">
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center flex items-center justify-center gap-3">
-          <font-awesome-icon :icon="['fas', 'chart-bar']" class="text-blue-600 dark:text-blue-400" />
-          <span>Statistiques de la plateforme</span>
-        </h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <!-- Communes avec données -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Communes avec données</p>
-                <p class="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                  <template v-if="isLoadingStats">
-                    <span class="inline-block w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
-                  </template>
-                  <template v-else>
-                    {{ dashboardStats?.communes_avec_donnees || 0 }}
-                    <span class="text-sm font-normal text-gray-500">/ {{ dashboardStats?.communes_total || 0 }}</span>
-                  </template>
-                </p>
-              </div>
-              <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
-                <font-awesome-icon :icon="['fas', 'city']" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
-              </div>
-            </div>
-            <div v-if="!isLoadingStats && dashboardStats?.communes_total" class="mt-4">
-              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  class="bg-blue-600 h-2 rounded-full transition-all duration-500"
-                  :style="{ width: `${(dashboardStats.communes_avec_donnees / dashboardStats.communes_total) * 100}%` }"
-                ></div>
-              </div>
-              <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {{ Math.round((dashboardStats.communes_avec_donnees / dashboardStats.communes_total) * 100) }}% de couverture
-              </p>
-            </div>
-          </div>
-
-          <!-- Total Recettes -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Recettes</p>
-                <p class="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">
-                  <template v-if="isLoadingStats">
-                    <span class="inline-block w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
-                  </template>
-                  <template v-else>
-                    {{ formatMontant(dashboardStats?.total_recettes) }}
-                    <span class="text-sm font-normal">Ar</span>
-                  </template>
-                </p>
-              </div>
-              <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-full">
-                <font-awesome-icon :icon="['fas', 'arrow-trend-up']" class="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-            </div>
-            <div v-if="!isLoadingStats && dashboardStats?.evolution_recettes" class="mt-4 flex items-center gap-1">
-              <font-awesome-icon
-                :icon="['fas', dashboardStats.evolution_recettes >= 0 ? 'arrow-up' : 'arrow-down']"
-                :class="dashboardStats.evolution_recettes >= 0 ? 'text-green-500' : 'text-red-500'"
-                class="w-3 h-3"
-              />
-              <span :class="dashboardStats.evolution_recettes >= 0 ? 'text-green-500' : 'text-red-500'" class="text-sm font-medium">
-                {{ Math.abs(dashboardStats.evolution_recettes).toFixed(1) }}%
-              </span>
-              <span class="text-xs text-gray-500 dark:text-gray-400">vs année précédente</span>
-            </div>
-          </div>
-
-          <!-- Total Dépenses -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Dépenses</p>
-                <p class="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-2">
-                  <template v-if="isLoadingStats">
-                    <span class="inline-block w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
-                  </template>
-                  <template v-else>
-                    {{ formatMontant(dashboardStats?.total_depenses) }}
-                    <span class="text-sm font-normal">Ar</span>
-                  </template>
-                </p>
-              </div>
-              <div class="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full">
-                <font-awesome-icon :icon="['fas', 'arrow-trend-down']" class="w-6 h-6 text-orange-600 dark:text-orange-400" />
-              </div>
-            </div>
-            <div v-if="!isLoadingStats && dashboardStats?.evolution_depenses" class="mt-4 flex items-center gap-1">
-              <font-awesome-icon
-                :icon="['fas', dashboardStats.evolution_depenses >= 0 ? 'arrow-up' : 'arrow-down']"
-                :class="dashboardStats.evolution_depenses <= 0 ? 'text-green-500' : 'text-red-500'"
-                class="w-3 h-3"
-              />
-              <span :class="dashboardStats.evolution_depenses <= 0 ? 'text-green-500' : 'text-red-500'" class="text-sm font-medium">
-                {{ Math.abs(dashboardStats.evolution_depenses).toFixed(1) }}%
-              </span>
-              <span class="text-xs text-gray-500 dark:text-gray-400">vs année précédente</span>
-            </div>
-          </div>
-
-          <!-- Comptes administratifs -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Comptes Administratifs</p>
-                <p class="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-2">
-                  <template v-if="isLoadingStats">
-                    <span class="inline-block w-12 h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
-                  </template>
-                  <template v-else>
-                    {{ dashboardStats?.total_comptes_administratifs || 0 }}
-                  </template>
-                </p>
-              </div>
-              <div class="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full">
-                <font-awesome-icon :icon="['fas', 'file-invoice-dollar']" class="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-            </div>
-            <div v-if="!isLoadingStats && dashboardStats?.comptes_par_statut" class="mt-4 flex flex-wrap gap-2">
-              <span
-                v-for="(count, statut) in dashboardStats.comptes_par_statut"
-                :key="statut"
-                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                :class="{
-                  'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300': statut === 'brouillon',
-                  'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400': statut === 'valide',
-                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': statut === 'publie',
-                }"
-              >
-                {{ count }} {{ statut }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section Carte Interactive -->
+      <!-- Section Carte Interactive avec Statistiques intégrées -->
       <section class="py-8">
         <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center flex items-center justify-center gap-3">
           <font-awesome-icon :icon="['fas', 'map']" class="text-blue-600 dark:text-blue-400" />
           <span>Carte des Régions de Madagascar</span>
         </h2>
 
-        <div class="grid lg:grid-cols-3 gap-6">
-          <!-- Carte -->
-          <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <!-- Container avec positionnement relatif -->
+        <div class="relative">
+          <!-- Panneau d'informations flottant (style notebook) -->
+          <div class="info-card absolute top-4 right-4 z-20 w-80 max-w-[calc(100%-2rem)] lg:max-w-sm">
+            <div class="info-card-inner p-5">
+              <!-- Header -->
+              <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+                <font-awesome-icon :icon="['fas', hoveredRegion || selectedRegion ? 'map-marker-alt' : 'chart-bar']" class="text-blue-600 dark:text-blue-400" />
+                <span>{{ hoveredRegion || selectedRegion ? 'Informations' : 'Statistiques de la plateforme' }}</span>
+              </h3>
+
+              <!-- Contenu dynamique -->
+              <Transition name="fade" mode="out-in">
+                <!-- État de survol -->
+                <div v-if="hoveredRegion" key="hover" class="space-y-3">
+                  <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg border border-blue-300 dark:border-blue-700">
+                    <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mb-1">Région survolée</p>
+                    <p class="text-xl font-bold text-gray-900 dark:text-white">{{ hoveredRegion.nom }}</p>
+                    <div class="mt-3 space-y-1">
+                      <p class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                        <font-awesome-icon :icon="['fas', 'building']" class="w-4 text-blue-600 dark:text-blue-400" />
+                        Province: {{ hoveredRegion.province_nom || 'N/A' }}
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                        <font-awesome-icon :icon="['fas', 'city']" class="w-4 text-blue-600 dark:text-blue-400" />
+                        Communes: {{ hoveredRegion.nb_communes || 0 }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- État sélectionné -->
+                <div v-else-if="selectedRegion" key="selected" class="space-y-3">
+                  <div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg border border-purple-300 dark:border-purple-700">
+                    <p class="text-xs text-purple-600 dark:text-purple-400 font-medium mb-1">Région sélectionnée</p>
+                    <p class="text-xl font-bold text-gray-900 dark:text-white">{{ selectedRegion.nom }}</p>
+                    <div class="mt-3 space-y-1">
+                      <p class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                        <font-awesome-icon :icon="['fas', 'building']" class="w-4 text-purple-600 dark:text-purple-400" />
+                        Province: {{ selectedRegion.province_nom || 'N/A' }}
+                      </p>
+                      <p class="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                        <font-awesome-icon :icon="['fas', 'city']" class="w-4 text-purple-600 dark:text-purple-400" />
+                        Communes: {{ selectedRegion.nb_communes || 0 }}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    @click="selectedRegion = null"
+                    class="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition text-sm border border-gray-300 dark:border-gray-600"
+                  >
+                    <font-awesome-icon :icon="['fas', 'times']" class="mr-1" />
+                    Désélectionner
+                  </button>
+                </div>
+
+                <!-- État par défaut : Statistiques de la plateforme -->
+                <div v-else key="stats" class="space-y-4">
+                  <!-- Communes avec données -->
+                  <div class="stat-item p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Communes avec données</p>
+                        <p class="text-xl font-bold text-gray-900 dark:text-white">
+                          <template v-if="isLoadingStats">
+                            <span class="inline-block w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
+                          </template>
+                          <template v-else>
+                            {{ dashboardStats?.communes_avec_donnees || 0 }}
+                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">/ {{ dashboardStats?.communes_total || 0 }}</span>
+                          </template>
+                        </p>
+                      </div>
+                      <div class="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
+                        <font-awesome-icon :icon="['fas', 'city']" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                    </div>
+                    <div v-if="!isLoadingStats && dashboardStats?.communes_total" class="mt-2">
+                      <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                        <div
+                          class="bg-blue-500 h-1.5 rounded-full transition-all duration-500"
+                          :style="{ width: `${(dashboardStats.communes_avec_donnees / dashboardStats.communes_total) * 100}%` }"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Total Recettes -->
+                  <div class="stat-item p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Total Recettes</p>
+                        <p class="text-xl font-bold text-green-600 dark:text-green-400">
+                          <template v-if="isLoadingStats">
+                            <span class="inline-block w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
+                          </template>
+                          <template v-else>
+                            {{ formatMontant(dashboardStats?.total_recettes) }}
+                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Ar</span>
+                          </template>
+                        </p>
+                      </div>
+                      <div class="bg-green-100 dark:bg-green-900/50 p-2 rounded-full">
+                        <font-awesome-icon :icon="['fas', 'arrow-trend-up']" class="w-4 h-4 text-green-600 dark:text-green-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Total Dépenses -->
+                  <div class="stat-item p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Total Dépenses</p>
+                        <p class="text-xl font-bold text-orange-600 dark:text-orange-400">
+                          <template v-if="isLoadingStats">
+                            <span class="inline-block w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
+                          </template>
+                          <template v-else>
+                            {{ formatMontant(dashboardStats?.total_depenses) }}
+                            <span class="text-xs font-normal text-gray-500 dark:text-gray-400">Ar</span>
+                          </template>
+                        </p>
+                      </div>
+                      <div class="bg-orange-100 dark:bg-orange-900/50 p-2 rounded-full">
+                        <font-awesome-icon :icon="['fas', 'arrow-trend-down']" class="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Comptes administratifs -->
+                  <div class="stat-item p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Comptes Administratifs</p>
+                        <p class="text-xl font-bold text-purple-600 dark:text-purple-400">
+                          <template v-if="isLoadingStats">
+                            <span class="inline-block w-10 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></span>
+                          </template>
+                          <template v-else>
+                            {{ dashboardStats?.total_comptes_administratifs || 0 }}
+                          </template>
+                        </p>
+                      </div>
+                      <div class="bg-purple-100 dark:bg-purple-900/50 p-2 rounded-full">
+                        <font-awesome-icon :icon="['fas', 'file-invoice-dollar']" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Résumé régions/communes -->
+                  <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                    <div class="grid grid-cols-2 gap-2">
+                      <div class="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ regions.length }}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Régions</p>
+                      </div>
+                      <div class="text-center p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                        <p class="text-xl font-bold text-green-600 dark:text-green-400">
+                          {{ regions.reduce((sum, r) => sum + (r.nb_communes || 0), 0) }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Communes</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Transition>
+            </div>
+          </div>
+
+          <!-- Carte (fond) -->
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
             <ClientOnly>
               <MadagascarMap
                 :regions="regions"
                 :is-loading="isLoadingRegions"
                 @region-click="handleRegionClick"
                 @region-hover="handleRegionHover"
-                class="h-[500px]"
+                class="h-[600px]"
               />
               <template #fallback>
-                <div class="h-[500px] flex items-center justify-center">
+                <div class="h-[600px] flex items-center justify-center">
                   <font-awesome-icon icon="spinner" class="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
                 </div>
               </template>
             </ClientOnly>
-          </div>
-
-          <!-- Panneau d'informations -->
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-              <font-awesome-icon :icon="['fas', 'info-circle']" class="text-blue-600 dark:text-blue-400" />
-              <span>Informations</span>
-            </h3>
-
-            <!-- État de survol -->
-            <Transition name="fade" mode="out-in">
-              <div v-if="hoveredRegion" key="hover" class="space-y-4">
-                <div class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
-                  <p class="text-sm text-blue-600 dark:text-blue-400 font-medium mb-1">Région survolée</p>
-                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ hoveredRegion.nom }}</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    <font-awesome-icon :icon="['fas', 'building']" class="mr-1" />
-                    Province: {{ hoveredRegion.province_nom || 'N/A' }}
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <font-awesome-icon :icon="['fas', 'city']" class="mr-1" />
-                    Communes: {{ hoveredRegion.nb_communes || 0 }}
-                  </p>
-                </div>
-              </div>
-
-              <!-- État sélectionné -->
-              <div v-else-if="selectedRegion" key="selected" class="space-y-4">
-                <div class="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg border border-purple-200 dark:border-purple-700">
-                  <p class="text-sm text-purple-600 dark:text-purple-400 font-medium mb-1">Région sélectionnée</p>
-                  <p class="text-xl font-bold text-gray-900 dark:text-white">{{ selectedRegion.nom }}</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                    <font-awesome-icon :icon="['fas', 'building']" class="mr-1" />
-                    Province: {{ selectedRegion.province_nom || 'N/A' }}
-                  </p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <font-awesome-icon :icon="['fas', 'city']" class="mr-1" />
-                    Communes: {{ selectedRegion.nb_communes || 0 }}
-                  </p>
-                </div>
-
-                <button
-                  @click="selectedRegion = null"
-                  class="w-full py-2 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition text-sm"
-                >
-                  <font-awesome-icon :icon="['fas', 'times']" class="mr-1" />
-                  Désélectionner
-                </button>
-              </div>
-
-              <!-- État par défaut -->
-              <div v-else key="default" class="space-y-4">
-                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <font-awesome-icon :icon="['fas', 'mouse-pointer']" class="w-12 h-12 mb-4 opacity-50" />
-                  <p class="text-sm">Survolez ou cliquez sur une région pour voir ses informations</p>
-                </div>
-
-                <!-- Statistiques générales -->
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                  <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Résumé</h4>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-center">
-                      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ regions.length }}</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">Régions</p>
-                    </div>
-                    <div class="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg text-center">
-                      <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-                        {{ regions.reduce((sum, r) => sum + (r.nb_communes || 0), 0) }}
-                      </p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">Communes</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Transition>
           </div>
         </div>
       </section>
@@ -444,6 +397,109 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* Notebook Card Style */
+.info-card {
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.25));
+  transition: 0.3s all;
+}
+
+.info-card:hover {
+  filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.35));
+  transform: translateY(-2px);
+}
+
+.info-card-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: white;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  padding-left: 30px;
+  /* Lined paper effect with red margin line */
+  background:
+    repeating-linear-gradient(
+      #0000 0 calc(1.2rem - 1px),
+      #66afe1 0 1.2rem
+    ) right bottom / 100% 100%,
+    linear-gradient(#ef4444 0 0) 30px 0 / 2px 100% #fff;
+  background-repeat: no-repeat;
+  line-height: 1.2rem;
+  /* Punched holes effect */
+  -webkit-mask: radial-gradient(circle 0.5rem at 15px 50%, #0000 98%, #000) 0 0 / 100% 2.4rem;
+  mask: radial-gradient(circle 0.5rem at 15px 50%, #0000 98%, #000) 0 0 / 100% 2.4rem;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Sticky tape effect */
+.info-card::before,
+.info-card::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 45px;
+  background: #e6e6e6b8;
+  z-index: 10;
+}
+
+.info-card::before {
+  left: 60%;
+  top: -12px;
+  transform: rotate(45deg);
+}
+
+.info-card::after {
+  left: 40%;
+  bottom: -12px;
+  transform: rotate(-45deg);
+}
+
+/* Dark mode support */
+.dark .info-card-inner {
+  background-color: #1e293b;
+  background:
+    repeating-linear-gradient(
+      #0000 0 calc(1.2rem - 1px),
+      #334155 0 1.2rem
+    ) right bottom / 100% 100%,
+    linear-gradient(#ef4444 0 0) 30px 0 / 2px 100% #1e293b;
+  background-repeat: no-repeat;
+}
+
+.dark .info-card::before,
+.dark .info-card::after {
+  background: #475569b8;
+}
+
+/* Divider style */
+.info-card-inner hr {
+  width: calc(100% - 1.2rem);
+  margin-left: auto;
+  margin-right: 1.2rem;
+  border: none;
+  border-bottom: 1px dashed #cbd5e1;
+  margin-top: 0;
+}
+
+.dark .info-card-inner hr {
+  border-bottom-color: #475569;
+}
+
+/* Subtle hover effect on stat items */
+.stat-item {
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.stat-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateX(2px);
+}
+
+.dark .stat-item:hover {
+  background: rgba(59, 130, 246, 0.2);
+}
+
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
@@ -477,6 +533,18 @@ onUnmounted(() => {
   main {
     max-width: 100%;
     padding: 0;
+  }
+}
+
+/* Responsive adjustments for info card */
+@media (max-width: 768px) {
+  .info-card {
+    position: relative !important;
+    top: 0 !important;
+    right: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 1rem;
   }
 }
 </style>
