@@ -184,12 +184,12 @@ onMounted(() => {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         <!-- Titre principal -->
         <div class="text-center mb-8 lg:mb-12 animate-slide-up">
-          <h1 class=" uppercase text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-2xl">
+          <p class=" uppercase text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 leading-tight drop-shadow-2xl">
             Plateforme de Suivi des Revenus Miniers
-          </h1>
-          <h2 class="text-xl sm:text-2xl lg:text-3xl text-blue-100 font-light mb-6 drop-shadow-lg">
+          </p>
+          <p class="text-xl sm:text-2xl lg:text-3xl text-blue-100 font-light mb-6 drop-shadow-lg">
             Collectivités Territoriales de Madagascar
-          </h2>
+          </p>
           <div class="max-w-3xl mx-auto">
             <p class="text-base sm:text-lg text-blue-50 leading-relaxed drop-shadow-md">
               Projet "Minerais critiques : justice fiscale et redistribution de revenus"

@@ -38,32 +38,41 @@ let chart: any = null
 let polygonSeries: any = null
 let pointSeries: any = null
 
-// Coordonnées des régions de Madagascar (centroids approximatifs)
+// Coordonnées précises des capitales/centres des régions de Madagascar
 const regionCoordinates: Record<string, { lat: number; lng: number }> = {
-  'Analamanga': { lat: -18.9, lng: 47.5 },
-  'Vakinankaratra': { lat: -19.8, lng: 47.0 },
-  'Itasy': { lat: -19.1, lng: 46.7 },
-  'Bongolava': { lat: -18.3, lng: 45.8 },
-  "Amoron'i Mania": { lat: -20.5, lng: 47.1 },
-  'Haute Matsiatra': { lat: -21.4, lng: 47.1 },
-  'Vatovavy-Fitovinany': { lat: -21.4, lng: 47.8 },
-  'Vatovavy': { lat: -21.2, lng: 47.9 },
-  'Fitovinany': { lat: -22.0, lng: 47.7 },
-  'Ihorombe': { lat: -22.4, lng: 46.1 },
-  'Atsimo-Atsinanana': { lat: -23.0, lng: 47.5 },
-  'Alaotra-Mangoro': { lat: -17.8, lng: 48.5 },
-  'Atsinanana': { lat: -18.1, lng: 49.4 },
-  'Analanjirofo': { lat: -16.9, lng: 49.5 },
-  'Sofia': { lat: -14.9, lng: 48.2 },
-  'Boeny': { lat: -16.0, lng: 46.3 },
-  'Betsiboka': { lat: -16.8, lng: 47.0 },
-  'Melaky': { lat: -17.7, lng: 44.5 },
-  'Atsimo-Andrefana': { lat: -23.3, lng: 44.3 },
-  'Androy': { lat: -24.7, lng: 45.5 },
-  'Anosy': { lat: -24.5, lng: 46.6 },
-  'Menabe': { lat: -20.3, lng: 44.5 },
-  'Diana': { lat: -13.0, lng: 49.1 },
-  'Sava': { lat: -14.3, lng: 50.0 },
+  // Hautes terres centrales
+  'Analamanga': { lat: -18.8792, lng: 47.5079 }, // Antananarivo
+  'Vakinankaratra': { lat: -19.8659, lng: 47.0333 }, // Antsirabe
+  'Itasy': { lat: -19.05, lng: 46.75 }, // Miarinarivo
+  'Bongolava': { lat: -18.45, lng: 45.95 }, // Tsiroanomandidy
+
+  // Fianarantsoa
+  "Amoron'i Mania": { lat: -20.4583, lng: 47.1 }, // Ambositra
+  'Haute Matsiatra': { lat: -21.4333, lng: 47.0833 }, // Fianarantsoa
+  'Vatovavy': { lat: -21.2, lng: 47.82 }, // Manakara region
+  'Fitovinany': { lat: -22.15, lng: 47.83 }, // Manakara Sud
+  'Vatovavy-Fitovinany': { lat: -21.55, lng: 47.93 }, // Manakara
+  'Ihorombe': { lat: -22.4, lng: 46.3167 }, // Ihosy
+  'Atsimo-Atsinanana': { lat: -23.35, lng: 47.6 }, // Farafangana
+
+  // Est
+  'Alaotra-Mangoro': { lat: -17.8333, lng: 48.4333 }, // Ambatondrazaka
+  'Atsinanana': { lat: -18.1492, lng: 49.4022 }, // Toamasina
+  'Analanjirofo': { lat: -16.9833, lng: 49.8667 }, // Fenoarivo Atsinanana
+
+  // Nord
+  'Sofia': { lat: -14.9, lng: 47.9833 }, // Antsohihy
+  'Boeny': { lat: -15.7167, lng: 46.3167 }, // Mahajanga
+  'Betsiboka': { lat: -16.95, lng: 46.8333 }, // Maevatanana
+  'Melaky': { lat: -17.65, lng: 44.0167 }, // Maintirano
+  'Diana': { lat: -12.2833, lng: 49.2833 }, // Antsiranana
+  'Sava': { lat: -14.2667, lng: 50.0167 }, // Sambava
+
+  // Sud
+  'Atsimo-Andrefana': { lat: -23.35, lng: 43.6833 }, // Toliara
+  'Androy': { lat: -24.85, lng: 45.1667 }, // Ambovombe
+  'Anosy': { lat: -25.0333, lng: 46.9833 }, // Taolagnaro
+  'Menabe': { lat: -19.8667, lng: 44.5333 }, // Morondava
 }
 
 // Mapping des IDs amCharts vers les noms de régions
@@ -319,61 +328,83 @@ const updateMarkers = () => {
     })
   )
 
-  // Template pour les marqueurs
+  // Template pour les marqueurs - Style PIN comme Google Maps
   pointSeries.bullets.push(() => {
-    const container = $am5.core.Container.new(root, {})
+    const container = $am5.core.Container.new(root, {
+      centerX: $am5.core.percent(50),
+      centerY: $am5.core.percent(100), // Ancrer en bas pour que la pointe soit sur le point
+    })
 
-    // Cercle extérieur (pulse effect)
-    const pulseCircle = container.children.push(
-      $am5.core.Circle.new(root, {
-        radius: 12,
-        fill: $am5.core.color(isDark.value ? '#ef4444' : '#dc2626'),
+    // Ombre du pin
+    const shadow = container.children.push(
+      $am5.core.Ellipse.new(root, {
+        radiusX: 8,
+        radiusY: 3,
+        fill: $am5.core.color('#000000'),
         fillOpacity: 0.3,
+        dy: 2, // Juste en dessous du pin
+        centerX: $am5.core.percent(50),
+        centerY: $am5.core.percent(50),
       })
     )
 
-    // Animation pulse
-    pulseCircle.animate({
-      key: 'radius',
-      from: 12,
-      to: 20,
-      duration: 1500,
-      loops: Infinity,
-      easing: $am5.core.ease.out($am5.core.ease.cubic),
-    })
-    pulseCircle.animate({
-      key: 'fillOpacity',
-      from: 0.3,
-      to: 0,
-      duration: 1500,
-      loops: Infinity,
-      easing: $am5.core.ease.out($am5.core.ease.cubic),
-    })
-
-    // Cercle principal du marqueur
-    const circle = container.children.push(
-      $am5.core.Circle.new(root, {
-        radius: 8,
+    // Corps du pin (forme de goutte inversée)
+    const pinBody = container.children.push(
+      $am5.core.Graphics.new(root, {
         fill: $am5.core.color(isDark.value ? '#ef4444' : '#dc2626'),
         stroke: $am5.core.color('#ffffff'),
         strokeWidth: 2,
         cursorOverStyle: 'pointer',
         tooltipText: '{label}\n{count} compte(s)',
+        // Dessiner la forme du pin
+        draw: (display: any) => {
+          // Forme de pin type Google Maps (pointe vers le bas)
+          const w = 24 // largeur
+          const h = 34 // hauteur totale
+          const r = w / 2 // rayon du cercle supérieur
+
+          display.moveTo(0, -h) // Point haut gauche
+          // Arc supérieur gauche vers droite
+          display.arc(0, -h + r, r, Math.PI, 0, false)
+          // Ligne vers la pointe
+          display.lineTo(0, 0)
+          // Ligne vers le haut gauche
+          display.lineTo(-r, -h + r)
+          display.closePath()
+        },
       })
     )
 
-    // Badge avec le nombre
+    // Cercle blanc intérieur (point central du pin)
+    const innerCircle = container.children.push(
+      $am5.core.Circle.new(root, {
+        radius: 6,
+        fill: $am5.core.color('#ffffff'),
+        dy: -22, // Positionné au centre du cercle du pin
+      })
+    )
+
+    // Badge avec le nombre de comptes
     const badge = container.children.push(
       $am5.core.Container.new(root, {
-        dx: 10,
-        dy: -10,
+        dx: 14,
+        dy: -38,
       })
     )
 
     badge.children.push(
-      $am5.core.Circle.new(root, {
-        radius: 8,
+      $am5.core.RoundedRectangle.new(root, {
+        width: 18,
+        height: 18,
+        cornerRadiusTL: 9,
+        cornerRadiusTR: 9,
+        cornerRadiusBL: 9,
+        cornerRadiusBR: 9,
         fill: $am5.core.color(isDark.value ? '#3b82f6' : '#2563eb'),
+        stroke: $am5.core.color('#ffffff'),
+        strokeWidth: 1.5,
+        centerX: $am5.core.percent(50),
+        centerY: $am5.core.percent(50),
       })
     )
 
@@ -389,8 +420,14 @@ const updateMarkers = () => {
       })
     )
 
+    // Animation au survol
+    pinBody.states.create('hover', {
+      scale: 1.15,
+      dy: -5,
+    })
+
     // Événement de clic
-    circle.events.on('click', (ev: any) => {
+    pinBody.events.on('click', (ev: any) => {
       const dataItem = ev.target.dataItem
       if (dataItem) {
         const data = dataItem.dataContext as MapMarker
@@ -495,10 +532,12 @@ onUnmounted(() => {
       <div v-if="comptes && comptes.length > 0" class="border-t border-gray-200 dark:border-gray-600 mt-3 pt-3">
         <h4 class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Comptes Administratifs</h4>
         <div class="flex items-center gap-2">
-          <div class="w-4 h-4 rounded-full bg-red-600 border-2 border-white shadow-sm relative">
-            <span class="absolute -top-1 -right-1 w-3 h-3 bg-blue-600 rounded-full text-[8px] text-white flex items-center justify-center font-bold">N</span>
-          </div>
-          <span class="text-xs text-gray-600 dark:text-gray-400">Cliquez pour voir</span>
+          <!-- Pin marker icon -->
+          <svg class="w-5 h-6" viewBox="0 0 24 34" fill="none">
+            <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 22 12 22s12-13 12-22c0-6.6-5.4-12-12-12z" fill="#dc2626" stroke="#fff" stroke-width="2"/>
+            <circle cx="12" cy="12" r="5" fill="#fff"/>
+          </svg>
+          <span class="text-xs text-gray-600 dark:text-gray-400">Cliquez sur un pin</span>
         </div>
       </div>
     </div>
