@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.nuxt
+.output
+dist
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment files (use docker-compose env vars)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Test files
+coverage
+.nyc_output
+*.spec.ts
+*.test.ts
+__tests__
+
+# Documentation
+*.md
+!README.md
+
+# Docker files (avoid recursion)
+Dockerfile*
+docker-compose*
+.dockerignore

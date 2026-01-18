@@ -120,7 +120,14 @@ const clearSelectedCompte = () => {
 // Navigation vers un compte
 const navigateToCompte = (compte: CompteAdministratifWithStats) => {
   showComptesModal.value = false
-  router.push(`/compte-administratif?id=${compte.id}`)
+  // La page compte-administratif attend les paramètres commune et annee
+  const communeId = compte.commune?.id || compte.commune_id
+  if (communeId && compte.annee) {
+    router.push(`/compte-administratif?commune=${communeId}&annee=${compte.annee}`)
+  } else {
+    // Fallback vers la page admin si pas de commune (cas région/district)
+    router.push(`/admin/comptes-administratifs/${compte.id}`)
+  }
 }
 
 // Formatage des montants
