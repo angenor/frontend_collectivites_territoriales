@@ -59,5 +59,16 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8000',
     }
+  },
+
+  // Configuration Nitro pour la production
+  nitro: {
+    compressPublicAssets: true,
+    // Prerendering désactivé car les routes API nécessitent la DB
+    // qui n'est pas disponible pendant le build Docker
+    prerender: {
+      crawlLinks: false,
+      routes: []
+    }
   }
 })
