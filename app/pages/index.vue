@@ -480,6 +480,17 @@ onUnmounted(() => {
         </div>
         <div class="border-t border-gray-700 dark:border-gray-800 mt-8 pt-6 text-center text-gray-400 dark:text-gray-500 text-sm">
           <p>&copy; {{ new Date().getFullYear() }} PCQVP Madagascar. Tous droits réservés.</p>
+          <p class="mt-3 text-gray-500 dark:text-gray-600">
+            Plateforme développée par
+            <a
+              href="https://www.linkedin.com/company/herhero-forchange/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-400 hover:text-blue-300 dark:text-blue-500 dark:hover:text-blue-400 transition font-medium"
+            >
+              HerHero
+            </a>
+          </p>
         </div>
       </div>
     </footer>
