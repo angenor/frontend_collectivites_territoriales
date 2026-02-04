@@ -8,6 +8,7 @@ export interface ProjetMinier {
   nom: string
   code: string
   type_minerai: string
+  societe_id: number
   societe_exploitante: string
   region_id?: string | null
   district_id?: string | null
@@ -23,6 +24,11 @@ export interface ProjetMinier {
   created_at: string
   updated_at: string
   // Relations
+  societe?: {
+    id: number
+    nom: string
+    actif: boolean
+  }
   region?: {
     id: string
     code: string
@@ -38,44 +44,53 @@ export interface ProjetMinier {
     code: string
     nom: string
   }
+  communes?: ProjetCommuneInfo[]
+}
+
+export interface ProjetCommuneInfo {
+  id: number
+  projet_id: number
+  commune_id: number
+  pourcentage_territoire: number
+  date_debut?: string | null
+  date_fin?: string | null
+  commune_nom?: string
+  commune_code?: string
 }
 
 export interface RevenuMinier {
   id: string
-  projet_minier_id: string
-  commune_id?: string | null
-  district_id?: string | null
-  region_id?: string | null
-  annee: number
-  trimestre?: number | null
-  type_revenu: 'ristourne' | 'redevance' | 'autre'
-  montant: number
-  date_versement?: string | null
-  description?: string | null
+  commune_id: number
+  exercice_id: number
+  projet_id: number
+  type_revenu: 'ristourne_miniere' | 'redevance_miniere' | 'frais_administration_miniere' | 'quote_part_ristourne' | 'autre'
+  montant_prevu: number
+  montant_recu: number
+  date_reception?: string | null
+  reference_paiement?: string | null
+  compte_code: string
+  compte_administratif_id: number
+  commentaire?: string | null
+  ecart?: number
+  taux_realisation?: number
   created_at: string
   updated_at: string
   // Relations
-  projet_minier?: {
-    id: string
-    code: string
+  projet?: {
+    id: number
     nom: string
-    type_minerai: string
+    type_minerai?: string
   }
   commune?: {
-    id: string
+    id: number
     code: string
     nom: string
   }
-  district?: {
-    id: string
-    code: string
-    nom: string
-  }
-  region?: {
-    id: string
-    code: string
-    nom: string
-  }
+  compte_intitule?: string
+  compte_administratif_label?: string
+  exercice_annee?: number
+  projet_nom?: string
+  commune_nom?: string
 }
 
 // Types pour les formulaires
@@ -83,10 +98,9 @@ export interface ProjetMinierFormData {
   nom: string
   code: string
   type_minerai: string
-  societe_exploitante: string
+  societe_id: string
   region_id?: string | null
   district_id?: string | null
-  commune_id?: string | null
   date_debut?: string | null
   date_fin?: string | null
   statut: 'en_cours' | 'suspendu' | 'termine' | 'planifie'
@@ -95,19 +109,26 @@ export interface ProjetMinierFormData {
     latitude: number
     longitude: number
   } | null
+  communes: Array<{
+    commune_id: string
+    pourcentage_territoire: number
+    date_debut?: string | null
+    date_fin?: string | null
+  }>
 }
 
 export interface RevenuMinierFormData {
-  projet_minier_id: string
-  commune_id?: string | null
-  district_id?: string | null
-  region_id?: string | null
-  annee: number
-  trimestre?: number | null
-  type_revenu: 'ristourne' | 'redevance' | 'autre'
-  montant: number
-  date_versement?: string | null
-  description?: string | null
+  projet_id: string
+  commune_id: string
+  exercice_id: string
+  type_revenu: string
+  montant_prevu: number
+  montant_recu: number
+  date_reception?: string | null
+  reference_paiement?: string | null
+  compte_code: string
+  compte_administratif_id: number | null
+  commentaire?: string | null
 }
 
 // Types pour les statistiques

@@ -173,7 +173,7 @@
         <strong class="text-[var(--text-primary)]">{{ projetToDelete?.nom }}</strong> ?
       </p>
       <p class="mt-2 text-sm text-[var(--text-muted)]">
-        Cette action est irréversible. Les revenus associés seront également supprimés.
+        Cette action est irréversible. La suppression échouera si des revenus sont liés à ce projet.
       </p>
     </UiModal>
   </div>
@@ -342,6 +342,7 @@ const loadProjets = async () => {
         nom: 'Site de Mandena',
         code: 'QMM-MAN',
         type_minerai: 'Ilménite',
+        societe_id: 1,
         societe_exploitante: 'QIT Madagascar Minerals',
         statut: 'en_cours',
         total_revenus: 2500000000,
@@ -354,6 +355,7 @@ const loadProjets = async () => {
         nom: 'Ambatovy Mine',
         code: 'AMB-001',
         type_minerai: 'Nickel',
+        societe_id: 2,
         societe_exploitante: 'Ambatovy Minerals',
         statut: 'en_cours',
         total_revenus: 5800000000,
@@ -366,6 +368,7 @@ const loadProjets = async () => {
         nom: 'Bemanevika',
         code: 'KRA-BEM',
         type_minerai: 'Chromite',
+        societe_id: 3,
         societe_exploitante: 'Kraoma SA',
         statut: 'en_cours',
         total_revenus: 850000000,
@@ -378,6 +381,7 @@ const loadProjets = async () => {
         nom: 'Site de Petriky',
         code: 'QMM-PET',
         type_minerai: 'Ilménite',
+        societe_id: 1,
         societe_exploitante: 'QIT Madagascar Minerals',
         statut: 'planifie',
         total_revenus: 0,
@@ -390,6 +394,7 @@ const loadProjets = async () => {
         nom: 'Ranobe',
         code: 'TLS-RAN',
         type_minerai: 'Ilménite',
+        societe_id: 4,
         societe_exploitante: 'Toliara Sands',
         statut: 'suspendu',
         total_revenus: 0,

@@ -174,7 +174,7 @@
         <strong class="text-[var(--text-primary)]">{{ societeToDelete?.nom }}</strong> ?
       </p>
       <p class="mt-2 text-sm text-[var(--text-muted)]">
-        Cette action est irréversible. Les projets associés ne seront pas supprimés.
+        Cette action est irréversible. La suppression échouera si des projets sont liés à cette société.
       </p>
     </UiModal>
   </div>

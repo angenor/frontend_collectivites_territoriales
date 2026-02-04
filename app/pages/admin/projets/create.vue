@@ -56,12 +56,12 @@
 
           <!-- Société -->
           <UiFormSelect
-            v-model="form.societe_exploitante"
+            v-model="form.societe_id"
             label="Société exploitante"
             :options="societeOptions"
             placeholder="Sélectionner une société"
             required
-            :error="formErrors.societe_exploitante"
+            :error="formErrors.societe_id"
           />
 
           <!-- Statut -->
@@ -140,6 +140,61 @@
         </div>
       </div>
 
+      <!-- Communes impactées -->
+      <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
+        <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">
+          Communes impactées
+          <span class="text-sm font-normal text-[var(--color-danger)]">*</span>
+        </h2>
+
+        <!-- Error message -->
+        <p v-if="formErrors.communes" class="text-sm text-[var(--color-danger)] mb-4">{{ formErrors.communes }}</p>
+
+        <!-- Dynamic commune rows -->
+        <div v-for="(commune, index) in form.communes" :key="index" class="flex items-end gap-4 mb-4">
+          <div class="flex-1">
+            <UiFormSelect
+              v-model="commune.commune_id"
+              :label="index === 0 ? 'Commune' : ''"
+              :options="communeOptions"
+              placeholder="Sélectionner une commune"
+              required
+            />
+          </div>
+          <div class="w-40">
+            <UiFormInput
+              v-model.number="commune.pourcentage_territoire"
+              :label="index === 0 ? '% Territoire' : ''"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              placeholder="100"
+              required
+            />
+          </div>
+          <UiButton
+            v-if="form.communes.length > 1"
+            type="button"
+            variant="outline"
+            size="sm"
+            @click="form.communes.splice(index, 1)"
+          >
+            <font-awesome-icon :icon="['fas', 'trash']" class="w-3 h-3" />
+          </UiButton>
+        </div>
+
+        <UiButton
+          type="button"
+          variant="outline"
+          size="sm"
+          @click="form.communes.push({ commune_id: '', pourcentage_territoire: 100 })"
+        >
+          <font-awesome-icon :icon="['fas', 'plus']" class="w-3 h-3 mr-2" />
+          Ajouter une commune
+        </UiButton>
+      </div>
+
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
         <UiButton
@@ -165,7 +220,7 @@
 <script setup lang="ts">
 import type { ProjetMinierFormData } from '~/types/projets-miniers'
 import type { Societe } from '~/services/projets.service'
-import type { RegionWithStats } from '~/types/collectivites'
+import type { RegionWithStats, CommuneWithStats } from '~/types/collectivites'
 import { useProjetsService } from '~/services/projets.service'
 import { useGeoService } from '~/services/geo.service'
 
@@ -183,6 +238,7 @@ const toast = useAppToast()
 // State
 const societes = ref<Societe[]>([])
 const regions = ref<RegionWithStats[]>([])
+const communes = ref<CommuneWithStats[]>([])
 const typesMinerai = ref<string[]>([])
 const saving = ref(false)
 
@@ -191,13 +247,14 @@ const form = ref<ProjetMinierFormData>({
   nom: '',
   code: '',
   type_minerai: '',
-  societe_exploitante: '',
+  societe_id: '',
   region_id: null,
   date_debut: null,
   date_fin: null,
   statut: 'planifie',
   description: null,
   coordonnees_gps: null,
+  communes: [{ commune_id: '', pourcentage_territoire: 100 }],
 })
 const formErrors = ref<Record<string, string>>({})
 const gpsLatitude = ref<number | null>(null)
@@ -212,7 +269,7 @@ const statutOptions = [
 ]
 
 const societeOptions = computed(() =>
-  societes.value.map(s => ({ value: s.nom, label: s.nom }))
+  societes.value.map(s => ({ value: s.id, label: s.nom }))
 )
 
 const mineraiOptions = computed(() =>
@@ -224,17 +281,23 @@ const regionOptions = computed(() => [
   ...regions.value.map(r => ({ value: r.id, label: r.nom })),
 ])
 
+const communeOptions = computed(() =>
+  communes.value.map(c => ({ value: c.id, label: c.nom }))
+)
+
 // Methods
 const loadReferenceData = async () => {
   try {
-    const [societesData, typesData, regionsData] = await Promise.all([
+    const [societesData, typesData, regionsData, communesData] = await Promise.all([
       projetsService.getAllSocietes(),
       projetsService.getTypesMinerai(),
       geoService.getRegions({ limit: 100 }),
+      geoService.getCommunes({ limit: 500 }),
     ])
     societes.value = societesData
     typesMinerai.value = typesData
     regions.value = regionsData.items
+    communes.value = communesData.items
   } catch (e) {
     console.error('Erreur chargement données de référence:', e)
     societes.value = [
@@ -245,13 +308,14 @@ const loadReferenceData = async () => {
     ]
     typesMinerai.value = ['Ilménite', 'Nickel', 'Cobalt', 'Chromite', 'Or', 'Graphite', 'Saphir', 'Rubis']
     regions.value = []
+    communes.value = []
   }
 
   // Pre-fill societe if passed via query
   if (route.query.societe_id) {
     const societe = societes.value.find(s => s.id === route.query.societe_id)
     if (societe) {
-      form.value.societe_exploitante = societe.nom
+      form.value.societe_id = societe.id
     }
   }
 }
@@ -275,8 +339,8 @@ const validateForm = (): boolean => {
     formErrors.value.type_minerai = 'Le type de minerai est requis'
   }
 
-  if (!form.value.societe_exploitante) {
-    formErrors.value.societe_exploitante = 'La société exploitante est requise'
+  if (!form.value.societe_id) {
+    formErrors.value.societe_id = 'La société exploitante est requise'
   }
 
   if (!form.value.statut) {
@@ -287,6 +351,23 @@ const validateForm = (): boolean => {
   if (form.value.date_debut && form.value.date_fin) {
     if (new Date(form.value.date_fin) < new Date(form.value.date_debut)) {
       formErrors.value.date_fin = 'La date de fin doit être après la date de début'
+    }
+  }
+
+  // Validate communes
+  if (!form.value.communes || form.value.communes.length === 0) {
+    formErrors.value.communes = 'Au moins une commune impactée est requise'
+  } else {
+    for (let i = 0; i < form.value.communes.length; i++) {
+      const c = form.value.communes[i]
+      if (!c.commune_id) {
+        formErrors.value.communes = `Veuillez sélectionner une commune pour la ligne ${i + 1}`
+        break
+      }
+      if (c.pourcentage_territoire == null || c.pourcentage_territoire < 0 || c.pourcentage_territoire > 100) {
+        formErrors.value.communes = `Le pourcentage de territoire doit être entre 0 et 100 (ligne ${i + 1})`
+        break
+      }
     }
   }
 

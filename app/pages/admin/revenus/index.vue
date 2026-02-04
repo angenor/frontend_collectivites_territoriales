@@ -71,7 +71,7 @@
         <!-- Projet filter -->
         <div class="w-48">
           <UiFormSelect
-            v-model="filters.projet_minier_id"
+            v-model="filters.projet_id"
             label="Projet"
             :options="projetOptions"
             placeholder="Tous"
@@ -79,24 +79,13 @@
           />
         </div>
 
-        <!-- Année filter -->
+        <!-- Exercice filter -->
         <div class="w-32">
           <UiFormSelect
-            v-model="filters.annee"
-            label="Année"
+            v-model="filters.exercice_annee"
+            label="Exercice"
             :options="anneeOptions"
             placeholder="Toutes"
-            @update:model-value="handleFilterChange"
-          />
-        </div>
-
-        <!-- Trimestre filter -->
-        <div class="w-32">
-          <UiFormSelect
-            v-model="filters.trimestre"
-            label="Trimestre"
-            :options="trimestreOptions"
-            placeholder="Tous"
             @update:model-value="handleFilterChange"
           />
         </div>
@@ -153,14 +142,14 @@
     >
       <!-- Projet column -->
       <template #cell-projet="{ row }">
-        <div v-if="row.projet_minier">
+        <div v-if="row.projet">
           <NuxtLink
-            :to="`/admin/projets/${row.projet_minier_id}`"
+            :to="`/admin/projets/${row.projet_id}`"
             class="font-medium text-[var(--text-primary)] hover:text-[var(--color-primary)] transition-colors"
           >
-            {{ row.projet_minier.nom }}
+            {{ row.projet.nom }}
           </NuxtLink>
-          <p class="text-xs text-[var(--text-muted)]">{{ row.projet_minier.type_minerai }}</p>
+          <p class="text-xs text-[var(--text-muted)]">{{ row.projet.type_minerai }}</p>
         </div>
         <span v-else class="text-[var(--text-muted)]">-</span>
       </template>
@@ -177,10 +166,10 @@
         <span v-else class="text-[var(--text-muted)]">-</span>
       </template>
 
-      <!-- Période column -->
-      <template #cell-periode="{ row }">
+      <!-- Exercice column -->
+      <template #cell-exercice="{ row }">
         <span class="text-[var(--text-primary)]">
-          {{ row.annee }}{{ row.trimestre ? ` T${row.trimestre}` : '' }}
+          {{ row.exercice_annee || '-' }}
         </span>
       </template>
 
@@ -197,7 +186,7 @@
       </template>
 
       <!-- Montant column -->
-      <template #cell-montant="{ value }">
+      <template #cell-montant_recu="{ value }">
         <span class="font-mono font-semibold text-[var(--color-primary)]">
           {{ formatMoney(value) }}
         </span>
@@ -236,7 +225,7 @@
     >
       <p class="text-[var(--text-secondary)]">
         Êtes-vous sûr de vouloir supprimer ce revenu de
-        <strong class="text-[var(--color-primary)]">{{ formatMoney(revenuToDelete?.montant || 0) }}</strong> ?
+        <strong class="text-[var(--color-primary)]">{{ formatMoney(revenuToDelete?.montant_recu || 0) }}</strong> ?
       </p>
       <p class="mt-2 text-sm text-[var(--text-muted)]">
         Cette action est irréversible.
@@ -268,15 +257,13 @@ const projets = ref<ProjetMinierWithStats[]>([])
 const regions = ref<RegionWithStats[]>([])
 const loading = ref(true)
 const filters = ref<{
-  projet_minier_id: string | null
-  annee: number | null
-  trimestre: number | null
-  type_revenu: 'ristourne' | 'redevance' | 'autre' | null
+  projet_id: string | null
+  exercice_annee: number | null
+  type_revenu: 'ristourne_miniere' | 'redevance_miniere' | 'frais_administration_miniere' | 'quote_part_ristourne' | 'autre' | null
   region_id: string | null
 }>({
-  projet_minier_id: null,
-  annee: null,
-  trimestre: null,
+  projet_id: null,
+  exercice_annee: null,
   type_revenu: null,
   region_id: null,
 })
@@ -304,9 +291,9 @@ const deleting = ref(false)
 const columns = [
   { key: 'projet', label: 'Projet', sortable: true },
   { key: 'commune', label: 'Commune', sortable: true },
-  { key: 'periode', label: 'Période', sortable: true, width: '100px' },
+  { key: 'exercice', label: 'Exercice', sortable: true, width: '100px' },
   { key: 'type_revenu', label: 'Type', sortable: true, width: '110px' },
-  { key: 'montant', label: 'Montant', sortable: true, width: '160px' },
+  { key: 'montant_recu', label: 'Montant reçu', sortable: true, width: '160px' },
   { key: 'actions', label: '', width: '140px' },
 ]
 
@@ -326,18 +313,12 @@ const anneeOptions = computed(() => {
   return [{ value: '', label: 'Toutes les années' }, ...years]
 })
 
-const trimestreOptions = [
-  { value: '', label: 'Tous' },
-  { value: 1, label: 'T1' },
-  { value: 2, label: 'T2' },
-  { value: 3, label: 'T3' },
-  { value: 4, label: 'T4' },
-]
-
 const typeOptions = [
   { value: '', label: 'Tous les types' },
-  { value: 'ristourne', label: 'Ristourne' },
-  { value: 'redevance', label: 'Redevance' },
+  { value: 'ristourne_miniere', label: 'Ristourne minière' },
+  { value: 'redevance_miniere', label: 'Redevance minière' },
+  { value: 'frais_administration_miniere', label: 'Frais admin.' },
+  { value: 'quote_part_ristourne', label: 'Quote-part' },
   { value: 'autre', label: 'Autre' },
 ]
 
@@ -347,9 +328,8 @@ const regionOptions = computed(() => [
 ])
 
 const hasActiveFilters = computed(() =>
-  filters.value.projet_minier_id !== null ||
-  filters.value.annee !== null ||
-  filters.value.trimestre !== null ||
+  filters.value.projet_id !== null ||
+  filters.value.exercice_annee !== null ||
   filters.value.type_revenu !== null ||
   filters.value.region_id !== null
 )
@@ -365,8 +345,10 @@ const formatMoney = (amount: number) => {
 
 const getTypeRevenuLabel = (type: string) => {
   const labels: Record<string, string> = {
-    ristourne: 'Ristourne',
-    redevance: 'Redevance',
+    ristourne_miniere: 'Ristourne',
+    redevance_miniere: 'Redevance',
+    frais_administration_miniere: 'Frais admin.',
+    quote_part_ristourne: 'Quote-part',
     autre: 'Autre',
   }
   return labels[type] || type
@@ -374,8 +356,10 @@ const getTypeRevenuLabel = (type: string) => {
 
 const getTypeRevenuClass = (type: string) => {
   const classes: Record<string, string> = {
-    ristourne: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
-    redevance: 'bg-[var(--color-success)]/10 text-[var(--color-success)]',
+    ristourne_miniere: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
+    redevance_miniere: 'bg-[var(--color-success)]/10 text-[var(--color-success)]',
+    frais_administration_miniere: 'bg-[var(--color-info)]/10 text-[var(--color-info)]',
+    quote_part_ristourne: 'bg-[var(--color-warning)]/10 text-[var(--color-warning)]',
     autre: 'bg-[var(--text-muted)]/10 text-[var(--text-muted)]',
   }
   return classes[type] || 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
@@ -388,8 +372,8 @@ const loadProjets = async () => {
   } catch (e) {
     console.error('Erreur chargement projets:', e)
     projets.value = [
-      { id: '1', nom: 'Site de Mandena', code: 'QMM-MAN', type_minerai: 'Ilménite', societe_exploitante: 'QMM', statut: 'en_cours', created_at: '', updated_at: '' },
-      { id: '2', nom: 'Ambatovy Mine', code: 'AMB-001', type_minerai: 'Nickel', societe_exploitante: 'Ambatovy', statut: 'en_cours', created_at: '', updated_at: '' },
+      { id: '1', nom: 'Site de Mandena', code: 'QMM-MAN', type_minerai: 'Ilménite', societe_id: 1, societe_exploitante: 'QMM', statut: 'en_cours', created_at: '', updated_at: '' },
+      { id: '2', nom: 'Ambatovy Mine', code: 'AMB-001', type_minerai: 'Nickel', societe_id: 2, societe_exploitante: 'Ambatovy', statut: 'en_cours', created_at: '', updated_at: '' },
     ]
   }
 }
@@ -413,9 +397,8 @@ const loadRevenus = async () => {
       limit: pagination.value.limit,
     }
 
-    if (filters.value.projet_minier_id) params.projet_minier_id = filters.value.projet_minier_id
-    if (filters.value.annee) params.annee = filters.value.annee
-    if (filters.value.trimestre) params.trimestre = filters.value.trimestre
+    if (filters.value.projet_id) params.projet_id = filters.value.projet_id
+    if (filters.value.exercice_annee) params.exercice_annee = filters.value.exercice_annee
     if (filters.value.type_revenu) params.type_revenu = filters.value.type_revenu
     if (filters.value.region_id) params.region_id = filters.value.region_id
     if (sortBy.value) {
@@ -437,55 +420,67 @@ const loadRevenus = async () => {
     revenus.value = [
       {
         id: '1',
-        projet_minier_id: '1',
-        commune_id: '1',
-        annee: 2024,
-        trimestre: 3,
-        type_revenu: 'ristourne',
-        montant: 125000000,
+        projet_id: 1,
+        commune_id: 1,
+        exercice_id: 1,
+        exercice_annee: 2024,
+        type_revenu: 'ristourne_miniere',
+        montant_prevu: 150000000,
+        montant_recu: 125000000,
+        compte_code: '701',
+        compte_administratif_id: 1,
         created_at: '',
         updated_at: '',
-        projet_minier: { id: '1', code: 'QMM-MAN', nom: 'Site de Mandena', type_minerai: 'Ilménite' },
-        commune: { id: '1', code: 'TFD', nom: 'Fort Dauphin' },
+        projet: { id: 1, nom: 'Site de Mandena', type_minerai: 'Ilménite' },
+        commune: { id: 1, code: 'TFD', nom: 'Fort Dauphin' },
       },
       {
         id: '2',
-        projet_minier_id: '1',
-        commune_id: '1',
-        annee: 2024,
-        trimestre: 2,
-        type_revenu: 'redevance',
-        montant: 450000000,
+        projet_id: 1,
+        commune_id: 1,
+        exercice_id: 1,
+        exercice_annee: 2024,
+        type_revenu: 'redevance_miniere',
+        montant_prevu: 500000000,
+        montant_recu: 450000000,
+        compte_code: '702',
+        compte_administratif_id: 1,
         created_at: '',
         updated_at: '',
-        projet_minier: { id: '1', code: 'QMM-MAN', nom: 'Site de Mandena', type_minerai: 'Ilménite' },
-        commune: { id: '1', code: 'TFD', nom: 'Fort Dauphin' },
+        projet: { id: 1, nom: 'Site de Mandena', type_minerai: 'Ilménite' },
+        commune: { id: 1, code: 'TFD', nom: 'Fort Dauphin' },
       },
       {
         id: '3',
-        projet_minier_id: '2',
-        commune_id: '2',
-        annee: 2024,
-        trimestre: 3,
-        type_revenu: 'ristourne',
-        montant: 320000000,
+        projet_id: 2,
+        commune_id: 2,
+        exercice_id: 1,
+        exercice_annee: 2024,
+        type_revenu: 'ristourne_miniere',
+        montant_prevu: 350000000,
+        montant_recu: 320000000,
+        compte_code: '701',
+        compte_administratif_id: 2,
         created_at: '',
         updated_at: '',
-        projet_minier: { id: '2', code: 'AMB-001', nom: 'Ambatovy Mine', type_minerai: 'Nickel' },
-        commune: { id: '2', code: 'MOR', nom: 'Moramanga' },
+        projet: { id: 2, nom: 'Ambatovy Mine', type_minerai: 'Nickel' },
+        commune: { id: 2, code: 'MOR', nom: 'Moramanga' },
       },
       {
         id: '4',
-        projet_minier_id: '2',
-        commune_id: '3',
-        annee: 2024,
-        trimestre: 1,
+        projet_id: 2,
+        commune_id: 3,
+        exercice_id: 1,
+        exercice_annee: 2024,
         type_revenu: 'autre',
-        montant: 85000000,
+        montant_prevu: 100000000,
+        montant_recu: 85000000,
+        compte_code: '709',
+        compte_administratif_id: 3,
         created_at: '',
         updated_at: '',
-        projet_minier: { id: '2', code: 'AMB-001', nom: 'Ambatovy Mine', type_minerai: 'Nickel' },
-        commune: { id: '3', code: 'TOA', nom: 'Toamasina' },
+        projet: { id: 2, nom: 'Ambatovy Mine', type_minerai: 'Nickel' },
+        commune: { id: 3, code: 'TOA', nom: 'Toamasina' },
       },
     ]
     pagination.value.total = revenus.value.length
@@ -505,10 +500,10 @@ const calculateStats = () => {
   }
 
   revenus.value.forEach(r => {
-    stats.value.total += r.montant
-    if (r.type_revenu === 'ristourne') stats.value.ristournes += r.montant
-    else if (r.type_revenu === 'redevance') stats.value.redevances += r.montant
-    else stats.value.autres += r.montant
+    stats.value.total += r.montant_recu
+    if (r.type_revenu === 'ristourne_miniere' || r.type_revenu === 'quote_part_ristourne') stats.value.ristournes += r.montant_recu
+    else if (r.type_revenu === 'redevance_miniere') stats.value.redevances += r.montant_recu
+    else stats.value.autres += r.montant_recu
   })
 }
 
@@ -519,9 +514,8 @@ const handleFilterChange = () => {
 
 const clearFilters = () => {
   filters.value = {
-    projet_minier_id: null,
-    annee: null,
-    trimestre: null,
+    projet_id: null,
+    exercice_annee: null,
     type_revenu: null,
     region_id: null,
   }
@@ -567,11 +561,11 @@ onMounted(async () => {
   await Promise.all([loadProjets(), loadRegions()])
 
   // Apply filters from query
-  if (route.query.projet_minier_id) {
-    filters.value.projet_minier_id = route.query.projet_minier_id as string
+  if (route.query.projet_id) {
+    filters.value.projet_id = route.query.projet_id as string
   }
-  if (route.query.annee) {
-    filters.value.annee = Number(route.query.annee)
+  if (route.query.exercice_annee) {
+    filters.value.exercice_annee = Number(route.query.exercice_annee)
   }
 
   await loadRevenus()

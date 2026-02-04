@@ -125,13 +125,11 @@ export const useProjetsService = () => {
 
   const getRevenus = async (
     params?: PaginationParams & {
-      projet_minier_id?: string
+      projet_id?: string
       commune_id?: string
-      district_id?: string
+      exercice_annee?: number
+      type_revenu?: string
       region_id?: string
-      annee?: number
-      trimestre?: number
-      type_revenu?: 'ristourne' | 'redevance' | 'autre'
     }
   ): Promise<PaginatedResponse<RevenuMinier>> => {
     return api.get<PaginatedResponse<RevenuMinier>>(REVENUS_PATH, params)
@@ -163,6 +161,34 @@ export const useProjetsService = () => {
     return api.get<RevenuMinierStats[]>(`${REVENUS_PATH}/stats`, params)
   }
 
+  // ============================================================================
+  // DONNÉES DE RÉFÉRENCE POUR REVENUS
+  // ============================================================================
+
+  const getPlanComptableForRevenus = async (): Promise<Array<{ code: string; intitule: string }>> => {
+    return api.get<Array<{ code: string; intitule: string }>>('/api/v1/admin/plan-comptable', {
+      type_mouvement: 'recette',
+      niveau: 3,
+      actif: true,
+      limit: 500,
+    })
+  }
+
+  const getComptesAdministratifsForSelect = async (
+    params?: { commune_id?: string | number; annee?: number }
+  ): Promise<Array<{ id: number; commune_id: number; exercice_id: number; commune_nom?: string; annee?: number }>> => {
+    return api.get<any>('/api/v1/admin/comptes-administratifs', {
+      ...params,
+      limit: 100,
+    }).then((r: any) => r.items || r)
+  }
+
+  const getExercices = async (): Promise<Array<{ id: number; annee: number; cloture: boolean }>> => {
+    return api.get<Array<{ id: number; annee: number; cloture: boolean }>>('/api/v1/exercices', {
+      limit: 50,
+    }).then((r: any) => r.items || r)
+  }
+
   return {
     // Sociétés
     getSocietes,
@@ -189,5 +215,10 @@ export const useProjetsService = () => {
     deleteRevenu,
     getRevenusByProjet,
     getRevenusStats,
+
+    // Données de référence
+    getPlanComptableForRevenus,
+    getComptesAdministratifsForSelect,
+    getExercices,
   }
 }

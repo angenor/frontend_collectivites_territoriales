@@ -86,15 +86,15 @@
           </div>
         </div>
 
-        <!-- Société card -->
+        <!-- Societe card -->
         <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center">
               <font-awesome-icon :icon="['fas', 'building']" class="text-[var(--color-primary)]" />
             </div>
             <div>
-              <p class="text-sm text-[var(--text-muted)]">Société</p>
-              <p class="font-semibold text-[var(--text-primary)] truncate">{{ projet.societe_exploitante }}</p>
+              <p class="text-sm text-[var(--text-muted)]">Societe</p>
+              <p class="font-semibold text-[var(--text-primary)] truncate">{{ projet.societe?.nom || projet.societe_exploitante }}</p>
             </div>
           </div>
         </div>
@@ -106,7 +106,7 @@
               <font-awesome-icon :icon="['fas', 'calendar']" class="text-[var(--color-info)]" />
             </div>
             <div>
-              <p class="text-sm text-[var(--text-muted)]">Période</p>
+              <p class="text-sm text-[var(--text-muted)]">Periode</p>
               <p class="font-semibold text-[var(--text-primary)]">
                 {{ projet.date_debut ? formatDate(projet.date_debut) : 'N/A' }}
               </p>
@@ -162,13 +162,13 @@
             :error="formErrors.type_minerai"
           />
 
-          <!-- Société -->
+          <!-- Societe -->
           <UiFormSelect
-            v-model="form.societe_exploitante"
-            label="Société exploitante"
+            v-model="form.societe_id"
+            label="Societe exploitante"
             :options="societeOptions"
             required
-            :error="formErrors.societe_exploitante"
+            :error="formErrors.societe_id"
           />
 
           <!-- Statut -->
@@ -180,19 +180,19 @@
             :error="formErrors.statut"
           />
 
-          <!-- Région -->
+          <!-- Region -->
           <UiFormSelect
             v-model="form.region_id"
-            label="Région"
+            label="Region"
             :options="regionOptions"
-            placeholder="Sélectionner une région"
+            placeholder="Selectionner une region"
             :error="formErrors.region_id"
           />
 
-          <!-- Date début -->
+          <!-- Date debut -->
           <UiFormInput
             v-model="form.date_debut"
-            label="Date de début"
+            label="Date de debut"
             type="date"
             :error="formErrors.date_debut"
           />
@@ -210,16 +210,16 @@
             <UiFormTextarea
               v-model="form.description"
               label="Description"
-              placeholder="Description du projet et des activités"
+              placeholder="Description du projet et des activites"
               :rows="3"
               :error="formErrors.description"
             />
           </div>
 
-          <!-- Coordonnées GPS -->
+          <!-- Coordonnees GPS -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
-              Coordonnées GPS
+              Coordonnees GPS
             </label>
             <div class="grid grid-cols-2 gap-4">
               <UiFormInput
@@ -238,6 +238,57 @@
               />
             </div>
           </div>
+
+          <!-- Communes impactees -->
+          <div class="md:col-span-2 mt-4 pt-4 border-t border-[var(--border-light)]">
+            <label class="block text-sm font-medium text-[var(--text-primary)] mb-4">
+              Communes impactees <span class="text-[var(--color-danger)]">*</span>
+            </label>
+            <p v-if="formErrors.communes" class="text-sm text-[var(--color-danger)] mb-3">{{ formErrors.communes }}</p>
+
+            <div v-for="(commune, index) in form.communes" :key="index" class="flex items-end gap-4 mb-3">
+              <div class="flex-1">
+                <UiFormSelect
+                  v-model="commune.commune_id"
+                  :label="index === 0 ? 'Commune' : ''"
+                  :options="communeOptions"
+                  placeholder="Selectionner une commune"
+                  required
+                />
+              </div>
+              <div class="w-40">
+                <UiFormInput
+                  v-model.number="commune.pourcentage_territoire"
+                  :label="index === 0 ? '% Territoire' : ''"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="100"
+                  required
+                />
+              </div>
+              <UiButton
+                v-if="form.communes.length > 1"
+                type="button"
+                variant="outline"
+                size="sm"
+                @click="form.communes.splice(index, 1)"
+              >
+                <font-awesome-icon :icon="['fas', 'trash']" class="w-3 h-3" />
+              </UiButton>
+            </div>
+
+            <UiButton
+              type="button"
+              variant="outline"
+              size="sm"
+              @click="form.communes.push({ commune_id: '', pourcentage_territoire: 100 })"
+            >
+              <font-awesome-icon :icon="['fas', 'plus']" class="w-3 h-3 mr-2" />
+              Ajouter une commune
+            </UiButton>
+          </div>
         </div>
       </div>
 
@@ -245,7 +296,7 @@
       <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Details card -->
         <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
-          <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Détails du projet</h2>
+          <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Details du projet</h2>
 
           <div class="space-y-4">
             <div>
@@ -258,7 +309,7 @@
 
             <div class="grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border-light)]">
               <div>
-                <p class="text-sm text-[var(--text-muted)]">Date de début</p>
+                <p class="text-sm text-[var(--text-muted)]">Date de debut</p>
                 <p class="text-[var(--text-primary)]">{{ projet.date_debut ? formatDate(projet.date_debut) : '-' }}</p>
               </div>
               <div>
@@ -268,7 +319,7 @@
             </div>
 
             <div v-if="projet.coordonnees_gps" class="pt-4 border-t border-[var(--border-light)]">
-              <p class="text-sm text-[var(--text-muted)]">Coordonnées GPS</p>
+              <p class="text-sm text-[var(--text-muted)]">Coordonnees GPS</p>
               <p class="font-mono text-[var(--text-primary)]">
                 {{ projet.coordonnees_gps.latitude }}, {{ projet.coordonnees_gps.longitude }}
               </p>
@@ -283,14 +334,14 @@
           <div class="space-y-3">
             <div v-if="projet.region" class="flex items-center gap-2">
               <font-awesome-icon :icon="['fas', 'location-dot']" class="text-[var(--color-primary)] text-sm w-4" />
-              <span class="text-[var(--text-primary)]">Région {{ projet.region.nom }}</span>
+              <span class="text-[var(--text-primary)]">Region {{ projet.region.nom }}</span>
             </div>
             <div v-if="projet.commune" class="flex items-center gap-2">
               <font-awesome-icon :icon="['fas', 'city']" class="text-[var(--color-primary)] text-sm w-4" />
               <span class="text-[var(--text-primary)]">{{ projet.commune.nom }}</span>
             </div>
             <p v-if="!projet.region && !projet.commune" class="text-[var(--text-muted)] italic">
-              Localisation non renseignée
+              Localisation non renseignee
             </p>
           </div>
 
@@ -298,10 +349,10 @@
             <p class="text-sm text-[var(--text-muted)] mb-2">Dates</p>
             <div class="text-sm">
               <p class="text-[var(--text-secondary)]">
-                Créé le {{ formatDate(projet.created_at) }}
+                Cree le {{ formatDate(projet.created_at) }}
               </p>
               <p class="text-[var(--text-secondary)]">
-                Modifié le {{ formatDate(projet.updated_at) }}
+                Modifie le {{ formatDate(projet.updated_at) }}
               </p>
             </div>
           </div>
@@ -328,7 +379,7 @@
         <UiEmptyState
           v-else-if="!revenus.length"
           title="Aucun revenu"
-          description="Ce projet n'a pas encore de revenus enregistrés."
+          description="Ce projet n'a pas encore de revenus enregistres."
           icon="coins"
         />
 
@@ -351,7 +402,7 @@
                   {{ getTypeRevenuLabel(revenu.type_revenu) }}
                 </span>
                 <span class="text-sm text-[var(--text-muted)]">
-                  {{ revenu.annee }}{{ revenu.trimestre ? ` T${revenu.trimestre}` : '' }}
+                  {{ revenu.exercice_annee || '' }}
                 </span>
               </div>
               <p v-if="revenu.commune" class="text-sm text-[var(--text-secondary)] mt-1">
@@ -360,7 +411,7 @@
             </div>
             <div class="flex items-center gap-3">
               <span class="font-mono font-semibold text-[var(--color-primary)]">
-                {{ formatMoney(revenu.montant) }}
+                {{ formatMoney(revenu.montant_recu) }}
               </span>
               <font-awesome-icon :icon="['fas', 'chevron-right']" class="text-[var(--text-muted)] group-hover:text-[var(--color-primary)]" />
             </div>
@@ -369,7 +420,7 @@
           <!-- View all link -->
           <NuxtLink
             v-if="revenus.length >= 10"
-            :to="`/admin/revenus?projet_minier_id=${projet.id}`"
+            :to="`/admin/revenus?projet_id=${projet.id}`"
             class="block text-center py-3 text-sm text-[var(--color-primary)] hover:underline"
           >
             Voir tous les revenus
@@ -383,7 +434,7 @@
 <script setup lang="ts">
 import type { ProjetMinier, ProjetMinierFormData, RevenuMinier } from '~/types/projets-miniers'
 import type { Societe } from '~/services/projets.service'
-import type { RegionWithStats } from '~/types/collectivites'
+import type { RegionWithStats, CommuneWithStats } from '~/types/collectivites'
 import { useProjetsService } from '~/services/projets.service'
 import { useGeoService } from '~/services/geo.service'
 
@@ -402,6 +453,7 @@ const projet = ref<ProjetMinier | null>(null)
 const revenus = ref<RevenuMinier[]>([])
 const societes = ref<Societe[]>([])
 const regions = ref<RegionWithStats[]>([])
+const communes = ref<CommuneWithStats[]>([])
 const typesMinerai = ref<string[]>([])
 const loading = ref(true)
 const loadingRevenus = ref(true)
@@ -414,13 +466,14 @@ const form = ref<ProjetMinierFormData>({
   nom: '',
   code: '',
   type_minerai: '',
-  societe_exploitante: '',
+  societe_id: '',
   region_id: null,
   date_debut: null,
   date_fin: null,
   statut: 'planifie',
   description: null,
   coordonnees_gps: null,
+  communes: [{ commune_id: '', pourcentage_territoire: 100 }],
 })
 const formErrors = ref<Record<string, string>>({})
 const gpsLatitude = ref<number | null>(null)
@@ -428,14 +481,14 @@ const gpsLongitude = ref<number | null>(null)
 
 // Options
 const statutOptions = [
-  { value: 'planifie', label: 'Planifié' },
+  { value: 'planifie', label: 'Planifie' },
   { value: 'en_cours', label: 'En cours' },
   { value: 'suspendu', label: 'Suspendu' },
-  { value: 'termine', label: 'Terminé' },
+  { value: 'termine', label: 'Termine' },
 ]
 
 const societeOptions = computed(() =>
-  societes.value.map(s => ({ value: s.nom, label: s.nom }))
+  societes.value.map(s => ({ value: s.id, label: s.nom }))
 )
 
 const mineraiOptions = computed(() =>
@@ -446,6 +499,10 @@ const regionOptions = computed(() => [
   { value: '', label: 'Aucune' },
   ...regions.value.map(r => ({ value: r.id, label: r.nom })),
 ])
+
+const communeOptions = computed(() =>
+  communes.value.map(c => ({ value: c.id, label: c.nom }))
+)
 
 // Methods
 const formatDate = (dateStr: string) => {
@@ -473,8 +530,8 @@ const getStatutLabel = (statut: string) => {
   const labels: Record<string, string> = {
     en_cours: 'En cours',
     suspendu: 'Suspendu',
-    termine: 'Terminé',
-    planifie: 'Planifié',
+    termine: 'Termine',
+    planifie: 'Planifie',
   }
   return labels[statut] || statut
 }
@@ -491,8 +548,10 @@ const getStatutClass = (statut: string) => {
 
 const getTypeRevenuLabel = (type: string) => {
   const labels: Record<string, string> = {
-    ristourne: 'Ristourne',
-    redevance: 'Redevance',
+    ristourne_miniere: 'Ristourne miniere',
+    redevance_miniere: 'Redevance miniere',
+    frais_administration_miniere: 'Frais admin. miniere',
+    quote_part_ristourne: 'Quote-part ristourne',
     autre: 'Autre',
   }
   return labels[type] || type
@@ -500,8 +559,10 @@ const getTypeRevenuLabel = (type: string) => {
 
 const getTypeRevenuClass = (type: string) => {
   const classes: Record<string, string> = {
-    ristourne: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
-    redevance: 'bg-[var(--color-success)]/10 text-[var(--color-success)]',
+    ristourne_miniere: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)]',
+    redevance_miniere: 'bg-[var(--color-success)]/10 text-[var(--color-success)]',
+    frais_administration_miniere: 'bg-[var(--color-warning)]/10 text-[var(--color-warning)]',
+    quote_part_ristourne: 'bg-[var(--color-info)]/10 text-[var(--color-info)]',
     autre: 'bg-[var(--text-muted)]/10 text-[var(--text-muted)]',
   }
   return classes[type] || 'bg-[var(--bg-secondary)] text-[var(--text-secondary)]'
@@ -509,22 +570,25 @@ const getTypeRevenuClass = (type: string) => {
 
 const loadReferenceData = async () => {
   try {
-    const [societesData, typesData, regionsData] = await Promise.all([
+    const [societesData, typesData, regionsData, communesData] = await Promise.all([
       projetsService.getAllSocietes(),
       projetsService.getTypesMinerai(),
       geoService.getRegions({ limit: 100 }),
+      geoService.getCommunes({ limit: 500 }),
     ])
     societes.value = societesData
     typesMinerai.value = typesData
-    regions.value = regionsData.items
+    regions.value = regionsData as RegionWithStats[]
+    communes.value = communesData.items
   } catch (e) {
-    console.error('Erreur chargement données de référence:', e)
+    console.error('Erreur chargement donnees de reference:', e)
     societes.value = [
       { id: '1', nom: 'QIT Madagascar Minerals', code: 'QMM', created_at: '', updated_at: '' },
       { id: '2', nom: 'Ambatovy Minerals', code: 'AMB', created_at: '', updated_at: '' },
     ]
-    typesMinerai.value = ['Ilménite', 'Nickel', 'Cobalt', 'Chromite', 'Or', 'Graphite']
+    typesMinerai.value = ['Ilmenite', 'Nickel', 'Cobalt', 'Chromite', 'Or', 'Graphite']
     regions.value = []
+    communes.value = []
   }
 }
 
@@ -550,11 +614,12 @@ const loadProjet = async () => {
       id,
       nom: 'Site de Mandena',
       code: 'QMM-MAN',
-      type_minerai: 'Ilménite',
+      type_minerai: 'Ilmenite',
+      societe_id: 1,
       societe_exploitante: 'QIT Madagascar Minerals',
       region_id: '1',
       statut: 'en_cours',
-      description: 'Site d\'extraction d\'ilménite dans le sud-est de Madagascar. Ce projet fait partie des plus grands projets miniers du pays.',
+      description: 'Site d\'extraction d\'ilmenite dans le sud-est de Madagascar. Ce projet fait partie des plus grands projets miniers du pays.',
       date_debut: '2009-01-01',
       date_fin: null,
       coordonnees_gps: { latitude: -24.9875, longitude: 46.9875 },
@@ -562,6 +627,10 @@ const loadProjet = async () => {
       updated_at: '2024-11-20T14:45:00Z',
       region: { id: '1', code: 'ANO', nom: 'Anosy' },
       commune: { id: '1', code: 'TFD', nom: 'Fort Dauphin' },
+      communes: [
+        { id: 1, projet_id: 1, commune_id: 1, pourcentage_territoire: 60, commune_nom: 'Fort Dauphin', commune_code: 'TFD' },
+        { id: 2, projet_id: 1, commune_id: 2, pourcentage_territoire: 40, commune_nom: 'Amboasary', commune_code: 'AMP' },
+      ],
     }
     error.value = null
   } finally {
@@ -582,39 +651,48 @@ const loadRevenus = async () => {
     revenus.value = [
       {
         id: '1',
-        projet_minier_id: id,
-        commune_id: '1',
-        annee: 2024,
-        trimestre: 3,
-        type_revenu: 'ristourne',
-        montant: 125000000,
+        projet_id: Number(id),
+        commune_id: 1,
+        exercice_id: 1,
+        type_revenu: 'ristourne_miniere',
+        montant_prevu: 150000000,
+        montant_recu: 125000000,
+        compte_code: '70',
+        compte_administratif_id: 1,
         created_at: '',
         updated_at: '',
-        commune: { id: '1', code: 'TFD', nom: 'Fort Dauphin' },
+        commune: { id: 1, code: 'TFD', nom: 'Fort Dauphin' },
+        exercice_annee: 2024,
       },
       {
         id: '2',
-        projet_minier_id: id,
-        commune_id: '1',
-        annee: 2024,
-        trimestre: 2,
-        type_revenu: 'redevance',
-        montant: 450000000,
+        projet_id: Number(id),
+        commune_id: 1,
+        exercice_id: 1,
+        type_revenu: 'redevance_miniere',
+        montant_prevu: 500000000,
+        montant_recu: 450000000,
+        compte_code: '70',
+        compte_administratif_id: 1,
         created_at: '',
         updated_at: '',
-        commune: { id: '1', code: 'TFD', nom: 'Fort Dauphin' },
+        commune: { id: 1, code: 'TFD', nom: 'Fort Dauphin' },
+        exercice_annee: 2024,
       },
       {
         id: '3',
-        projet_minier_id: id,
-        commune_id: '2',
-        annee: 2024,
-        trimestre: 1,
-        type_revenu: 'ristourne',
-        montant: 85000000,
+        projet_id: Number(id),
+        commune_id: 2,
+        exercice_id: 1,
+        type_revenu: 'ristourne_miniere',
+        montant_prevu: 100000000,
+        montant_recu: 85000000,
+        compte_code: '70',
+        compte_administratif_id: 1,
         created_at: '',
         updated_at: '',
-        commune: { id: '2', code: 'AMP', nom: 'Amboasary' },
+        commune: { id: 2, code: 'AMP', nom: 'Amboasary' },
+        exercice_annee: 2024,
       },
     ]
   } finally {
@@ -629,13 +707,17 @@ const startEditing = () => {
     nom: projet.value.nom,
     code: projet.value.code,
     type_minerai: projet.value.type_minerai,
-    societe_exploitante: projet.value.societe_exploitante,
+    societe_id: projet.value.societe_id ? String(projet.value.societe_id) : '',
     region_id: projet.value.region_id || null,
     date_debut: projet.value.date_debut || null,
     date_fin: projet.value.date_fin || null,
     statut: projet.value.statut,
     description: projet.value.description || null,
     coordonnees_gps: projet.value.coordonnees_gps || null,
+    communes: projet.value.communes?.map(c => ({
+      commune_id: String(c.commune_id),
+      pourcentage_territoire: c.pourcentage_territoire,
+    })) || [{ commune_id: '', pourcentage_territoire: 100 }],
   }
   gpsLatitude.value = projet.value.coordonnees_gps?.latitude || null
   gpsLongitude.value = projet.value.coordonnees_gps?.longitude || null
@@ -660,11 +742,26 @@ const validateForm = (): boolean => {
   if (!form.value.type_minerai) {
     formErrors.value.type_minerai = 'Le type de minerai est requis'
   }
-  if (!form.value.societe_exploitante) {
-    formErrors.value.societe_exploitante = 'La société est requise'
+  if (!form.value.societe_id) {
+    formErrors.value.societe_id = 'La societe est requise'
   }
   if (!form.value.statut) {
     formErrors.value.statut = 'Le statut est requis'
+  }
+
+  // Communes validation
+  if (!form.value.communes.length) {
+    formErrors.value.communes = 'Au moins une commune est requise'
+  }
+  for (const c of form.value.communes) {
+    if (!c.commune_id) {
+      formErrors.value.communes = 'Toutes les communes doivent etre selectionnees'
+      break
+    }
+    if (c.pourcentage_territoire == null || c.pourcentage_territoire < 0 || c.pourcentage_territoire > 100) {
+      formErrors.value.communes = 'Le pourcentage doit etre entre 0 et 100'
+      break
+    }
   }
 
   return Object.keys(formErrors.value).length === 0
@@ -686,11 +783,11 @@ const saveChanges = async () => {
   saving.value = true
   try {
     await projetsService.updateProjet(projet.value.id, form.value)
-    toast.success('Projet mis à jour avec succès')
+    toast.success('Projet mis a jour avec succes')
     isEditing.value = false
     await loadProjet()
   } catch (e: any) {
-    toast.error(e?.message || 'Erreur lors de la mise à jour')
+    toast.error(e?.message || 'Erreur lors de la mise a jour')
   } finally {
     saving.value = false
   }
