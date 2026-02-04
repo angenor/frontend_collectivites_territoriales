@@ -196,6 +196,17 @@ const chartTauxExecution = computed(() => {
   })
 })
 
+// Vérifier si des données de graphique sont significatives (au moins une valeur > 0)
+const hasChartData = (data: { value: number }[]) => data.length > 0 && data.some(d => d.value > 0)
+
+const hasAnyChartData = computed(() =>
+  hasChartData(chartRecettesVsDepenses.value)
+  || hasChartData(chartRepartitionRecettes.value)
+  || hasChartData(chartRepartitionDepenses.value)
+  || hasChartData(chartBudgetVsRealisation.value)
+  || hasChartData(chartTauxExecution.value)
+)
+
 // Formater la date
 const formatDate = (dateStr: string | undefined | null): string => {
   if (!dateStr) return 'Non disponible'
@@ -598,7 +609,7 @@ const formatNumber = (value: number | null | undefined): string => {
           </div>
 
           <!-- Section Graphiques -->
-          <div v-if="tableauComplet" class="mt-12 space-y-8">
+          <div v-if="tableauComplet && hasAnyChartData" class="mt-12 space-y-8">
             <div class="text-center mb-8">
               <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-3 flex items-center justify-center gap-3">
                 <div class="bg-gradient-to-br from-purple-500 to-indigo-600 dark:from-purple-400 dark:to-indigo-500 p-3 rounded-xl shadow-lg">
@@ -612,7 +623,7 @@ const formatNumber = (value: number | null | undefined): string => {
             </div>
 
             <!-- Graphique 1: Recettes vs Dépenses -->
-            <div class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-700">
+            <div v-if="hasChartData(chartRecettesVsDepenses)" class="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-200 dark:border-purple-700">
               <div class="flex items-center gap-3 mb-4">
                 <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-2 rounded-lg">
                   <font-awesome-icon icon="chart-bar" class="w-5 h-5 text-white" />
@@ -631,9 +642,9 @@ const formatNumber = (value: number | null | undefined): string => {
             </div>
 
             <!-- Graphiques Répartition -->
-            <div class="grid lg:grid-cols-2 gap-8">
+            <div v-if="hasChartData(chartRepartitionRecettes) || hasChartData(chartRepartitionDepenses)" class="grid lg:grid-cols-2 gap-8">
               <!-- Répartition des Recettes -->
-              <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-700">
+              <div v-if="hasChartData(chartRepartitionRecettes)" class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 border border-green-200 dark:border-green-700">
                 <div class="flex items-center gap-3 mb-4">
                   <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-2 rounded-lg">
                     <font-awesome-icon icon="arrow-up" class="w-5 h-5 text-white" />
@@ -652,7 +663,7 @@ const formatNumber = (value: number | null | undefined): string => {
               </div>
 
               <!-- Répartition des Dépenses -->
-              <div class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-2xl p-6 border border-red-200 dark:border-red-700">
+              <div v-if="hasChartData(chartRepartitionDepenses)" class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-2xl p-6 border border-red-200 dark:border-red-700">
                 <div class="flex items-center gap-3 mb-4">
                   <div class="bg-gradient-to-r from-red-600 to-rose-600 p-2 rounded-lg">
                     <font-awesome-icon icon="arrow-down" class="w-5 h-5 text-white" />
@@ -672,7 +683,7 @@ const formatNumber = (value: number | null | undefined): string => {
             </div>
 
             <!-- Budget vs Réalisation -->
-            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
+            <div v-if="hasChartData(chartBudgetVsRealisation)" class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-2xl p-6 border border-blue-200 dark:border-blue-700">
               <div class="flex items-center gap-3 mb-4">
                 <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-2 rounded-lg">
                   <font-awesome-icon icon="chart-line" class="w-5 h-5 text-white" />
@@ -691,7 +702,7 @@ const formatNumber = (value: number | null | undefined): string => {
             </div>
 
             <!-- Taux d'exécution -->
-            <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-6 border border-amber-200 dark:border-amber-700">
+            <div v-if="hasChartData(chartTauxExecution)" class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl p-6 border border-amber-200 dark:border-amber-700">
               <div class="flex items-center gap-3 mb-4">
                 <div class="bg-gradient-to-r from-amber-600 to-orange-600 p-2 rounded-lg">
                   <font-awesome-icon icon="chart-bar" class="w-5 h-5 text-white" />

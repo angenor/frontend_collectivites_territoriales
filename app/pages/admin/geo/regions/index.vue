@@ -221,68 +221,32 @@ const loadRegions = async () => {
   error.value = null
 
   try {
-    const params: any = {
-      page: pagination.value.page,
-      limit: pagination.value.limit,
-    }
+    const params: any = {}
 
     if (filters.value.province_id) {
       params.province_id = filters.value.province_id
     }
 
-    if (searchQuery.value) {
-      params.search = searchQuery.value
-    }
+    // Backend returns a plain array, handle filtering/pagination client-side
+    let allRegions = await geoService.getRegions(params)
 
-    const response = await geoService.getRegions(params)
-    regions.value = response.items
-    pagination.value.total = response.total
-    pagination.value.pages = response.pages
-  } catch (e: any) {
-    console.error('Erreur chargement régions:', e)
-    error.value = e?.message || 'Erreur lors du chargement des régions'
-
-    // Mock data
-    const allRegions: RegionWithStats[] = [
-      { id: 1, code: 'ANA', nom: 'Analamanga', province_id: 1, province_nom: 'Antananarivo', nb_communes: 55, created_at: '', updated_at: '' },
-      { id: 2, code: 'BON', nom: 'Bongolava', province_id: 1, province_nom: 'Antananarivo', nb_communes: 25, created_at: '', updated_at: '' },
-      { id: 3, code: 'ITA', nom: 'Itasy', province_id: 1, province_nom: 'Antananarivo', nb_communes: 45, created_at: '', updated_at: '' },
-      { id: 4, code: 'VAK', nom: 'Vakinankaratra', province_id: 1, province_nom: 'Antananarivo', nb_communes: 55, created_at: '', updated_at: '' },
-      { id: 5, code: 'DIA', nom: 'Diana', province_id: 2, province_nom: 'Antsiranana', nb_communes: 30, created_at: '', updated_at: '' },
-      { id: 6, code: 'SAV', nom: 'Sava', province_id: 2, province_nom: 'Antsiranana', nb_communes: 52, created_at: '', updated_at: '' },
-      { id: 7, code: 'AMO', nom: 'Amoron\'i Mania', province_id: 3, province_nom: 'Fianarantsoa', nb_communes: 45, created_at: '', updated_at: '' },
-      { id: 8, code: 'HMN', nom: 'Haute Matsiatra', province_id: 3, province_nom: 'Fianarantsoa', nb_communes: 55, created_at: '', updated_at: '' },
-      { id: 9, code: 'IHO', nom: 'Ihorombe', province_id: 3, province_nom: 'Fianarantsoa', nb_communes: 25, created_at: '', updated_at: '' },
-      { id: 10, code: 'VVS', nom: 'Vatovavy', province_id: 3, province_nom: 'Fianarantsoa', nb_communes: 75, created_at: '', updated_at: '' },
-      { id: 11, code: 'ATS', nom: 'Atsimo Andrefana', province_id: 6, province_nom: 'Toliara', nb_communes: 45, created_at: '', updated_at: '' },
-      { id: 12, code: 'AND', nom: 'Androy', province_id: 6, province_nom: 'Toliara', nb_communes: 35, created_at: '', updated_at: '' },
-      { id: 13, code: 'ANO', nom: 'Anosy', province_id: 6, province_nom: 'Toliara', nb_communes: 40, created_at: '', updated_at: '' },
-      { id: 14, code: 'MEN', nom: 'Menabe', province_id: 6, province_nom: 'Toliara', nb_communes: 33, created_at: '', updated_at: '' },
-      { id: 15, code: 'BET', nom: 'Betsiboka', province_id: 4, province_nom: 'Mahajanga', nb_communes: 28, created_at: '', updated_at: '' },
-      { id: 16, code: 'BOE', nom: 'Boeny', province_id: 4, province_nom: 'Mahajanga', nb_communes: 32, created_at: '', updated_at: '' },
-      { id: 17, code: 'MEL', nom: 'Melaky', province_id: 4, province_nom: 'Mahajanga', nb_communes: 25, created_at: '', updated_at: '' },
-      { id: 18, code: 'SOF', nom: 'Sofia', province_id: 4, province_nom: 'Mahajanga', nb_communes: 40, created_at: '', updated_at: '' },
-      { id: 19, code: 'ALA', nom: 'Alaotra Mangoro', province_id: 5, province_nom: 'Toamasina', nb_communes: 38, created_at: '', updated_at: '' },
-      { id: 20, code: 'ANA', nom: 'Analanjirofo', province_id: 5, province_nom: 'Toamasina', nb_communes: 32, created_at: '', updated_at: '' },
-      { id: 21, code: 'ATS', nom: 'Atsinanana', province_id: 5, province_nom: 'Toamasina', nb_communes: 40, created_at: '', updated_at: '' },
-      { id: 22, code: 'FIF', nom: 'Fitovinany', province_id: 3, province_nom: 'Fianarantsoa', nb_communes: 48, created_at: '', updated_at: '' },
-    ]
-
-    let filtered = allRegions
-    if (filters.value.province_id) {
-      filtered = filtered.filter(r => r.province_id === filters.value.province_id)
-    }
+    // Client-side search filter (backend doesn't support search param)
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(r =>
+      allRegions = allRegions.filter(r =>
         r.nom.toLowerCase().includes(query) || r.code.toLowerCase().includes(query)
       )
     }
 
-    regions.value = filtered
-    pagination.value.total = filtered.length
-    pagination.value.pages = Math.ceil(filtered.length / pagination.value.limit)
-    error.value = null
+    pagination.value.total = allRegions.length
+    pagination.value.pages = Math.ceil(allRegions.length / pagination.value.limit)
+
+    // Client-side pagination
+    const start = (pagination.value.page - 1) * pagination.value.limit
+    regions.value = allRegions.slice(start, start + pagination.value.limit)
+  } catch (e: any) {
+    console.error('Erreur chargement régions:', e)
+    error.value = e?.message || 'Erreur lors du chargement des régions'
   } finally {
     loading.value = false
   }

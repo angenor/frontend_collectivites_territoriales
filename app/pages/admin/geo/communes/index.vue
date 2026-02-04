@@ -288,17 +288,10 @@ const loadProvinces = async () => {
 
 const loadRegions = async () => {
   try {
-    const response = await geoService.getRegions({ limit: 100 })
-    regions.value = response.items
+    // Backend returns a plain array for regions
+    regions.value = await geoService.getRegions()
   } catch (e) {
     console.error('Erreur chargement régions:', e)
-    // Mock data
-    regions.value = [
-      { id: 1, code: 'ANA', nom: 'Analamanga', province_id: 1, nb_communes: 55, created_at: '', updated_at: '' },
-      { id: 2, code: 'BON', nom: 'Bongolava', province_id: 1, nb_communes: 25, created_at: '', updated_at: '' },
-      { id: 3, code: 'ITA', nom: 'Itasy', province_id: 1, nb_communes: 45, created_at: '', updated_at: '' },
-      { id: 4, code: 'VAK', nom: 'Vakinankaratra', province_id: 1, nb_communes: 55, created_at: '', updated_at: '' },
-    ]
   }
 }
 

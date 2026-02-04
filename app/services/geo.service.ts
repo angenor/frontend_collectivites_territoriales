@@ -70,8 +70,9 @@ export const useGeoService = () => {
   }
 
   const getRegionCommunes = async (regionId: number): Promise<CommuneWithStats[]> => {
-    // Backend uses /communes?region_id=X instead of /regions/{id}/communes
-    return api.get<CommuneWithStats[]>(`${BASE_PATH}/communes`, { region_id: regionId })
+    // Backend returns paginated response, extract items
+    const response = await api.get<PaginatedResponse<CommuneWithStats>>(`${BASE_PATH}/communes`, { region_id: regionId, limit: 500 })
+    return response.items
   }
 
   // ============================================================================

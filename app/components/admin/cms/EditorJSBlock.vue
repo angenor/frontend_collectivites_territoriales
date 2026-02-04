@@ -25,7 +25,7 @@
 
     <!-- Help text -->
     <p class="mt-2 text-xs text-[var(--text-muted)]">
-      Utilisez <kbd class="px-1 py-0.5 bg-[var(--bg-secondary)] rounded text-xs">Tab</kbd> pour ajouter des blocs.
+      Utilisez <kbd class="px-1 py-0.5 bg-[var(--interactive-hover)] rounded text-xs">Tab</kbd> pour ajouter des blocs.
       Sélectionnez du texte pour afficher les options de formatage.
     </p>
   </div>
@@ -73,7 +73,7 @@ defineExpose({
 </script>
 
 <style scoped>
-/* Editor.js styling */
+/* Editor.js styling — éléments internes au conteneur */
 .editorjs-container :deep(.ce-block__content) {
   max-width: 100%;
   margin: 0;
@@ -153,112 +153,139 @@ defineExpose({
 .editorjs-container :deep([data-placeholder]:empty::before) {
   color: var(--text-muted);
 }
+</style>
+
+<style>
+/*
+ * Editor.js — Styles globaux (non-scoped)
+ * Les popovers, toolbars et menus flottants d'Editor.js peuvent être rendus
+ * en dehors du composant (portés au body), donc les styles scoped :deep()
+ * ne les atteignent pas. On utilise des styles globaux ici.
+ */
 
 /* Inline toolbar */
-.editorjs-container :deep(.ce-inline-toolbar) {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+.ce-inline-toolbar {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
-.editorjs-container :deep(.ce-inline-tool) {
-  color: var(--text-secondary);
+.ce-inline-tool {
+  color: var(--text-secondary) !important;
 }
 
-.editorjs-container :deep(.ce-inline-tool:hover) {
-  background: var(--bg-secondary);
+.ce-inline-tool:hover {
+  background: var(--interactive-hover) !important;
 }
 
-.editorjs-container :deep(.ce-inline-tool--active) {
-  color: var(--color-primary);
+.ce-inline-tool--active {
+  color: var(--color-primary) !important;
 }
 
-/* Block toolbar */
-.editorjs-container :deep(.ce-toolbar__plus),
-.editorjs-container :deep(.ce-toolbar__settings-btn) {
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
+/* Block toolbar (+, settings) */
+.ce-toolbar__plus,
+.ce-toolbar__settings-btn {
+  color: var(--text-secondary) !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
 }
 
-.editorjs-container :deep(.ce-toolbar__plus:hover),
-.editorjs-container :deep(.ce-toolbar__settings-btn:hover) {
-  background: var(--bg-secondary);
+.ce-toolbar__plus:hover,
+.ce-toolbar__settings-btn:hover {
+  background: var(--interactive-hover) !important;
 }
 
 /* Conversion toolbar */
-.editorjs-container :deep(.ce-conversion-toolbar) {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 0.5rem;
+.ce-conversion-toolbar {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.5rem !important;
 }
 
-.editorjs-container :deep(.ce-conversion-tool) {
-  color: var(--text-primary);
+.ce-conversion-tool {
+  color: var(--text-primary) !important;
 }
 
-.editorjs-container :deep(.ce-conversion-tool:hover) {
-  background: var(--bg-secondary);
+.ce-conversion-tool:hover {
+  background: var(--interactive-hover) !important;
 }
 
 /* Settings panel */
-.editorjs-container :deep(.ce-settings) {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 0.5rem;
+.ce-settings {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: var(--shadow-lg) !important;
 }
 
-.editorjs-container :deep(.cdx-settings-button) {
-  color: var(--text-secondary);
+.cdx-settings-button {
+  color: var(--text-secondary) !important;
 }
 
-.editorjs-container :deep(.cdx-settings-button:hover) {
-  background: var(--bg-secondary);
+.cdx-settings-button:hover {
+  background: var(--interactive-hover) !important;
 }
 
-.editorjs-container :deep(.cdx-settings-button--active) {
-  color: var(--color-primary);
+.cdx-settings-button--active {
+  color: var(--color-primary) !important;
 }
 
-/* Popover */
-.editorjs-container :deep(.ce-popover) {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+/* Popover (toolbox menu) */
+.ce-popover {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: var(--shadow-xl) !important;
 }
 
-.editorjs-container :deep(.ce-popover-item) {
-  color: var(--text-primary);
+.ce-popover__container {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.5rem !important;
 }
 
-.editorjs-container :deep(.ce-popover-item:hover) {
-  background: var(--bg-secondary);
+.ce-popover__overlay {
+  background: transparent !important;
 }
 
-.editorjs-container :deep(.ce-popover-item__icon) {
-  color: var(--text-secondary);
-  background: var(--bg-secondary);
-  border-radius: 0.375rem;
+.ce-popover-item {
+  color: var(--text-primary) !important;
 }
 
-.editorjs-container :deep(.ce-popover-item__title) {
-  color: var(--text-primary);
+.ce-popover-item:hover,
+.ce-popover-item--focused {
+  background: var(--interactive-hover) !important;
 }
 
-.editorjs-container :deep(.ce-popover-item__secondary-title) {
-  color: var(--text-muted);
+.ce-popover-item__icon {
+  color: var(--text-secondary) !important;
+  background: var(--interactive-hover) !important;
+  border-radius: 0.375rem !important;
+}
+
+.ce-popover-item__title {
+  color: var(--text-primary) !important;
+}
+
+.ce-popover-item__secondary-title {
+  color: var(--text-muted) !important;
 }
 
 /* Search in popover */
-.editorjs-container :deep(.cdx-search-field) {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-default);
-  border-radius: 0.375rem;
+.cdx-search-field {
+  background: var(--interactive-hover) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0.375rem !important;
 }
 
-.editorjs-container :deep(.cdx-search-field__input) {
-  color: var(--text-primary);
+.cdx-search-field__input {
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+.cdx-search-field__icon svg {
+  color: var(--text-muted) !important;
+  fill: var(--text-muted) !important;
 }
 </style>
