@@ -140,6 +140,16 @@ import {
   faGripVertical,
   faCalculator,
   faColumns,
+  faTree,
+  // CMS icons
+  faBoxArchive,
+  faRotateLeft,
+  faIdCard,
+  faTableCellsLarge,
+  faImages,
+  faAlignLeft,
+  faFloppyDisk,
+  faLayerGroup,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Regular icons
@@ -305,6 +315,17 @@ library.add(
   faGripVertical,
   faCalculator,
   faColumns,
+  faTree,
+  // CMS icons
+  faBoxArchive,
+  faRotateLeft,
+  faIdCard,
+  faTableCellsLarge,
+  faImages,
+  faAlignLeft,
+  faFloppyDisk,
+  // Map legend
+  faLayerGroup,
   // Regular
   farHeart,
   farStar,

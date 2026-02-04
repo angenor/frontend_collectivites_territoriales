@@ -459,13 +459,7 @@ const loadUsers = async () => {
 }
 
 const loadRoles = () => {
-  // Roles are defined as an enum in the backend, not a dynamic table
-  roles.value = [
-    { id: '1', code: 'admin', nom: 'Administrateur', actif: true },
-    { id: '2', code: 'editeur', nom: 'Éditeur', actif: true },
-    { id: '3', code: 'lecteur', nom: 'Lecteur', actif: true },
-    { id: '4', code: 'commune', nom: 'Commune', actif: true },
-  ]
+  roles.value = utilisateursService.getRoles()
 }
 
 // Watch filters

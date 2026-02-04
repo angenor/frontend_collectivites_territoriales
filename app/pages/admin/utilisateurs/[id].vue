@@ -186,10 +186,10 @@
                 </label>
                 <select
                   v-if="isEditing"
-                  v-model="editForm.role_id"
+                  v-model="editForm.role"
                   class="w-full px-4 py-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] outline-none transition-colors"
                 >
-                  <option v-for="role in roles" :key="role.id" :value="role.id">
+                  <option v-for="role in roles" :key="role.code" :value="role.code">
                     {{ role.nom }}
                   </option>
                 </select>
@@ -406,19 +406,13 @@ const loadError = ref<string | null>(null)
 const user = ref<UserWithStats | null>(null)
 const sessions = ref<Session[]>([])
 
-// Static roles (based on backend enums)
-const roles: Role[] = [
-  { id: 'admin', code: 'admin', nom: 'Administrateur', actif: true },
-  { id: 'editeur', code: 'editeur', nom: 'Éditeur', actif: true },
-  { id: 'lecteur', code: 'lecteur', nom: 'Lecteur', actif: true },
-  { id: 'commune', code: 'commune', nom: 'Commune', actif: true },
-]
+const roles: Role[] = utilisateursService.getRoles()
 
 const editForm = ref<Partial<UserFormData>>({
   email: '',
   nom: '',
   prenom: '',
-  role_id: '',
+  role: '',
 })
 
 const getInitials = (user: User) => {
@@ -506,7 +500,7 @@ const cancelEdit = () => {
       email: user.value.email,
       nom: user.value.nom,
       prenom: user.value.prenom || '',
-      role_id: user.value.role.id,
+      role: user.value.role.code,
     }
   }
   isEditing.value = false
@@ -517,8 +511,9 @@ const saveUser = async () => {
 
   isSaving.value = true
   try {
-    const updated = await utilisateursService.updateUtilisateur(userId.value, editForm.value)
-    user.value = { ...user.value, ...updated }
+    await utilisateursService.updateUtilisateur(userId.value, editForm.value)
+    // Recharger l'utilisateur pour avoir le format complet (role en objet)
+    await loadUser()
     isEditing.value = false
   } catch (error) {
     console.error('Error saving user:', error)
@@ -597,12 +592,12 @@ const loadUser = async () => {
   loadError.value = null
   try {
     const data = await utilisateursService.getUtilisateur(userId.value)
-    user.value = data as UserWithStats
+    user.value = data
     editForm.value = {
       email: data.email,
       nom: data.nom,
       prenom: data.prenom || '',
-      role_id: data.role?.code || data.role?.id || '',
+      role: data.role?.code || '',
     }
   } catch (error: any) {
     console.error('Error loading user:', error)

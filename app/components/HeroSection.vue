@@ -6,6 +6,7 @@ const emit = defineEmits<{
 }>()
 
 const geoService = useGeoService()
+const config = useRuntimeConfig()
 const { isDark } = useDarkMode()
 
 // Logo dynamique basé sur le thème
@@ -19,6 +20,7 @@ const logoSrc = computed(() => {
 const isLoadingProvinces = ref(true)
 const isLoadingRegions = ref(false)
 const isLoadingCommunes = ref(false)
+const isLoadingYears = ref(false)
 const error = ref<string | null>(null)
 
 // Données
@@ -32,11 +34,31 @@ const selectedRegion = ref<number | ''>('')
 const selectedCommune = ref<number | ''>('')
 const selectedAnnee = ref<number>(new Date().getFullYear())
 
-// Années disponibles
-const annees = computed(() => {
-  const currentYear = new Date().getFullYear()
-  return Array.from({ length: 5 }, (_, i) => currentYear - i)
-})
+// Années disponibles (chargées depuis l'API)
+const availableYears = ref<number[]>([])
+// Années avec données pour la commune sélectionnée
+const communeYearsWithData = ref<Set<number>>(new Set())
+
+// Charger les années d'exercice depuis l'API publique
+const loadExerciceYears = async () => {
+  isLoadingYears.value = true
+  try {
+    const apiBaseUrl = config.public.apiBaseUrl
+    const years = await $fetch<number[]>(`${apiBaseUrl}/api/v1/exercices/years`)
+    availableYears.value = years
+    // Sélectionner l'année la plus récente par défaut
+    if (years.length > 0) {
+      selectedAnnee.value = years[0]!
+    }
+  } catch (err) {
+    console.error('Erreur lors du chargement des exercices:', err)
+    // Fallback : générer les 5 dernières années
+    const currentYear = new Date().getFullYear()
+    availableYears.value = Array.from({ length: 5 }, (_, i) => currentYear - i)
+  } finally {
+    isLoadingYears.value = false
+  }
+}
 
 // Statistiques totales
 const totalProvinces = computed(() => provinces.value.length)
@@ -102,12 +124,31 @@ const loadCommunes = async (regionId: number) => {
   }
 }
 
+// Charger les années avec données pour une commune
+const loadYearsForCommune = async (communeId: number) => {
+  try {
+    const apiBaseUrl = config.public.apiBaseUrl
+    const years = await $fetch<number[]>(`${apiBaseUrl}/api/v1/exercices/years-for-commune`, {
+      params: { commune_id: communeId }
+    })
+    communeYearsWithData.value = new Set(years)
+    // Auto-sélectionner la première année avec données
+    if (years.length > 0) {
+      selectedAnnee.value = years[0]!
+    }
+  } catch (err) {
+    console.error('Erreur lors du chargement des années pour la commune:', err)
+    communeYearsWithData.value = new Set()
+  }
+}
+
 // Réinitialiser les sélections en cascade
 watch(selectedProvince, async (newVal) => {
   selectedRegion.value = ''
   selectedCommune.value = ''
   regions.value = []
   communes.value = []
+  communeYearsWithData.value = new Set()
 
   if (newVal) {
     await loadRegions(newVal)
@@ -117,9 +158,18 @@ watch(selectedProvince, async (newVal) => {
 watch(selectedRegion, async (newVal) => {
   selectedCommune.value = ''
   communes.value = []
+  communeYearsWithData.value = new Set()
 
   if (newVal) {
     await loadCommunes(newVal)
+  }
+})
+
+watch(selectedCommune, async (newVal) => {
+  if (newVal) {
+    await loadYearsForCommune(newVal)
+  } else {
+    communeYearsWithData.value = new Set()
   }
 })
 
@@ -148,9 +198,10 @@ const handleSearch = async () => {
   })
 }
 
-// Charger les données au montage
+// Charger les données au montage (en parallèle)
 onMounted(() => {
   loadProvinces()
+  loadExerciceYears()
 })
 </script>
 
@@ -263,8 +314,14 @@ onMounted(() => {
                     class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-60"
                   >
                     <option value="">{{ isLoadingProvinces ? 'Chargement...' : 'Sélectionner...' }}</option>
-                    <option v-for="province in provinces" :key="province.id" :value="province.id">
-                      {{ province.nom }}
+                    <option
+                      v-for="province in provinces"
+                      :key="province.id"
+                      :value="province.id"
+                      :disabled="!province.nb_comptes_administratifs"
+                      :class="{ 'text-gray-400': !province.nb_comptes_administratifs }"
+                    >
+                      {{ province.nom }}{{ !province.nb_comptes_administratifs ? ' (aucune donnée)' : '' }}
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -302,8 +359,14 @@ onMounted(() => {
                     class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">{{ isLoadingRegions ? 'Chargement...' : 'Sélectionner...' }}</option>
-                    <option v-for="region in regions" :key="region.id" :value="region.id">
-                      {{ region.nom }}
+                    <option
+                      v-for="region in regions"
+                      :key="region.id"
+                      :value="region.id"
+                      :disabled="!region.nb_comptes_administratifs"
+                      :class="{ 'text-gray-400': !region.nb_comptes_administratifs }"
+                    >
+                      {{ region.nom }}{{ !region.nb_comptes_administratifs ? ' (aucune donnée)' : '' }}
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -341,8 +404,14 @@ onMounted(() => {
                     class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <option value="">{{ isLoadingCommunes ? 'Chargement...' : 'Sélectionner...' }}</option>
-                    <option v-for="commune in communes" :key="commune.id" :value="commune.id">
-                      {{ commune.nom }}
+                    <option
+                      v-for="commune in communes"
+                      :key="commune.id"
+                      :value="commune.id"
+                      :disabled="!commune.nb_comptes_administratifs"
+                      :class="{ 'text-gray-400': !commune.nb_comptes_administratifs }"
+                    >
+                      {{ commune.nom }}{{ !commune.nb_comptes_administratifs ? ' (aucune donnée)' : '' }}
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -356,17 +425,31 @@ onMounted(() => {
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
                   <font-awesome-icon icon="calendar" class="text-blue-500 dark:text-blue-400" />
                   <span>Année</span>
+                  <Transition name="fade" mode="out-in">
+                    <span v-if="availableYears.length" :key="availableYears.length" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
+                      {{ availableYears.length }}
+                    </span>
+                  </Transition>
                 </label>
                 <div class="relative">
                   <div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <font-awesome-icon icon="clock" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                    <font-awesome-icon v-if="isLoadingYears" icon="spinner" class="w-4 h-4 text-gray-400 animate-spin" />
+                    <font-awesome-icon v-else icon="clock" class="w-4 h-4 text-gray-400 dark:text-gray-500" />
                   </div>
                   <select
                     v-model="selectedAnnee"
-                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500"
+                    :disabled="isLoadingYears"
+                    class="w-full pl-10 pr-10 py-3.5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/50 transition-all appearance-none text-gray-800 dark:text-gray-100 font-medium hover:border-gray-300 dark:hover:border-gray-500 disabled:opacity-60"
                   >
-                    <option v-for="annee in annees" :key="annee" :value="annee">
-                      {{ annee }}
+                    <option v-if="isLoadingYears" value="">Chargement...</option>
+                    <option
+                      v-for="annee in availableYears"
+                      :key="annee"
+                      :value="annee"
+                      :disabled="selectedCommune && communeYearsWithData.size > 0 && !communeYearsWithData.has(annee)"
+                      :class="{ 'text-gray-400': selectedCommune && communeYearsWithData.size > 0 && !communeYearsWithData.has(annee) }"
+                    >
+                      {{ annee }}{{ (selectedCommune && communeYearsWithData.size > 0 && !communeYearsWithData.has(annee)) ? ' (aucune donnée)' : '' }}
                     </option>
                   </select>
                   <div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">

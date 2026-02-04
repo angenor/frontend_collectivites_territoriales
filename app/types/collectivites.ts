@@ -15,6 +15,7 @@ export interface Province {
 export interface ProvinceWithStats extends Province {
   nb_regions: number
   nb_communes: number
+  nb_comptes_administratifs?: number
 }
 
 // Région (22 régions de Madagascar)
@@ -32,6 +33,7 @@ export interface Region {
 export interface RegionWithStats extends Region {
   nb_communes: number
   province_nom?: string
+  nb_comptes_administratifs?: number
 }
 
 // Commune

@@ -20,12 +20,20 @@
     <!-- Filters -->
     <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-4 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Search -->
-        <UiFormInput
-          v-model="filters.search"
+        <!-- Commune filter -->
+        <UiFormSelect
+          v-model="filters.commune_id"
           label=""
-          placeholder="Rechercher par titre..."
-          :icon="['fas', 'search']"
+          :options="communeOptions"
+          placeholder="Toutes les communes"
+        />
+
+        <!-- Exercice filter -->
+        <UiFormSelect
+          v-model="filters.exercice_id"
+          label=""
+          :options="exerciceOptions"
+          placeholder="Tous les exercices"
         />
 
         <!-- Status filter -->
@@ -34,14 +42,6 @@
           label=""
           :options="statutOptions"
           placeholder="Tous les statuts"
-        />
-
-        <!-- Compte Administratif filter -->
-        <UiFormSelect
-          v-model="filters.compte_administratif_id"
-          label=""
-          :options="compteOptions"
-          placeholder="Tous les comptes"
         />
 
         <!-- Reset -->
@@ -58,7 +58,7 @@
       <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center">
-            <font-awesome-icon :icon="['fas', 'file-alt']" class="text-[var(--color-primary)]" />
+            <font-awesome-icon :icon="['fas', 'file-lines']" class="text-[var(--color-primary)]" />
           </div>
           <div>
             <p class="text-sm text-[var(--text-muted)]">Total pages</p>
@@ -94,7 +94,7 @@
       <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg bg-gray-500/10 flex items-center justify-center">
-            <font-awesome-icon :icon="['fas', 'archive']" class="text-gray-500" />
+            <font-awesome-icon :icon="['fas', 'box-archive']" class="text-gray-500" />
           </div>
           <div>
             <p class="text-sm text-[var(--text-muted)]">Archivées</p>
@@ -110,7 +110,7 @@
     </div>
 
     <div v-else-if="pages.length === 0" class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-12 text-center">
-      <font-awesome-icon :icon="['fas', 'file-alt']" class="text-4xl text-[var(--text-muted)] mb-4" />
+      <font-awesome-icon :icon="['fas', 'file-lines']" class="text-4xl text-[var(--text-muted)] mb-4" />
       <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-2">Aucune page trouvée</h3>
       <p class="text-[var(--text-secondary)] mb-4">Créez votre première page CMS pour un compte administratif.</p>
       <NuxtLink to="/admin/cms/pages/create">
@@ -122,7 +122,7 @@
 
     <div v-else class="space-y-4">
       <div
-        v-for="page in pages"
+        v-for="page in pagesEnrichies"
         :key="page.id"
         class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-4 hover:border-[var(--color-primary)]/30 transition-colors"
       >
@@ -133,33 +133,25 @@
                 :to="`/admin/cms/pages/${page.id}`"
                 class="text-lg font-semibold text-[var(--text-primary)] hover:text-[var(--color-primary)] transition-colors truncate"
               >
-                {{ page.titre }}
+                {{ page.titre || `Page ${page.communeNom} - ${page.exerciceAnnee}` }}
               </NuxtLink>
               <UiBadge :variant="getStatutVariant(page.statut)">
                 {{ getStatutLabel(page.statut) }}
               </UiBadge>
             </div>
 
-            <p v-if="page.description" class="text-sm text-[var(--text-secondary)] mb-3 line-clamp-2">
-              {{ page.description }}
-            </p>
-
             <div class="flex flex-wrap items-center gap-4 text-sm text-[var(--text-muted)]">
-              <span v-if="page.compte_administratif" class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'building']" class="w-3 h-3" />
-                {{ page.compte_administratif.commune?.nom || 'N/A' }} - {{ page.compte_administratif.annee }}
+              <span class="flex items-center gap-1">
+                <font-awesome-icon :icon="['fas', 'city']" class="w-3 h-3" />
+                {{ page.communeNom }}
               </span>
               <span class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'puzzle-piece']" class="w-3 h-3" />
-                {{ page.sections?.length || 0 }} section(s)
-              </span>
-              <span class="flex items-center gap-1">
-                <font-awesome-icon :icon="['fas', 'link']" class="w-3 h-3" />
-                /{{ page.slug }}
-              </span>
-              <span v-if="page.date_publication" class="flex items-center gap-1">
                 <font-awesome-icon :icon="['fas', 'calendar']" class="w-3 h-3" />
-                Publié le {{ formatDate(page.date_publication) }}
+                Exercice {{ page.exerciceAnnee }}
+              </span>
+              <span class="flex items-center gap-1">
+                <font-awesome-icon :icon="['fas', 'clock']" class="w-3 h-3" />
+                Mis à jour le {{ formatDate(page.date_mise_a_jour) }}
               </span>
             </div>
           </div>
@@ -168,7 +160,7 @@
             <button
               v-if="page.statut === 'brouillon'"
               @click="publierPage(page)"
-              class="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors"
+              class="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition-colors cursor-pointer"
               title="Publier"
             >
               <font-awesome-icon :icon="['fas', 'globe']" />
@@ -176,10 +168,10 @@
             <button
               v-if="page.statut === 'publie'"
               @click="archiverPage(page)"
-              class="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              class="p-2 text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
               title="Archiver"
             >
-              <font-awesome-icon :icon="['fas', 'archive']" />
+              <font-awesome-icon :icon="['fas', 'box-archive']" />
             </button>
             <NuxtLink
               :to="`/admin/cms/pages/${page.id}`"
@@ -189,15 +181,8 @@
               <font-awesome-icon :icon="['fas', 'edit']" />
             </NuxtLink>
             <button
-              @click="dupliquerPage(page)"
-              class="p-2 text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] rounded-lg transition-colors"
-              title="Dupliquer"
-            >
-              <font-awesome-icon :icon="['fas', 'copy']" />
-            </button>
-            <button
               @click="confirmDelete(page)"
-              class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer"
               title="Supprimer"
             >
               <font-awesome-icon :icon="['fas', 'trash']" />
@@ -207,36 +192,12 @@
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="totalPages > 1" class="mt-6 flex justify-center">
-      <div class="flex items-center gap-2">
-        <UiButton
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === 1"
-          @click="currentPage--"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-left']" />
-        </UiButton>
-        <span class="px-4 text-sm text-[var(--text-secondary)]">
-          Page {{ currentPage }} sur {{ totalPages }}
-        </span>
-        <UiButton
-          variant="outline"
-          size="sm"
-          :disabled="currentPage === totalPages"
-          @click="currentPage++"
-        >
-          <font-awesome-icon :icon="['fas', 'chevron-right']" />
-        </UiButton>
-      </div>
-    </div>
-
     <!-- Delete confirmation modal -->
     <UiModal v-model="showDeleteModal" title="Supprimer la page" size="sm">
       <p class="text-[var(--text-secondary)]">
-        Êtes-vous sûr de vouloir supprimer la page <strong>{{ pageToDelete?.titre }}</strong> ?
-        Cette action est irréversible.
+        Êtes-vous sûr de vouloir supprimer la page
+        <strong>{{ pageToDelete?.titre || 'cette page' }}</strong> ?
+        Cette action est irréversible et supprimera toutes les sections associées.
       </p>
       <template #footer>
         <div class="flex justify-end gap-3">
@@ -253,9 +214,12 @@
 </template>
 
 <script setup lang="ts">
-import type { PageCMS } from '~/services/cms.service'
+import type { PageCMSList } from '~/services/cms.service'
 import { useCMSService } from '~/services/cms.service'
-import { useComptesAdministratifsService } from '~/services/comptes-administratifs.service'
+import { useGeoService } from '~/services/geo.service'
+import { useExercicesService } from '~/services/exercices.service'
+import type { Commune } from '~/types/collectivites'
+import type { ExerciceList } from '~/services/exercices.service'
 
 definePageMeta({
   layout: 'admin',
@@ -263,30 +227,29 @@ definePageMeta({
 })
 
 const cmsService = useCMSService()
-const comptesService = useComptesAdministratifsService()
+const geoService = useGeoService()
+const exercicesService = useExercicesService()
 const toast = useAppToast()
 
 // State
-const pages = ref<PageCMS[]>([])
-const comptes = ref<Array<{ id: string; annee: number; commune?: { nom: string } }>>([])
+const pages = ref<PageCMSList[]>([])
+const communes = ref<Array<{ id: number; nom: string }>>([])
+const exercices = ref<ExerciceList[]>([])
 const loading = ref(true)
-const currentPage = ref(1)
-const totalPages = ref(1)
-const pageSize = 10
 
 // Filters
 const filters = ref({
-  search: '',
-  statut: '',
-  compte_administratif_id: '',
+  statut: '' as string,
+  commune_id: '' as string,
+  exercice_id: '' as string,
 })
 
 // Delete modal
 const showDeleteModal = ref(false)
-const pageToDelete = ref<PageCMS | null>(null)
+const pageToDelete = ref<PageCMSList | null>(null)
 const deleting = ref(false)
 
-// Stats
+// Stats (computed from full list)
 const stats = computed(() => ({
   total: pages.value.length,
   publiees: pages.value.filter(p => p.statut === 'publie').length,
@@ -294,7 +257,16 @@ const stats = computed(() => ({
   archivees: pages.value.filter(p => p.statut === 'archive').length,
 }))
 
-// Options
+// Pages enrichies avec nom commune et année exercice
+const pagesEnrichies = computed(() =>
+  pages.value.map(p => ({
+    ...p,
+    communeNom: communes.value.find(c => c.id === p.commune_id)?.nom || `Commune #${p.commune_id}`,
+    exerciceAnnee: exercices.value.find(e => e.id === p.exercice_id)?.annee || p.exercice_id,
+  }))
+)
+
+// Options pour les filtres
 const statutOptions = [
   { value: '', label: 'Tous les statuts' },
   { value: 'brouillon', label: 'Brouillon' },
@@ -302,11 +274,19 @@ const statutOptions = [
   { value: 'archive', label: 'Archivée' },
 ]
 
-const compteOptions = computed(() => [
-  { value: '', label: 'Tous les comptes' },
-  ...comptes.value.map(c => ({
-    value: c.id,
-    label: `${c.commune?.nom || 'N/A'} - ${c.annee}`,
+const communeOptions = computed(() => [
+  { value: '', label: 'Toutes les communes' },
+  ...communes.value.map(c => ({
+    value: String(c.id),
+    label: c.nom,
+  })),
+])
+
+const exerciceOptions = computed(() => [
+  { value: '', label: 'Tous les exercices' },
+  ...exercices.value.map(e => ({
+    value: String(e.id),
+    label: String(e.annee),
   })),
 ])
 
@@ -340,83 +320,54 @@ const formatDate = (date: string) => {
 const loadData = async () => {
   loading.value = true
   try {
-    const [pagesData, comptesData] = await Promise.all([
-      cmsService.getPages({
-        page: currentPage.value,
-        limit: pageSize,
-        search: filters.value.search || undefined,
-        statut: filters.value.statut as any || undefined,
-        compte_administratif_id: filters.value.compte_administratif_id || undefined,
-      }),
-      comptesService.getComptes({ limit: 100 }),
-    ])
-    pages.value = pagesData.items
-    totalPages.value = Math.ceil(pagesData.total / pageSize)
-    comptes.value = comptesData.items
+    const params: Record<string, any> = {}
+    if (filters.value.statut) params.statut = filters.value.statut
+    if (filters.value.commune_id) params.commune_id = Number(filters.value.commune_id)
+    if (filters.value.exercice_id) params.exercice_id = Number(filters.value.exercice_id)
+
+    pages.value = await cmsService.getPages(params)
   } catch (e) {
     console.error('Erreur chargement pages CMS:', e)
-    // Mock data for development
-    pages.value = [
-      {
-        id: '1',
-        compte_administratif_id: '1',
-        titre: 'Compte Administratif 2024 - Antananarivo',
-        slug: 'ca-2024-antananarivo',
-        description: 'Présentation complète du compte administratif de la commune d\'Antananarivo pour l\'exercice 2024.',
-        statut: 'publie',
-        date_publication: '2024-03-15',
-        ordre: 1,
-        created_at: '2024-01-10',
-        updated_at: '2024-03-15',
-        compte_administratif: { id: '1', annee: 2024, commune: { id: '1', nom: 'Antananarivo' } },
-        sections: [{} as any, {} as any, {} as any],
-      },
-      {
-        id: '2',
-        compte_administratif_id: '2',
-        titre: 'Compte Administratif 2024 - Toamasina',
-        slug: 'ca-2024-toamasina',
-        description: 'Bilan financier de la commune de Toamasina.',
-        statut: 'brouillon',
-        ordre: 2,
-        created_at: '2024-02-20',
-        updated_at: '2024-02-25',
-        compte_administratif: { id: '2', annee: 2024, commune: { id: '2', nom: 'Toamasina' } },
-        sections: [{} as any],
-      },
-      {
-        id: '3',
-        compte_administratif_id: '3',
-        titre: 'Compte Administratif 2023 - Fianarantsoa',
-        slug: 'ca-2023-fianarantsoa',
-        statut: 'archive',
-        ordre: 3,
-        created_at: '2023-03-01',
-        updated_at: '2024-01-05',
-        compte_administratif: { id: '3', annee: 2023, commune: { id: '3', nom: 'Fianarantsoa' } },
-        sections: [{} as any, {} as any],
-      },
-    ]
-    comptes.value = [
-      { id: '1', annee: 2024, commune: { nom: 'Antananarivo' } },
-      { id: '2', annee: 2024, commune: { nom: 'Toamasina' } },
-      { id: '3', annee: 2023, commune: { nom: 'Fianarantsoa' } },
-    ]
+    pages.value = []
   } finally {
     loading.value = false
   }
 }
 
-const resetFilters = () => {
-  filters.value = {
-    search: '',
-    statut: '',
-    compte_administratif_id: '',
+const loadReferenceData = async () => {
+  // Charger communes et exercices indépendamment pour éviter qu'un échec bloque l'autre
+  const loadCommunes = async () => {
+    try {
+      const communesData = await geoService.getCommunes({ limit: 500 })
+      const communesList = Array.isArray(communesData) ? communesData : communesData.items || []
+      communes.value = communesList.map((c: any) => ({ id: c.id, nom: c.nom }))
+    } catch (e: any) {
+      console.error('Erreur chargement communes:', e)
+      toast.error(e?.message || 'Erreur lors du chargement des communes')
+    }
   }
-  currentPage.value = 1
+
+  const loadExercices = async () => {
+    try {
+      exercices.value = await exercicesService.getPublicExercices()
+    } catch (e: any) {
+      console.error('Erreur chargement exercices:', e)
+      toast.error(e?.message || 'Erreur lors du chargement des exercices')
+    }
+  }
+
+  await Promise.all([loadCommunes(), loadExercices()])
 }
 
-const confirmDelete = (page: PageCMS) => {
+const resetFilters = () => {
+  filters.value = {
+    statut: '',
+    commune_id: '',
+    exercice_id: '',
+  }
+}
+
+const confirmDelete = (page: PageCMSList) => {
   pageToDelete.value = page
   showDeleteModal.value = true
 }
@@ -437,7 +388,7 @@ const deletePage = async () => {
   }
 }
 
-const publierPage = async (page: PageCMS) => {
+const publierPage = async (page: PageCMSList) => {
   try {
     await cmsService.publierPage(page.id)
     toast.success('Page publiée avec succès')
@@ -447,7 +398,7 @@ const publierPage = async (page: PageCMS) => {
   }
 }
 
-const archiverPage = async (page: PageCMS) => {
+const archiverPage = async (page: PageCMSList) => {
   try {
     await cmsService.archiverPage(page.id)
     toast.success('Page archivée avec succès')
@@ -457,23 +408,14 @@ const archiverPage = async (page: PageCMS) => {
   }
 }
 
-const dupliquerPage = async (page: PageCMS) => {
-  try {
-    const newPage = await cmsService.dupliquerPage(page.id)
-    toast.success('Page dupliquée avec succès')
-    navigateTo(`/admin/cms/pages/${newPage.id}`)
-  } catch (e: any) {
-    toast.error(e?.message || 'Erreur lors de la duplication')
-  }
-}
-
 // Watchers
-watch([filters, currentPage], () => {
+watch(filters, () => {
   loadData()
 }, { deep: true })
 
 // Load on mount
-onMounted(() => {
+onMounted(async () => {
+  await loadReferenceData()
   loadData()
 })
 </script>

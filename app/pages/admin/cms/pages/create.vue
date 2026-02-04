@@ -21,31 +21,36 @@
 
     <!-- Form -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Association commune / exercice -->
       <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
-        <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">Association au compte</h2>
+        <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">Association commune / exercice</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Compte administratif -->
+          <!-- Commune -->
           <UiFormSelect
-            v-model="form.compte_administratif_id"
-            label="Compte administratif"
-            :options="compteOptions"
-            placeholder="Sélectionner un compte"
+            v-model="form.commune_id"
+            label="Commune"
+            :options="communeOptions"
+            placeholder="Sélectionner une commune"
             required
-            :error="formErrors.compte_administratif_id"
-            hint="La page sera liée à ce compte administratif"
+            :error="formErrors.commune_id"
+            hint="La page sera associée à cette commune"
           />
 
-          <!-- Statut initial -->
+          <!-- Exercice -->
           <UiFormSelect
-            v-model="form.statut"
-            label="Statut initial"
-            :options="statutOptions"
-            :error="formErrors.statut"
+            v-model="form.exercice_id"
+            label="Exercice budgétaire"
+            :options="exerciceOptions"
+            placeholder="Sélectionner un exercice"
+            required
+            :error="formErrors.exercice_id"
+            hint="Année de l'exercice budgétaire"
           />
         </div>
       </div>
 
+      <!-- Informations de la page -->
       <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
         <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">Informations de la page</h2>
 
@@ -54,85 +59,101 @@
           <UiFormInput
             v-model="form.titre"
             label="Titre de la page"
-            placeholder="Ex: Compte Administratif 2024"
-            required
+            placeholder="Ex: Compte Administratif 2024 - Antananarivo"
             :error="formErrors.titre"
+            hint="Optionnel. Si vide, un titre sera généré automatiquement."
           />
 
-          <!-- Slug -->
+          <!-- Sous-titre -->
           <UiFormInput
-            v-model="form.slug"
-            label="Slug (URL)"
-            placeholder="url-de-la-page"
-            :error="formErrors.slug"
-            hint="Laissez vide pour générer automatiquement depuis le titre"
-          />
-
-          <!-- Description -->
-          <div class="md:col-span-2">
-            <UiFormTextarea
-              v-model="form.description"
-              label="Description"
-              placeholder="Description courte de la page (visible dans la liste)"
-              :rows="2"
-              :error="formErrors.description"
-            />
-          </div>
-
-          <!-- Ordre -->
-          <UiFormInput
-            v-model.number="form.ordre"
-            label="Ordre d'affichage"
-            type="number"
-            placeholder="1"
-            hint="Ordre de tri dans la liste des pages"
-          />
-        </div>
-      </div>
-
-      <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
-        <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">SEO (optionnel)</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Meta title -->
-          <UiFormInput
-            v-model="form.meta_title"
-            label="Meta Title"
-            placeholder="Titre pour les moteurs de recherche"
-            hint="Si vide, le titre de la page sera utilisé"
+            v-model="form.sous_titre"
+            label="Sous-titre"
+            placeholder="Description courte de la page"
           />
 
           <!-- Meta description -->
-          <UiFormInput
-            v-model="form.meta_description"
-            label="Meta Description"
-            placeholder="Description pour les moteurs de recherche"
-            hint="Si vide, la description de la page sera utilisée"
+          <div class="md:col-span-2">
+            <UiFormTextarea
+              v-model="form.meta_description"
+              label="Meta description (SEO)"
+              placeholder="Description pour les moteurs de recherche"
+              :rows="2"
+            />
+          </div>
+
+          <!-- Image hero -->
+          <div class="md:col-span-2">
+            <UiFormInput
+              v-model="form.image_hero_url"
+              label="URL de l'image hero"
+              placeholder="https://..."
+              hint="Image d'en-tête de la page (optionnel)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Options d'affichage -->
+      <div class="bg-[var(--bg-card)] rounded-xl border border-[var(--border-default)] p-6">
+        <h2 class="text-lg font-semibold text-[var(--text-primary)] mb-6">Options d'affichage</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Statut initial -->
+          <UiFormSelect
+            v-model="form.statut"
+            label="Statut initial"
+            :options="statutOptions"
           />
+
+          <!-- Spacer -->
+          <div></div>
+
+          <!-- Afficher tableau financier -->
+          <div class="flex items-center gap-3">
+            <input
+              id="afficher_tableau"
+              v-model="form.afficher_tableau_financier"
+              type="checkbox"
+              class="h-4 w-4 rounded border-[var(--border-default)] text-[var(--color-primary)] cursor-pointer"
+            />
+            <label for="afficher_tableau" class="text-sm text-[var(--text-primary)] cursor-pointer">
+              Afficher le tableau financier
+            </label>
+          </div>
+
+          <!-- Afficher graphiques -->
+          <div class="flex items-center gap-3">
+            <input
+              id="afficher_graphiques"
+              v-model="form.afficher_graphiques"
+              type="checkbox"
+              class="h-4 w-4 rounded border-[var(--border-default)] text-[var(--color-primary)] cursor-pointer"
+            />
+            <label for="afficher_graphiques" class="text-sm text-[var(--text-primary)] cursor-pointer">
+              Afficher les graphiques analytiques
+            </label>
+          </div>
         </div>
       </div>
 
       <!-- Preview card -->
-      <div v-if="selectedCompte" class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-default)] p-4">
+      <div v-if="selectedCommune && selectedExercice" class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-default)] p-4">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center">
-            <font-awesome-icon :icon="['fas', 'file-alt']" class="text-[var(--color-primary)] text-lg" />
+            <font-awesome-icon :icon="['fas', 'file-lines']" class="text-[var(--color-primary)] text-lg" />
           </div>
           <div class="flex-1">
             <p class="font-medium text-[var(--text-primary)]">
-              {{ form.titre || 'Titre de la page' }}
+              {{ form.titre || `Compte Administratif ${selectedExercice.annee} - ${selectedCommune.nom}` }}
             </p>
             <p class="text-sm text-[var(--text-muted)]">
-              {{ selectedCompte.commune?.nom || 'Commune' }} - Exercice {{ selectedCompte.annee }}
+              {{ selectedCommune.nom }} - Exercice {{ selectedExercice.annee }}
             </p>
           </div>
           <div class="text-right">
             <UiBadge :variant="form.statut === 'brouillon' ? 'warning' : form.statut === 'publie' ? 'success' : 'neutral'">
               {{ form.statut === 'brouillon' ? 'Brouillon' : form.statut === 'publie' ? 'Publiée' : 'Archivée' }}
             </UiBadge>
-            <p v-if="form.slug" class="text-xs text-[var(--text-muted)] mt-1 font-mono">
-              /{{ form.slug }}
-            </p>
           </div>
         </div>
       </div>
@@ -162,7 +183,8 @@
 <script setup lang="ts">
 import type { PageCMSFormData } from '~/services/cms.service'
 import { useCMSService } from '~/services/cms.service'
-import { useComptesAdministratifsService } from '~/services/comptes-administratifs.service'
+import { useGeoService } from '~/services/geo.service'
+import { useExercicesService, type ExerciceList } from '~/services/exercices.service'
 
 definePageMeta({
   layout: 'admin',
@@ -172,35 +194,49 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const cmsService = useCMSService()
-const comptesService = useComptesAdministratifsService()
+const geoService = useGeoService()
+const exercicesService = useExercicesService()
 const toast = useAppToast()
 
 // State
-const comptes = ref<Array<{ id: string; annee: number; commune?: { id: string; nom: string } }>>([])
+const communes = ref<Array<{ id: number; nom: string }>>([])
+const exercices = ref<ExerciceList[]>([])
 const saving = ref(false)
 
 // Form
 const form = ref<PageCMSFormData>({
-  compte_administratif_id: '',
+  commune_id: '',
+  exercice_id: '',
   titre: '',
-  slug: '',
-  description: '',
-  statut: 'brouillon',
-  meta_title: '',
+  sous_titre: '',
   meta_description: '',
-  ordre: 1,
+  image_hero_url: '',
+  statut: 'brouillon',
+  afficher_tableau_financier: true,
+  afficher_graphiques: true,
 })
 const formErrors = ref<Record<string, string>>({})
 
 // Computed
-const selectedCompte = computed(() =>
-  comptes.value.find(c => c.id === form.value.compte_administratif_id)
+const selectedCommune = computed(() =>
+  communes.value.find(c => c.id === Number(form.value.commune_id))
 )
 
-const compteOptions = computed(() =>
-  comptes.value.map(c => ({
-    value: c.id,
-    label: `${c.commune?.nom || 'N/A'} - ${c.annee}`,
+const selectedExercice = computed(() =>
+  exercices.value.find(e => e.id === Number(form.value.exercice_id))
+)
+
+const communeOptions = computed(() =>
+  communes.value.map(c => ({
+    value: String(c.id),
+    label: c.nom,
+  }))
+)
+
+const exerciceOptions = computed(() =>
+  exercices.value.map(e => ({
+    value: String(e.id),
+    label: `${e.annee}${e.cloture ? ' (clôturé)' : ''}`,
   }))
 )
 
@@ -211,45 +247,47 @@ const statutOptions = [
 
 // Methods
 const loadReferenceData = async () => {
-  try {
-    const comptesData = await comptesService.getComptes({ limit: 100 })
-    comptes.value = comptesData.items
-  } catch (e) {
-    console.error('Erreur chargement comptes:', e)
-    // Mock data for development
-    comptes.value = [
-      { id: '1', annee: 2024, commune: { id: '1', nom: 'Antananarivo' } },
-      { id: '2', annee: 2024, commune: { id: '2', nom: 'Toamasina' } },
-      { id: '3', annee: 2023, commune: { id: '3', nom: 'Fianarantsoa' } },
-      { id: '4', annee: 2024, commune: { id: '4', nom: 'Mahajanga' } },
-      { id: '5', annee: 2023, commune: { id: '5', nom: 'Toliara' } },
-    ]
+  // Charger communes et exercices indépendamment pour éviter qu'un échec bloque l'autre
+  const loadCommunes = async () => {
+    try {
+      const communesData = await geoService.getCommunes({ limit: 500 })
+      const communesList = Array.isArray(communesData) ? communesData : communesData.items || []
+      communes.value = communesList.map((c: any) => ({ id: c.id, nom: c.nom }))
+    } catch (e: any) {
+      console.error('Erreur chargement communes:', e)
+      toast.error(e?.message || 'Erreur lors du chargement des communes')
+    }
   }
 
-  // Pre-fill compte if passed via query
-  if (route.query.compte_id) {
-    form.value.compte_administratif_id = route.query.compte_id as string
+  const loadExercices = async () => {
+    try {
+      exercices.value = await exercicesService.getPublicExercices()
+    } catch (e: any) {
+      console.error('Erreur chargement exercices:', e)
+      toast.error(e?.message || 'Erreur lors du chargement des exercices')
+    }
   }
-}
 
-const generateSlug = (title: string): string => {
-  return title
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  await Promise.all([loadCommunes(), loadExercices()])
+
+  // Pre-fill si passé via query
+  if (route.query.commune_id) {
+    form.value.commune_id = Number(route.query.commune_id)
+  }
+  if (route.query.exercice_id) {
+    form.value.exercice_id = Number(route.query.exercice_id)
+  }
 }
 
 const validateForm = (): boolean => {
   formErrors.value = {}
 
-  if (!form.value.compte_administratif_id) {
-    formErrors.value.compte_administratif_id = 'Le compte administratif est requis'
+  if (!form.value.commune_id) {
+    formErrors.value.commune_id = 'La commune est requise'
   }
 
-  if (!form.value.titre?.trim()) {
-    formErrors.value.titre = 'Le titre est requis'
+  if (!form.value.exercice_id) {
+    formErrors.value.exercice_id = 'L\'exercice est requis'
   }
 
   return Object.keys(formErrors.value).length === 0
@@ -258,15 +296,23 @@ const validateForm = (): boolean => {
 const handleSubmit = async () => {
   if (!validateForm()) return
 
-  // Generate slug if not provided
-  if (!form.value.slug) {
-    const compte = comptes.value.find(c => c.id === form.value.compte_administratif_id)
-    form.value.slug = generateSlug(`${form.value.titre} ${compte?.commune?.nom || ''} ${compte?.annee || ''}`)
-  }
-
   saving.value = true
   try {
-    const newPage = await cmsService.createPage(form.value)
+    const payload: PageCMSFormData = {
+      commune_id: Number(form.value.commune_id),
+      exercice_id: Number(form.value.exercice_id),
+      statut: form.value.statut,
+      afficher_tableau_financier: form.value.afficher_tableau_financier,
+      afficher_graphiques: form.value.afficher_graphiques,
+    }
+
+    // Ajouter les champs optionnels seulement s'ils ont une valeur
+    if (form.value.titre?.trim()) payload.titre = form.value.titre.trim()
+    if (form.value.sous_titre?.trim()) payload.sous_titre = form.value.sous_titre.trim()
+    if (form.value.meta_description?.trim()) payload.meta_description = form.value.meta_description.trim()
+    if (form.value.image_hero_url?.trim()) payload.image_hero_url = form.value.image_hero_url.trim()
+
+    const newPage = await cmsService.createPage(payload)
     toast.success('Page créée avec succès')
     router.push(`/admin/cms/pages/${newPage.id}`)
   } catch (e: any) {
@@ -276,16 +322,6 @@ const handleSubmit = async () => {
     saving.value = false
   }
 }
-
-// Watch titre to auto-generate slug suggestion
-watch(() => form.value.titre, (newTitle) => {
-  if (newTitle && !form.value.slug) {
-    const compte = comptes.value.find(c => c.id === form.value.compte_administratif_id)
-    if (compte) {
-      form.value.slug = generateSlug(`${newTitle} ${compte.commune?.nom || ''} ${compte.annee}`)
-    }
-  }
-})
 
 // Load on mount
 onMounted(() => {

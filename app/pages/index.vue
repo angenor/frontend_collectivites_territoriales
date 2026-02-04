@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DashboardStats } from '~/types'
-import type { RegionWithStats } from '~/types/collectivites'
+import type { RegionWithStats, CommuneWithStats } from '~/types/collectivites'
 import type { CompteAdministratifWithStats } from '~/types/comptes-administratifs'
 
 // Métadonnées de la page
@@ -14,36 +14,60 @@ useHead({
   ]
 })
 
-const statistiquesService = useStatistiquesService()
 const geoService = useGeoService()
-const comptesService = useComptesAdministratifsService()
+const config = useRuntimeConfig()
 const router = useRouter()
 
 // États
 const showScrollTop = ref(false)
 const isLoadingStats = ref(true)
 const isLoadingRegions = ref(true)
-const isLoadingComptes = ref(true)
 const dashboardStats = ref<DashboardStats | null>(null)
 const regions = ref<RegionWithStats[]>([])
-const comptes = ref<CompteAdministratifWithStats[]>([])
-const selectedRegion = ref<RegionWithStats | null>(null)
 const hoveredRegion = ref<RegionWithStats | null>(null)
 
 // Compte administratif sélectionné (affiché dans le notebook)
 const selectedCompte = ref<CompteAdministratifWithStats | null>(null)
 const selectedLocation = ref<{ label: string } | null>(null)
 
-// Modal pour sélection de compte (quand plusieurs comptes à un emplacement)
+// Modal communes (clic sur région)
+const showCommunesModal = ref(false)
+const selectedRegion = ref<RegionWithStats | null>(null)
+
+// Modal comptes (quand plusieurs comptes pour une commune)
 const showComptesModal = ref(false)
 const modalComptes = ref<CompteAdministratifWithStats[]>([])
 const modalLocation = ref<{ label: string; latitude: number; longitude: number } | null>(null)
 
-// Charger les statistiques
+// Années d'exercice disponibles (chargées depuis l'API publique)
+const availableYears = ref<number[]>([])
+
+// Charger les statistiques depuis l'endpoint public
 const loadStats = async () => {
   isLoadingStats.value = true
   try {
-    dashboardStats.value = await statistiquesService.getDashboardStats()
+    const apiBaseUrl = config.public.apiBaseUrl
+    const globalStats = await $fetch<{
+      geographie: { provinces: number; regions: number; communes: number }
+      exercices: { total: number; publies: number }
+      finances: { total_recettes: number; total_depenses: number; solde: number }
+      revenus_miniers: { total: number; nb_projets: number }
+      documents: { publics: number }
+    }>(`${apiBaseUrl}/api/v1/statistiques/global`)
+
+    dashboardStats.value = {
+      communes_avec_donnees: globalStats.exercices?.publies || 0,
+      communes_total: globalStats.geographie?.communes || 0,
+      total_recettes: globalStats.finances?.total_recettes || 0,
+      total_depenses: globalStats.finances?.total_depenses || 0,
+      projets_miniers_actifs: globalStats.revenus_miniers?.nb_projets || 0,
+      evolution_recettes: 0,
+      evolution_depenses: 0,
+      evolution_projets: 0,
+      total_collectivites: globalStats.geographie?.communes || 0,
+      total_projets_miniers: globalStats.revenus_miniers?.nb_projets || 0,
+      total_comptes_administratifs: globalStats.exercices?.total || 0,
+    }
   } catch (err: any) {
     console.error('Erreur lors du chargement des statistiques:', err)
   } finally {
@@ -51,7 +75,7 @@ const loadStats = async () => {
   }
 }
 
-// Charger les régions pour la carte
+// Charger les régions pour la carte (endpoint public)
 const loadRegions = async () => {
   isLoadingRegions.value = true
   try {
@@ -63,43 +87,37 @@ const loadRegions = async () => {
   }
 }
 
-// Charger les comptes administratifs publiés
-const loadComptes = async () => {
-  isLoadingComptes.value = true
+// Charger les années d'exercice disponibles (endpoint public)
+const loadExerciceYears = async () => {
   try {
-    const response = await comptesService.getComptes({
-      statut: 'publie',
-      limit: 100,
-    })
-    comptes.value = response.items
+    const apiBaseUrl = config.public.apiBaseUrl
+    availableYears.value = await $fetch<number[]>(`${apiBaseUrl}/api/v1/exercices/years`)
   } catch (err: any) {
-    console.error('Erreur lors du chargement des comptes:', err)
-  } finally {
-    isLoadingComptes.value = false
+    console.error('Erreur lors du chargement des exercices:', err)
+    const currentYear = new Date().getFullYear()
+    availableYears.value = Array.from({ length: 5 }, (_, i) => currentYear - i)
   }
 }
 
-// Handlers pour la carte
+// Clic sur une région → ouvrir le popup des communes
 const handleRegionClick = (region: RegionWithStats | null) => {
+  if (!region) return
   selectedRegion.value = region
+  showCommunesModal.value = true
 }
 
 const handleRegionHover = (region: RegionWithStats | null) => {
   hoveredRegion.value = region
 }
 
-// Handler pour clic sur marqueur
-const handleMarkerClick = (
-  comptesClicked: CompteAdministratifWithStats[],
-  location: { label: string; latitude: number; longitude: number }
-) => {
-  if (comptesClicked.length === 1) {
-    selectCompte(comptesClicked[0], location.label)
-  } else {
-    modalComptes.value = comptesClicked
-    modalLocation.value = location
-    showComptesModal.value = true
-  }
+// Sélection d'une commune → naviguer vers le compte administratif
+const handleCommuneSelect = (commune: CommuneWithStats) => {
+  showCommunesModal.value = false
+
+  // Naviguer directement vers la page du compte administratif
+  // avec l'année la plus récente disponible
+  const annee = availableYears.value[0] || new Date().getFullYear()
+  router.push(`/compte-administratif?commune=${commune.id}&annee=${annee}`)
 }
 
 // Sélectionner un compte pour affichage dans le notebook
@@ -121,8 +139,6 @@ const navigateToCompte = (compte: CompteAdministratifWithStats) => {
   const communeId = compte.commune?.id || compte.commune_id
   if (communeId && compte.annee) {
     router.push(`/compte-administratif?commune=${communeId}&annee=${compte.annee}`)
-  } else {
-    router.push(`/admin/comptes-administratifs/${compte.id}`)
   }
 }
 
@@ -135,12 +151,12 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// Lifecycle
+// Lifecycle — chargement en parallèle depuis les endpoints publics
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
   loadStats()
   loadRegions()
-  loadComptes()
+  loadExerciceYears()
 })
 
 onUnmounted(() => {
@@ -158,16 +174,13 @@ onUnmounted(() => {
       <!-- Section Carte Interactive avec Statistiques -->
       <HomeMapSection
         :regions="regions"
-        :comptes="comptes"
         :is-loading-regions="isLoadingRegions"
-        :is-loading-comptes="isLoadingComptes"
         :is-loading-stats="isLoadingStats"
         :dashboard-stats="dashboardStats"
         :selected-compte="selectedCompte"
         :selected-location="selectedLocation"
         @region-click="handleRegionClick"
         @region-hover="handleRegionHover"
-        @marker-click="handleMarkerClick"
         @navigate-to-compte="navigateToCompte"
         @clear-selected-compte="clearSelectedCompte"
       />
@@ -179,7 +192,14 @@ onUnmounted(() => {
     <!-- Footer -->
     <AppFooter />
 
-    <!-- Modal de sélection de compte administratif -->
+    <!-- Modal de sélection de commune (clic sur région) -->
+    <HomeCommunesModal
+      v-model:show="showCommunesModal"
+      :region="selectedRegion"
+      @select-commune="handleCommuneSelect"
+    />
+
+    <!-- Modal de sélection de compte (quand plusieurs comptes pour une commune) -->
     <HomeComptesModal
       v-model:show="showComptesModal"
       :comptes="modalComptes"

@@ -1,6 +1,7 @@
 /**
  * Service pour la gestion du CMS
  * Pages et Sections de comptes administratifs
+ * Aligné avec le backend FastAPI : app/api/v1/endpoints/admin/cms.py
  */
 
 import type { PaginatedResponse, PaginationParams } from './api'
@@ -9,43 +10,13 @@ import { useApi } from './api'
 const BASE_PATH = '/api/v1/admin/cms'
 
 // ============================================================================
-// TYPES
+// TYPES - Alignés avec les schemas backend (app/schemas/cms.py)
 // ============================================================================
 
-export interface PageCMS {
-  id: string
-  compte_administratif_id: string
-  titre: string
-  slug: string
-  description?: string
-  statut: 'brouillon' | 'publie' | 'archive'
-  date_publication?: string
-  meta_title?: string
-  meta_description?: string
-  ordre: number
-  created_at: string
-  updated_at: string
-  created_by?: string
-  // Relations
-  compte_administratif?: {
-    id: string
-    annee: number
-    commune?: { id: string; nom: string }
-  }
-  sections?: SectionCMS[]
-}
+/** Statut de publication (backend: StatutPublication enum) */
+export type StatutPublication = 'brouillon' | 'publie' | 'archive'
 
-export interface PageCMSFormData {
-  compte_administratif_id: string
-  titre: string
-  slug?: string
-  description?: string
-  statut?: 'brouillon' | 'publie' | 'archive'
-  meta_title?: string
-  meta_description?: string
-  ordre?: number
-}
-
+/** Types de sections CMS (backend: TypeSectionCMS enum) */
 export type SectionType =
   | 'editorjs'
   | 'bloc_image_gauche'
@@ -58,88 +29,224 @@ export type SectionType =
   | 'tableau_financier'
   | 'graphiques_analytiques'
 
-export interface SectionCMS {
-  id: string
-  page_id: string
-  type: SectionType
+/** PageCompteAdministratifRead - lecture complète d'une page */
+export interface PageCMS {
+  id: number
+  commune_id: number
+  exercice_id: number
   titre?: string
-  contenu: Record<string, any>
+  sous_titre?: string
+  meta_description?: string
+  image_hero_url?: string
+  statut: StatutPublication
+  afficher_tableau_financier: boolean
+  afficher_graphiques: boolean
+  date_publication?: string
+  date_mise_a_jour: string
+  cree_par?: number
+  modifie_par?: number
+  is_published: boolean
+  created_at: string
+  updated_at: string
+  // Relations enrichies (disponible via PageCompteAdministratifDetail)
+  commune_nom?: string
+  commune_code?: string
+  exercice_annee?: number
+  sections?: SectionCMS[]
+}
+
+/** PageCompteAdministratifList - version simplifiée pour la liste */
+export interface PageCMSList {
+  id: number
+  commune_id: number
+  exercice_id: number
+  titre?: string
+  statut: StatutPublication
+  date_mise_a_jour: string
+}
+
+/** PageCompteAdministratifCreate */
+export interface PageCMSFormData {
+  commune_id: number | ''
+  exercice_id: number | ''
+  titre?: string
+  sous_titre?: string
+  meta_description?: string
+  image_hero_url?: string
+  statut?: StatutPublication
+  afficher_tableau_financier?: boolean
+  afficher_graphiques?: boolean
+}
+
+/** PageCompteAdministratifUpdate */
+export interface PageCMSUpdateData {
+  titre?: string
+  sous_titre?: string
+  meta_description?: string
+  image_hero_url?: string
+  statut?: StatutPublication
+  afficher_tableau_financier?: boolean
+  afficher_graphiques?: boolean
+}
+
+// --- Sections ---
+
+/** SectionCMSRead */
+export interface SectionCMS {
+  id: number
+  page_id: number
+  type_section: SectionType
+  titre?: string
   ordre: number
-  est_visible: boolean
+  visible: boolean
+  visible_accueil: boolean
+  config?: Record<string, any>
+  created_at: string
+  updated_at: string
+  // Relations de contenu (disponible via SectionCMSWithContent)
+  contenu_editorjs?: ContenuEditorJS
+  bloc_image_texte?: BlocImageTexte
+  bloc_carte_fond?: BlocCarteFond
+  cartes_informatives?: CarteInformative[]
+  photos_galerie?: PhotoGalerie[]
+  liens_utiles?: LienUtile[]
+}
+
+/** SectionCMSCreate */
+export interface SectionCMSFormData {
+  page_id: number
+  type_section: SectionType
+  titre?: string
+  ordre?: number
+  visible?: boolean
+  visible_accueil?: boolean
+  config?: Record<string, any>
+}
+
+/** SectionCMSUpdate */
+export interface SectionCMSUpdateData {
+  type_section?: SectionType
+  titre?: string
+  ordre?: number
+  visible?: boolean
+  visible_accueil?: boolean
+  config?: Record<string, any>
+}
+
+// --- Contenus spécifiques ---
+
+export interface BoutonSchema {
+  texte: string
+  url: string
+  type?: string // primary, secondary, outline
+  icone?: string
+  ouvrir_nouvel_onglet?: boolean
+}
+
+export interface ContenuEditorJS {
+  id: number
+  section_id: number
+  contenu: Record<string, any>
+  version: number
   created_at: string
   updated_at: string
 }
 
-export interface SectionCMSFormData {
-  page_id: string
-  type: SectionType
+export interface BlocImageTexte {
+  id: number
+  section_id: number
   titre?: string
-  contenu: Record<string, any>
-  ordre?: number
-  est_visible?: boolean
-}
-
-// Contenu spécifique par type de section
-export interface EditorJSContent {
-  blocks: any[]
-  version?: string
-}
-
-export interface ImageTextContent {
+  sous_titre?: string
+  contenu?: string
+  contenu_html?: string
   image_url: string
   image_alt?: string
-  titre?: string
-  texte: string
+  legende_image?: string
+  boutons: BoutonSchema[]
+  note?: string
+  note_source?: string
+  couleur_fond?: string
+  icone_titre?: string
+  created_at: string
+  updated_at: string
 }
 
-export interface CardContent {
+export interface BlocCarteFond {
+  id: number
+  section_id: number
+  image_url: string
+  image_alt?: string
+  badge_texte?: string
+  badge_icone?: string
+  titre?: string
+  contenu?: string
+  boutons: BoutonSchema[]
+  hauteur_min: number
+  opacite_overlay: number
+  created_at: string
+  updated_at: string
+}
+
+export interface CarteInformative {
+  id: number
+  section_id: number
+  ordre: number
+  type_carte: 'image' | 'statistique' | 'icone'
+  image_url?: string
+  image_alt?: string
+  stat_valeur?: string
+  stat_unite?: string
+  stat_evolution?: string
+  stat_icone?: string
+  badge_texte?: string
+  badge_icone?: string
+  badge_couleur?: string
+  titre?: string
+  description?: string
+  lien_texte?: string
+  lien_url?: string
+  note?: string
+  couleur_fond?: string
+  couleur_gradient_debut?: string
+  couleur_gradient_fin?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface PhotoGalerie {
+  id: number
+  section_id: number
+  ordre: number
+  image_url: string
+  image_alt?: string
+  image_thumbnail_url?: string
+  titre?: string
+  description?: string
+  date_prise?: string
+  lieu?: string
+  credit_photo?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface LienUtile {
+  id: number
+  section_id: number
+  ordre: number
   titre: string
   description?: string
+  url: string
   icone?: string
-  lien?: string
-  image_url?: string
+  couleur?: string
+  couleur_fond?: string
+  ouvrir_nouvel_onglet: boolean
+  created_at: string
+  updated_at: string
 }
 
-export interface GrilleCartesContent {
-  cartes: CardContent[]
-  colonnes?: number
-}
-
-export interface GaleriePhotosContent {
-  images: Array<{
-    url: string
-    alt?: string
-    legende?: string
-  }>
-}
-
-export interface LiensUtilesContent {
-  liens: Array<{
-    titre: string
-    url: string
-    description?: string
-    icone?: string
-  }>
-}
-
-export interface NoteInformativeContent {
-  type: 'info' | 'warning' | 'success' | 'error'
-  titre?: string
-  contenu: string
-}
-
-export interface TableauFinancierContent {
-  tableau_id?: string
-  type: 'recettes' | 'depenses' | 'equilibre'
-  colonnes_visibles?: string[]
-}
-
-export interface GraphiquesContent {
-  type: 'bar' | 'line' | 'pie' | 'donut'
-  titre?: string
-  donnees_source: 'recettes' | 'depenses' | 'revenus_miniers'
-  options?: Record<string, any>
-}
+// ============================================================================
+// SERVICE
+// ============================================================================
 
 export const useCMSService = () => {
   const api = useApi()
@@ -148,98 +255,131 @@ export const useCMSService = () => {
   // PAGES
   // ============================================================================
 
+  /**
+   * Liste des pages CMS (retourne un tableau simple, pas paginé)
+   * GET /api/v1/admin/cms/pages
+   */
   const getPages = async (
-    params?: PaginationParams & {
-      compte_administratif_id?: string
-      statut?: 'brouillon' | 'publie' | 'archive'
-      search?: string
+    params?: {
+      commune_id?: number
+      exercice_id?: number
+      statut?: StatutPublication
+      limit?: number
+      offset?: number
     }
-  ): Promise<PaginatedResponse<PageCMS>> => {
-    return api.get<PaginatedResponse<PageCMS>>(`${BASE_PATH}/pages`, params)
+  ): Promise<PageCMSList[]> => {
+    return api.get<PageCMSList[]>(`${BASE_PATH}/pages`, params)
   }
 
-  const getPage = async (id: string): Promise<PageCMS> => {
+  /**
+   * Détail d'une page
+   * GET /api/v1/admin/cms/pages/{page_id}
+   */
+  const getPage = async (id: number): Promise<PageCMS> => {
     return api.get<PageCMS>(`${BASE_PATH}/pages/${id}`)
   }
 
-  const getPageBySlug = async (slug: string): Promise<PageCMS> => {
-    return api.get<PageCMS>(`${BASE_PATH}/pages/slug/${slug}`)
-  }
-
+  /**
+   * Créer une page
+   * POST /api/v1/admin/cms/pages
+   */
   const createPage = async (data: PageCMSFormData): Promise<PageCMS> => {
     return api.post<PageCMS>(`${BASE_PATH}/pages`, data)
   }
 
-  const updatePage = async (id: string, data: Partial<PageCMSFormData>): Promise<PageCMS> => {
+  /**
+   * Modifier une page
+   * PUT /api/v1/admin/cms/pages/{page_id}
+   */
+  const updatePage = async (id: number, data: PageCMSUpdateData): Promise<PageCMS> => {
     return api.put<PageCMS>(`${BASE_PATH}/pages/${id}`, data)
   }
 
-  const deletePage = async (id: string): Promise<void> => {
+  /**
+   * Supprimer une page et toutes ses sections
+   * DELETE /api/v1/admin/cms/pages/{page_id}
+   */
+  const deletePage = async (id: number): Promise<void> => {
     return api.delete<void>(`${BASE_PATH}/pages/${id}`)
   }
 
-  const publierPage = async (id: string): Promise<PageCMS> => {
-    return api.post<PageCMS>(`${BASE_PATH}/pages/${id}/publier`)
+  /**
+   * Changer le statut de publication
+   * PUT /api/v1/admin/cms/pages/{page_id}/publish
+   */
+  const publishPage = async (id: number, statut: StatutPublication): Promise<PageCMS> => {
+    return api.put<PageCMS>(`${BASE_PATH}/pages/${id}/publish`, { statut })
   }
 
-  const archiverPage = async (id: string): Promise<PageCMS> => {
-    return api.post<PageCMS>(`${BASE_PATH}/pages/${id}/archiver`)
+  /** Raccourci : publier une page */
+  const publierPage = async (id: number): Promise<PageCMS> => {
+    return publishPage(id, 'publie')
   }
 
-  const dupliquerPage = async (id: string): Promise<PageCMS> => {
-    return api.post<PageCMS>(`${BASE_PATH}/pages/${id}/dupliquer`)
+  /** Raccourci : archiver une page */
+  const archiverPage = async (id: number): Promise<PageCMS> => {
+    return publishPage(id, 'archive')
   }
 
-  const previewPage = async (id: string): Promise<string> => {
-    const response = await api.get<{ preview_url: string }>(`${BASE_PATH}/pages/${id}/preview`)
-    return response.preview_url
+  /** Raccourci : repasser en brouillon */
+  const depublierPage = async (id: number): Promise<PageCMS> => {
+    return publishPage(id, 'brouillon')
   }
 
   // ============================================================================
   // SECTIONS
   // ============================================================================
 
-  const getSections = async (pageId: string): Promise<SectionCMS[]> => {
+  /**
+   * Sections d'une page
+   * GET /api/v1/admin/cms/pages/{page_id}/sections
+   */
+  const getSections = async (pageId: number): Promise<SectionCMS[]> => {
     return api.get<SectionCMS[]>(`${BASE_PATH}/pages/${pageId}/sections`)
   }
 
-  const getSection = async (pageId: string, sectionId: string): Promise<SectionCMS> => {
-    return api.get<SectionCMS>(`${BASE_PATH}/pages/${pageId}/sections/${sectionId}`)
+  /**
+   * Créer une section
+   * POST /api/v1/admin/cms/sections
+   */
+  const createSection = async (data: SectionCMSFormData): Promise<SectionCMS> => {
+    return api.post<SectionCMS>(`${BASE_PATH}/sections`, data)
   }
 
-  const createSection = async (pageId: string, data: Omit<SectionCMSFormData, 'page_id'>): Promise<SectionCMS> => {
-    return api.post<SectionCMS>(`${BASE_PATH}/pages/${pageId}/sections`, { ...data, page_id: pageId })
-  }
-
+  /**
+   * Modifier une section
+   * PUT /api/v1/admin/cms/sections/{section_id}
+   */
   const updateSection = async (
-    pageId: string,
-    sectionId: string,
-    data: Partial<SectionCMSFormData>
+    sectionId: number,
+    data: SectionCMSUpdateData
   ): Promise<SectionCMS> => {
-    return api.put<SectionCMS>(`${BASE_PATH}/pages/${pageId}/sections/${sectionId}`, data)
+    return api.put<SectionCMS>(`${BASE_PATH}/sections/${sectionId}`, data)
   }
 
-  const deleteSection = async (pageId: string, sectionId: string): Promise<void> => {
-    return api.delete<void>(`${BASE_PATH}/pages/${pageId}/sections/${sectionId}`)
+  /**
+   * Supprimer une section et son contenu
+   * DELETE /api/v1/admin/cms/sections/{section_id}
+   */
+  const deleteSection = async (sectionId: number): Promise<void> => {
+    return api.delete<void>(`${BASE_PATH}/sections/${sectionId}`)
   }
 
+  /**
+   * Réordonner les sections d'une page
+   * PUT /api/v1/admin/cms/sections/reorder
+   */
   const reorderSections = async (
-    pageId: string,
-    ordres: Array<{ id: string; ordre: number }>
-  ): Promise<void> => {
-    return api.put<void>(`${BASE_PATH}/pages/${pageId}/sections/reorder`, { ordres })
-  }
-
-  const toggleSectionVisibility = async (pageId: string, sectionId: string): Promise<SectionCMS> => {
-    return api.post<SectionCMS>(`${BASE_PATH}/pages/${pageId}/sections/${sectionId}/toggle-visibility`)
-  }
-
-  const dupliquerSection = async (pageId: string, sectionId: string): Promise<SectionCMS> => {
-    return api.post<SectionCMS>(`${BASE_PATH}/pages/${pageId}/sections/${sectionId}/dupliquer`)
+    pageId: number,
+    sectionIds: number[]
+  ): Promise<SectionCMS[]> => {
+    return api.put<SectionCMS[]>(`${BASE_PATH}/sections/reorder`, undefined, {
+      params: { page_id: pageId, section_ids: sectionIds },
+    })
   }
 
   // ============================================================================
-  // TYPES DE SECTIONS
+  // TYPES DE SECTIONS (statique)
   // ============================================================================
 
   const getSectionTypes = (): Array<{ value: SectionType; label: string; description: string }> => {
@@ -261,24 +401,20 @@ export const useCMSService = () => {
     // Pages
     getPages,
     getPage,
-    getPageBySlug,
     createPage,
     updatePage,
     deletePage,
+    publishPage,
     publierPage,
     archiverPage,
-    dupliquerPage,
-    previewPage,
+    depublierPage,
 
     // Sections
     getSections,
-    getSection,
     createSection,
     updateSection,
     deleteSection,
     reorderSections,
-    toggleSectionVisibility,
-    dupliquerSection,
 
     // Types
     getSectionTypes,

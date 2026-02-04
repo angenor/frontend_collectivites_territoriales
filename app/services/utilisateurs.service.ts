@@ -1,5 +1,9 @@
 /**
  * Service pour la gestion des utilisateurs
+ * Aligné sur les endpoints backend FastAPI :
+ * - GET/POST /api/v1/admin/utilisateurs
+ * - GET/PUT/DELETE /api/v1/admin/utilisateurs/{id}
+ * - PUT /api/v1/admin/utilisateurs/{id}/activate?actif=true|false
  */
 
 import type { PaginatedResponse, PaginationParams } from './api'
@@ -7,21 +11,22 @@ import { useApi } from './api'
 import type { User, Role, Session } from '~/types/auth'
 
 const BASE_PATH = '/api/v1/admin/utilisateurs'
-const ROLES_PATH = '/api/v1/admin/roles'
 
 export interface UserFormData {
   email: string
   nom: string
   prenom?: string
   password?: string
-  role_id: string
-  commune_id?: string
+  role: string
+  commune_id?: number | null
   actif?: boolean
 }
 
 export interface UserWithStats extends User {
   nombre_connexions?: number
   derniere_activite?: string
+  commune_nom?: string
+  commune_code?: string
 }
 
 export const useUtilisateursService = () => {
@@ -33,9 +38,8 @@ export const useUtilisateursService = () => {
 
   const getUtilisateurs = async (
     params?: PaginationParams & {
-      role_id?: string
       role_code?: string
-      commune_id?: string
+      commune_id?: number
       actif?: boolean
       search?: string
     }
@@ -43,16 +47,33 @@ export const useUtilisateursService = () => {
     return api.get<PaginatedResponse<UserWithStats>>(BASE_PATH, params)
   }
 
-  const getUtilisateur = async (id: string): Promise<User> => {
-    return api.get<User>(`${BASE_PATH}/${id}`)
+  const getUtilisateur = async (id: string): Promise<UserWithStats> => {
+    return api.get<UserWithStats>(`${BASE_PATH}/${id}`)
   }
 
   const createUtilisateur = async (data: UserFormData): Promise<User> => {
-    return api.post<User>(BASE_PATH, data)
+    const payload: Record<string, any> = {
+      email: data.email,
+      nom: data.nom,
+      password: data.password,
+      role: data.role,
+    }
+    if (data.prenom) payload.prenom = data.prenom
+    if (data.commune_id) payload.commune_id = Number(data.commune_id)
+    return api.post<User>(BASE_PATH, payload)
   }
 
   const updateUtilisateur = async (id: string, data: Partial<UserFormData>): Promise<User> => {
-    return api.put<User>(`${BASE_PATH}/${id}`, data)
+    const payload: Record<string, any> = {}
+    if (data.email !== undefined) payload.email = data.email
+    if (data.nom !== undefined) payload.nom = data.nom
+    if (data.prenom !== undefined) payload.prenom = data.prenom
+    if (data.role !== undefined) payload.role = data.role
+    if (data.commune_id !== undefined) {
+      payload.commune_id = data.commune_id ? Number(data.commune_id) : null
+    }
+    if (data.actif !== undefined) payload.actif = data.actif
+    return api.put<User>(`${BASE_PATH}/${id}`, payload)
   }
 
   const deleteUtilisateur = async (id: string): Promise<void> => {
@@ -60,11 +81,11 @@ export const useUtilisateursService = () => {
   }
 
   const activerUtilisateur = async (id: string): Promise<User> => {
-    return api.post<User>(`${BASE_PATH}/${id}/activer`)
+    return api.put<User>(`${BASE_PATH}/${id}/activate`, undefined, { params: { actif: true } })
   }
 
   const desactiverUtilisateur = async (id: string): Promise<User> => {
-    return api.post<User>(`${BASE_PATH}/${id}/desactiver`)
+    return api.put<User>(`${BASE_PATH}/${id}/activate`, undefined, { params: { actif: false } })
   }
 
   const resetPassword = async (id: string): Promise<{ message: string }> => {
@@ -92,27 +113,16 @@ export const useUtilisateursService = () => {
   }
 
   // ============================================================================
-  // RÔLES
+  // RÔLES (statiques - basés sur l'enum RoleUtilisateur du backend)
   // ============================================================================
 
-  const getRoles = async (): Promise<Role[]> => {
-    return api.get<Role[]>(ROLES_PATH)
-  }
-
-  const getRole = async (id: string): Promise<Role> => {
-    return api.get<Role>(`${ROLES_PATH}/${id}`)
-  }
-
-  const createRole = async (data: Omit<Role, 'id'>): Promise<Role> => {
-    return api.post<Role>(ROLES_PATH, data)
-  }
-
-  const updateRole = async (id: string, data: Partial<Role>): Promise<Role> => {
-    return api.put<Role>(`${ROLES_PATH}/${id}`, data)
-  }
-
-  const deleteRole = async (id: string): Promise<void> => {
-    return api.delete<void>(`${ROLES_PATH}/${id}`)
+  const getRoles = (): Role[] => {
+    return [
+      { id: 'admin', code: 'admin', nom: 'Administrateur', actif: true },
+      { id: 'editeur', code: 'editeur', nom: 'Éditeur', actif: true },
+      { id: 'lecteur', code: 'lecteur', nom: 'Lecteur', actif: true },
+      { id: 'commune', code: 'commune', nom: 'Commune', actif: true },
+    ]
   }
 
   // ============================================================================
@@ -154,10 +164,6 @@ export const useUtilisateursService = () => {
 
     // Rôles
     getRoles,
-    getRole,
-    createRole,
-    updateRole,
-    deleteRole,
 
     // Profil
     getMonProfil,

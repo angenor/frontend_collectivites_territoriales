@@ -5,9 +5,7 @@ import type { CompteAdministratifWithStats } from '~/types/comptes-administratif
 
 defineProps<{
   regions: RegionWithStats[]
-  comptes: CompteAdministratifWithStats[]
   isLoadingRegions: boolean
-  isLoadingComptes: boolean
   isLoadingStats: boolean
   dashboardStats: DashboardStats | null
   selectedCompte: CompteAdministratifWithStats | null
@@ -17,7 +15,6 @@ defineProps<{
 const emit = defineEmits<{
   'region-click': [region: RegionWithStats | null]
   'region-hover': [region: RegionWithStats | null]
-  'marker-click': [comptes: CompteAdministratifWithStats[], location: { label: string; latitude: number; longitude: number }]
   'navigate-to-compte': [compte: CompteAdministratifWithStats]
   'clear-selected-compte': []
 }>()
@@ -37,11 +34,9 @@ const emit = defineEmits<{
         <ClientOnly>
           <MadagascarMap
             :regions="regions"
-            :comptes="comptes"
-            :is-loading="isLoadingRegions || isLoadingComptes"
+            :is-loading="isLoadingRegions"
             @region-click="(r) => emit('region-click', r)"
             @region-hover="(r) => emit('region-hover', r)"
-            @marker-click="(c, l) => emit('marker-click', c, l)"
             class="h-full w-full"
           />
           <template #fallback>

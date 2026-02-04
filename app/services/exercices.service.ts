@@ -5,6 +5,7 @@
 import { useApi } from './api'
 
 const BASE_PATH = '/api/v1/admin/exercices'
+const PUBLIC_PATH = '/api/v1/exercices'
 
 // Types
 export interface ExerciceList {
@@ -97,8 +98,19 @@ export const useExercicesService = () => {
     return api.get<ExerciceStats>(`${BASE_PATH}/${id}/statistiques`)
   }
 
+  /**
+   * Liste les exercices via l'endpoint public (sans authentification requise).
+   * Utile pour les dropdowns/sélecteurs qui n'ont besoin que de lire la liste.
+   */
+  const getPublicExercices = async (
+    params?: { cloture?: boolean; limit?: number }
+  ): Promise<ExerciceList[]> => {
+    return api.get<ExerciceList[]>(PUBLIC_PATH, params)
+  }
+
   return {
     getExercices,
+    getPublicExercices,
     getExercice,
     createExercice,
     updateExercice,

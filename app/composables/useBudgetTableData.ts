@@ -134,10 +134,10 @@ const depensesNumericKeys = [
  * Agrège les valeurs des enfants vers les parents dans une hiérarchie
  * Détecte automatiquement le niveau feuille (niveau max) et agrège vers les parents
  */
-const aggregateHierarchicalData = (
-  lignes: Record<string, any>[],
+const aggregateHierarchicalData = <T extends Record<string, any>>(
+  lignes: T[],
   numericKeys: string[]
-): Record<string, any>[] => {
+): T[] => {
   if (!lignes.length) return lignes
 
   // Trouver le niveau maximum (feuilles)
@@ -166,7 +166,7 @@ const aggregateHierarchicalData = (
 
   // Créer des copies et reset les valeurs des parents (ceux qui ont des enfants)
   lignes.forEach((l) => {
-    const copy = { ...l }
+    const copy: Record<string, any> = { ...l }
     // Reset les valeurs numériques si cette ligne a des enfants
     if (codesWithChildren.has(l.code)) {
       for (const key of numericKeys) {
@@ -191,7 +191,7 @@ const aggregateHierarchicalData = (
     }
   }
 
-  return lignes.map(l => codeMap.get(l.code)!)
+  return lignes.map(l => codeMap.get(l.code)! as T)
 }
 
 export const useBudgetTableData = (options: UseBudgetTableDataOptions) => {

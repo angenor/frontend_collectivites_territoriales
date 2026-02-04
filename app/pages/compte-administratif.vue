@@ -6,7 +6,6 @@ import type { ColonneDynamique } from '~/types/comptes-administratifs'
 const route = useRoute()
 const router = useRouter()
 const config = useRuntimeConfig()
-const comptesService = useComptesAdministratifsService()
 
 // Métadonnées de la page
 useHead({
@@ -71,10 +70,7 @@ const loadData = async () => {
   }
 
   try {
-    // Charger les colonnes dynamiques
-    colonnes.value = await comptesService.getColonnes()
-
-    // Charger le tableau complet
+    // Charger le tableau complet (endpoint public, pas besoin d'auth)
     const apiBaseUrl = config.public.apiBaseUrl
     const response = await $fetch<TableauCompletAPI>(`${apiBaseUrl}/api/v1/tableaux`, {
       params: {
@@ -89,7 +85,11 @@ const loadData = async () => {
     }
   } catch (err: any) {
     console.error('Erreur lors du chargement des données:', err)
-    errorMessage.value = err.message || 'Erreur lors du chargement des données'
+    if (err?.status === 404 || err?.statusCode === 404) {
+      errorMessage.value = 'Aucun compte administratif trouvé pour cette commune et cette année.'
+    } else {
+      errorMessage.value = err?.data?.detail || err.message || 'Erreur lors du chargement des données'
+    }
   } finally {
     isLoading.value = false
   }

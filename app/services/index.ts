@@ -29,10 +29,14 @@ export type { NewsletterStats } from './newsletter.service'
 export type { VisiteStats, PageStats, AuditFilters } from './statistiques.service'
 export type {
   PageCMS,
+  PageCMSList,
   PageCMSFormData,
+  PageCMSUpdateData,
   SectionCMS,
   SectionCMSFormData,
+  SectionCMSUpdateData,
   SectionType,
+  StatutPublication,
 } from './cms.service'
 export type {
   ImportResult,

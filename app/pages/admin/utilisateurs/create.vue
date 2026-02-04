@@ -83,17 +83,17 @@
                     Rôle *
                   </label>
                   <select
-                    v-model="form.role_id"
+                    v-model="form.role"
                     required
                     class="w-full px-4 py-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] outline-none transition-colors"
-                    :class="{ 'border-red-500': errors.role_id }"
+                    :class="{ 'border-red-500': errors.role }"
                   >
                     <option value="">Sélectionner un rôle</option>
-                    <option v-for="role in roles" :key="role.id" :value="role.id">
+                    <option v-for="role in roles" :key="role.code" :value="role.code">
                       {{ role.nom }}
                     </option>
                   </select>
-                  <p v-if="errors.role_id" class="mt-1 text-sm text-red-500">{{ errors.role_id }}</p>
+                  <p v-if="errors.role" class="mt-1 text-sm text-red-500">{{ errors.role }}</p>
                   <p v-if="selectedRole" class="mt-2 text-sm text-[var(--text-muted)]">
                     {{ selectedRole.description || getRoleDescription(selectedRole.code) }}
                   </p>
@@ -104,14 +104,19 @@
                   <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
                     Commune *
                   </label>
+                  <div v-if="isLoadingCommunes" class="flex items-center gap-2 py-3 text-[var(--text-muted)]">
+                    <font-awesome-icon :icon="['fas', 'spinner']" class="animate-spin" />
+                    Chargement des communes...
+                  </div>
                   <select
+                    v-else
                     v-model="form.commune_id"
                     :required="selectedRole?.code === 'commune'"
                     class="w-full px-4 py-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] outline-none transition-colors"
                   >
-                    <option value="">Sélectionner une commune</option>
+                    <option :value="null">Sélectionner une commune</option>
                     <option v-for="commune in communes" :key="commune.id" :value="commune.id">
-                      {{ commune.nom }}
+                      {{ commune.nom }} <span v-if="commune.region_nom">- {{ commune.region_nom }}</span>
                     </option>
                   </select>
                 </div>
@@ -140,86 +145,61 @@
             <div class="pt-6 border-t border-[var(--border-default)]">
               <h3 class="text-lg font-semibold text-[var(--text-primary)] mb-4">Mot de passe</h3>
 
-              <div class="space-y-4">
-                <div class="flex items-center gap-4">
-                  <label class="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      v-model="passwordOption"
-                      value="generate"
-                      class="w-4 h-4 text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20"
-                    />
-                    <span class="text-sm text-[var(--text-primary)]">Générer un mot de passe et envoyer par email</span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    Mot de passe *
                   </label>
-                </div>
-                <div class="flex items-center gap-4">
-                  <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="relative">
                     <input
-                      type="radio"
-                      v-model="passwordOption"
-                      value="manual"
-                      class="w-4 h-4 text-[var(--color-primary)] focus:ring-[var(--color-primary)]/20"
-                    />
-                    <span class="text-sm text-[var(--text-primary)]">Définir un mot de passe manuellement</span>
-                  </label>
-                </div>
-
-                <div v-if="passwordOption === 'manual'" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                  <div>
-                    <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Mot de passe *
-                    </label>
-                    <div class="relative">
-                      <input
-                        v-model="form.password"
-                        :type="showPassword ? 'text' : 'password'"
-                        :required="passwordOption === 'manual'"
-                        class="w-full px-4 py-3 pr-12 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-colors"
-                        placeholder="Minimum 8 caractères"
-                        :class="{ 'border-red-500': errors.password }"
-                      />
-                      <button
-                        type="button"
-                        @click="showPassword = !showPassword"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                      >
-                        <font-awesome-icon :icon="['fas', showPassword ? 'eye-slash' : 'eye']" />
-                      </button>
-                    </div>
-                    <p v-if="errors.password" class="mt-1 text-sm text-red-500">{{ errors.password }}</p>
-
-                    <!-- Password strength -->
-                    <div v-if="form.password" class="mt-2">
-                      <div class="flex gap-1">
-                        <div
-                          v-for="i in 4"
-                          :key="i"
-                          class="h-1 flex-1 rounded-full transition-colors"
-                          :class="i <= passwordStrength ? passwordStrengthColor : 'bg-[var(--bg-tertiary)]'"
-                        />
-                      </div>
-                      <p class="text-xs mt-1" :class="passwordStrengthTextColor">
-                        {{ passwordStrengthText }}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                      Confirmer le mot de passe *
-                    </label>
-                    <input
-                      v-model="confirmPassword"
+                      v-model="form.password"
                       :type="showPassword ? 'text' : 'password'"
-                      :required="passwordOption === 'manual'"
-                      class="w-full px-4 py-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-colors"
-                      placeholder="Confirmer le mot de passe"
-                      :class="{ 'border-red-500': confirmPassword && confirmPassword !== form.password }"
+                      required
+                      class="w-full px-4 py-3 pr-12 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-colors"
+                      placeholder="Minimum 8 caractères"
+                      :class="{ 'border-red-500': errors.password }"
                     />
-                    <p v-if="confirmPassword && confirmPassword !== form.password" class="mt-1 text-sm text-red-500">
-                      Les mots de passe ne correspondent pas
+                    <button
+                      type="button"
+                      @click="showPassword = !showPassword"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                    >
+                      <font-awesome-icon :icon="['fas', showPassword ? 'eye-slash' : 'eye']" />
+                    </button>
+                  </div>
+                  <p v-if="errors.password" class="mt-1 text-sm text-red-500">{{ errors.password }}</p>
+
+                  <!-- Password strength -->
+                  <div v-if="form.password" class="mt-2">
+                    <div class="flex gap-1">
+                      <div
+                        v-for="i in 4"
+                        :key="i"
+                        class="h-1 flex-1 rounded-full transition-colors"
+                        :class="i <= passwordStrength ? passwordStrengthColor : 'bg-[var(--bg-tertiary)]'"
+                      />
+                    </div>
+                    <p class="text-xs mt-1" :class="passwordStrengthTextColor">
+                      {{ passwordStrengthText }}
                     </p>
                   </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                    Confirmer le mot de passe *
+                  </label>
+                  <input
+                    v-model="confirmPassword"
+                    :type="showPassword ? 'text' : 'password'"
+                    required
+                    class="w-full px-4 py-3 rounded-lg border border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20 outline-none transition-colors"
+                    placeholder="Confirmer le mot de passe"
+                    :class="{ 'border-red-500': confirmPassword && confirmPassword !== form.password }"
+                  />
+                  <p v-if="confirmPassword && confirmPassword !== form.password" class="mt-1 text-sm text-red-500">
+                    Les mots de passe ne correspondent pas
+                  </p>
                 </div>
               </div>
             </div>
@@ -301,29 +281,30 @@ definePageMeta({
 
 const router = useRouter()
 const utilisateursService = useUtilisateursService()
+const api = useApi()
 
 const isSubmitting = ref(false)
 const showPassword = ref(false)
-const passwordOption = ref<'generate' | 'manual'>('generate')
 const confirmPassword = ref('')
+const isLoadingCommunes = ref(false)
 
 const roles = ref<Role[]>([])
-const communes = ref<{ id: string; nom: string }[]>([])
+const communes = ref<{ id: number; nom: string; region_nom?: string }[]>([])
 
 const form = ref<UserFormData>({
   email: '',
   nom: '',
   prenom: '',
   password: '',
-  role_id: '',
-  commune_id: '',
+  role: '',
+  commune_id: null,
   actif: true,
 })
 
 const errors = ref<Partial<Record<keyof UserFormData, string>>>({})
 
 const selectedRole = computed(() => {
-  return roles.value.find(r => r.id === form.value.role_id)
+  return roles.value.find(r => r.code === form.value.role)
 })
 
 const getRoleDescription = (code: string) => {
@@ -407,11 +388,9 @@ const passwordStrengthText = computed(() => {
 })
 
 const isFormValid = computed(() => {
-  if (!form.value.nom || !form.value.email || !form.value.role_id) return false
-  if (passwordOption.value === 'manual') {
-    if (!form.value.password || form.value.password.length < 8) return false
-    if (form.value.password !== confirmPassword.value) return false
-  }
+  if (!form.value.nom || !form.value.email || !form.value.role) return false
+  if (!form.value.password || form.value.password.length < 8) return false
+  if (form.value.password !== confirmPassword.value) return false
   if (selectedRole.value?.code === 'commune' && !form.value.commune_id) return false
   return true
 })
@@ -429,16 +408,14 @@ const validateForm = () => {
     errors.value.email = 'L\'email n\'est pas valide'
   }
 
-  if (!form.value.role_id) {
-    errors.value.role_id = 'Le rôle est requis'
+  if (!form.value.role) {
+    errors.value.role = 'Le rôle est requis'
   }
 
-  if (passwordOption.value === 'manual') {
-    if (!form.value.password) {
-      errors.value.password = 'Le mot de passe est requis'
-    } else if (form.value.password.length < 8) {
-      errors.value.password = 'Le mot de passe doit contenir au moins 8 caractères'
-    }
+  if (!form.value.password) {
+    errors.value.password = 'Le mot de passe est requis'
+  } else if (form.value.password.length < 8) {
+    errors.value.password = 'Le mot de passe doit contenir au moins 8 caractères'
   }
 
   return Object.keys(errors.value).length === 0
@@ -449,45 +426,49 @@ const createUser = async () => {
 
   isSubmitting.value = true
   try {
-    const data = { ...form.value }
-    if (passwordOption.value === 'generate') {
-      delete data.password
-    }
-
-    await utilisateursService.createUtilisateur(data)
+    await utilisateursService.createUtilisateur(form.value)
     router.push('/admin/utilisateurs')
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating user:', error)
+    if (error?.message) {
+      // Afficher l'erreur du backend (ex: email déjà existant)
+      if (error.message.toLowerCase().includes('email')) {
+        errors.value.email = error.message
+      }
+    }
   } finally {
     isSubmitting.value = false
   }
 }
 
-const loadRoles = async () => {
-  try {
-    roles.value = await utilisateursService.getRoles()
-  } catch (error) {
-    roles.value = [
-      { id: '1', code: 'admin', nom: 'Administrateur', actif: true },
-      { id: '2', code: 'editeur', nom: 'Éditeur', actif: true },
-      { id: '3', code: 'lecteur', nom: 'Lecteur', actif: true },
-      { id: '4', code: 'commune', nom: 'Commune', actif: true },
-    ]
-  }
+const loadRoles = () => {
+  roles.value = utilisateursService.getRoles()
 }
 
 const loadCommunes = async () => {
-  // Mock data - in real app, fetch from API
-  communes.value = [
-    { id: 'commune-1', nom: 'Antsirabe' },
-    { id: 'commune-2', nom: 'Fianarantsoa' },
-    { id: 'commune-3', nom: 'Toamasina' },
-    { id: 'commune-4', nom: 'Antananarivo' },
-  ]
+  isLoadingCommunes.value = true
+  try {
+    const data = await api.get<Array<{ id: number; nom: string; region_nom?: string }>>('/api/v1/geo/communes', { limit: 500 })
+    communes.value = Array.isArray(data) ? data : []
+  } catch (error) {
+    console.error('Error loading communes:', error)
+    communes.value = []
+  } finally {
+    isLoadingCommunes.value = false
+  }
 }
+
+// Charger les communes quand le rôle change à "commune"
+watch(() => form.value.role, (newRole) => {
+  if (newRole === 'commune' && communes.value.length === 0) {
+    loadCommunes()
+  }
+  if (newRole !== 'commune') {
+    form.value.commune_id = null
+  }
+})
 
 onMounted(() => {
   loadRoles()
-  loadCommunes()
 })
 </script>
