@@ -8,7 +8,7 @@
     </p>
 
     <!-- Editor.js container -->
-    <div class="border border-[var(--border-default)] rounded-lg overflow-hidden bg-[var(--bg-card)]">
+    <div class="border border-[var(--border-default)] rounded-lg bg-[var(--bg-card)]">
       <!-- Loading state -->
       <div v-if="!isReady" class="p-8 flex items-center justify-center">
         <UiLoadingSpinner size="md" />
