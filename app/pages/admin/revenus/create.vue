@@ -364,24 +364,48 @@ const formatMoney = (amount: number) => {
 }
 
 const loadReferenceData = async () => {
-  try {
-    const [projetsData, communesData, exercicesData, planComptableData] = await Promise.all([
-      projetsService.getProjets({ limit: 100 }),
-      geoService.getCommunes({ limit: 500 }),
-      exercicesService.getExercices(),
-      projetsService.getPlanComptableForRevenus(),
-    ])
-    projets.value = projetsData.items
-    communes.value = communesData.items
-    exercices.value = Array.isArray(exercicesData) ? exercicesData : []
-    planComptableCodes.value = Array.isArray(planComptableData) ? planComptableData : []
-  } catch (e) {
-    console.error('Erreur chargement donnees de reference:', e)
-    projets.value = []
-    communes.value = []
-    exercices.value = []
-    planComptableCodes.value = []
+  // Load each source independently so one failure doesn't block others
+  const loadProjets = async () => {
+    try {
+      const response = await projetsService.getProjets({ limit: 200 })
+      projets.value = response.items || []
+    } catch (e) {
+      console.error('Erreur chargement projets:', e)
+      projets.value = []
+    }
   }
+
+  const loadCommunes = async () => {
+    try {
+      const response = await geoService.getCommunes({ limit: 500 })
+      communes.value = response.items || []
+    } catch (e) {
+      console.error('Erreur chargement communes:', e)
+      communes.value = []
+    }
+  }
+
+  const loadExercices = async () => {
+    try {
+      const data = await exercicesService.getExercices()
+      exercices.value = Array.isArray(data) ? data : []
+    } catch (e) {
+      console.error('Erreur chargement exercices:', e)
+      exercices.value = []
+    }
+  }
+
+  const loadPlanComptable = async () => {
+    try {
+      const data = await projetsService.getPlanComptableForRevenus()
+      planComptableCodes.value = Array.isArray(data) ? data : []
+    } catch (e) {
+      console.error('Erreur chargement plan comptable:', e)
+      planComptableCodes.value = []
+    }
+  }
+
+  await Promise.all([loadProjets(), loadCommunes(), loadExercices(), loadPlanComptable()])
 
   // Pre-fill projet if passed via query
   if (route.query.projet_id) {

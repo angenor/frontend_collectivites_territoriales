@@ -287,29 +287,47 @@ const communeOptions = computed(() =>
 
 // Methods
 const loadReferenceData = async () => {
-  try {
-    const [societesData, typesData, regionsData, communesData] = await Promise.all([
-      projetsService.getAllSocietes(),
-      projetsService.getTypesMinerai(),
-      geoService.getRegions({ limit: 100 }),
-      geoService.getCommunes({ limit: 500 }),
-    ])
-    societes.value = societesData
-    typesMinerai.value = typesData
-    regions.value = regionsData.items
-    communes.value = communesData.items
-  } catch (e) {
-    console.error('Erreur chargement données de référence:', e)
-    societes.value = [
-      { id: '1', nom: 'QIT Madagascar Minerals', code: 'QMM', created_at: '', updated_at: '' },
-      { id: '2', nom: 'Ambatovy Minerals', code: 'AMB', created_at: '', updated_at: '' },
-      { id: '3', nom: 'Kraoma SA', code: 'KRA', created_at: '', updated_at: '' },
-      { id: '4', nom: 'Toliara Sands', code: 'TLS', created_at: '', updated_at: '' },
-    ]
-    typesMinerai.value = ['Ilménite', 'Nickel', 'Cobalt', 'Chromite', 'Or', 'Graphite', 'Saphir', 'Rubis']
-    regions.value = []
-    communes.value = []
+  // Load each source independently so one failure doesn't block others
+  const loadSocietes = async () => {
+    try {
+      societes.value = await projetsService.getAllSocietes()
+    } catch (e) {
+      console.error('Erreur chargement sociétés:', e)
+      societes.value = []
+    }
   }
+
+  const loadTypes = async () => {
+    try {
+      typesMinerai.value = await projetsService.getTypesMinerai()
+    } catch (e) {
+      console.error('Erreur chargement types minerai:', e)
+      typesMinerai.value = []
+    }
+  }
+
+  const loadRegions = async () => {
+    try {
+      const data = await geoService.getRegions()
+      // getRegions returns a direct array (not paginated)
+      regions.value = Array.isArray(data) ? data : (data as any).items || []
+    } catch (e) {
+      console.error('Erreur chargement régions:', e)
+      regions.value = []
+    }
+  }
+
+  const loadCommunes = async () => {
+    try {
+      const response = await geoService.getCommunes({ limit: 500 })
+      communes.value = response.items || []
+    } catch (e) {
+      console.error('Erreur chargement communes:', e)
+      communes.value = []
+    }
+  }
+
+  await Promise.all([loadSocietes(), loadTypes(), loadRegions(), loadCommunes()])
 
   // Pre-fill societe if passed via query
   if (route.query.societe_id) {

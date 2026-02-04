@@ -14,8 +14,8 @@ import type {
   RevenuMinierStats,
 } from '~/types/projets-miniers'
 
-const BASE_PATH = '/api/v1/admin/projets'
-const REVENUS_PATH = '/api/v1/admin/revenus'
+const BASE_PATH = '/api/v1/projets'
+const REVENUS_PATH = '/api/v1/revenus'
 
 // Types pour les sociétés
 export interface Societe {
@@ -54,7 +54,11 @@ export const useProjetsService = () => {
   const getSocietes = async (
     params?: PaginationParams & { search?: string }
   ): Promise<PaginatedResponse<Societe>> => {
-    return api.get<PaginatedResponse<Societe>>(`${BASE_PATH}/societes`, params)
+    const result = await api.get<any>(`${BASE_PATH}/societes`, params)
+    if (Array.isArray(result)) {
+      return { items: result, total: result.length, page: 1, limit: params?.limit || 100, pages: 1 }
+    }
+    return result
   }
 
   const getSociete = async (id: string): Promise<Societe> => {
@@ -74,7 +78,8 @@ export const useProjetsService = () => {
   }
 
   const getAllSocietes = async (): Promise<Societe[]> => {
-    return api.get<Societe[]>(`${BASE_PATH}/societes/all`)
+    const result = await api.get<any>(`${BASE_PATH}/societes`, { limit: 500 })
+    return Array.isArray(result) ? result : (result.items || [])
   }
 
   // ============================================================================
@@ -92,7 +97,12 @@ export const useProjetsService = () => {
       search?: string
     }
   ): Promise<PaginatedResponse<ProjetMinierWithStats>> => {
-    return api.get<PaginatedResponse<ProjetMinierWithStats>>(BASE_PATH, params)
+    const result = await api.get<any>(BASE_PATH, params)
+    // Backend returns a direct list, wrap as PaginatedResponse
+    if (Array.isArray(result)) {
+      return { items: result, total: result.length, page: 1, limit: params?.limit || 100, pages: 1 }
+    }
+    return result
   }
 
   const getProjet = async (id: string): Promise<ProjetMinier> => {
@@ -112,7 +122,7 @@ export const useProjetsService = () => {
   }
 
   const getProjetsByCommune = async (communeId: string): Promise<ProjetMinier[]> => {
-    return api.get<ProjetMinier[]>(`${BASE_PATH}/commune/${communeId}`)
+    return api.get<ProjetMinier[]>(`${BASE_PATH}/by-commune/${communeId}`)
   }
 
   const getTypesMinerai = async (): Promise<string[]> => {
@@ -132,7 +142,11 @@ export const useProjetsService = () => {
       region_id?: string
     }
   ): Promise<PaginatedResponse<RevenuMinier>> => {
-    return api.get<PaginatedResponse<RevenuMinier>>(REVENUS_PATH, params)
+    const result = await api.get<any>(REVENUS_PATH, params)
+    if (Array.isArray(result)) {
+      return { items: result, total: result.length, page: 1, limit: params?.limit || 100, pages: 1 }
+    }
+    return result
   }
 
   const getRevenu = async (id: string): Promise<RevenuMinier> => {
@@ -158,7 +172,7 @@ export const useProjetsService = () => {
   const getRevenusStats = async (
     params?: { annee?: number; region_id?: string }
   ): Promise<RevenuMinierStats[]> => {
-    return api.get<RevenuMinierStats[]>(`${REVENUS_PATH}/stats`, params)
+    return api.get<RevenuMinierStats[]>(`${REVENUS_PATH}/statistiques/global`, params)
   }
 
   // ============================================================================
@@ -166,12 +180,13 @@ export const useProjetsService = () => {
   // ============================================================================
 
   const getPlanComptableForRevenus = async (): Promise<Array<{ code: string; intitule: string }>> => {
-    return api.get<Array<{ code: string; intitule: string }>>('/api/v1/admin/plan-comptable', {
+    const result = await api.get<any>('/api/v1/admin/plan-comptable', {
       type_mouvement: 'recette',
       niveau: 3,
       actif: true,
       limit: 500,
     })
+    return result.items || result
   }
 
   const getComptesAdministratifsForSelect = async (
