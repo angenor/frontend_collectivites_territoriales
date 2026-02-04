@@ -19,6 +19,7 @@ export { useExportService } from './export.service'
 export { useTableauxService } from './tableaux.service'
 export { usePlanComptableService } from './plan-comptable.service'
 export { useColonnesService } from './colonnes.service'
+export { useExercicesService } from './exercices.service'
 
 // Types réexportés
 export type { Societe, SocieteFormData } from './projets.service'
@@ -41,3 +42,10 @@ export type {
   ImportOptions,
 } from './import.service'
 export type { ExportOptions } from './export.service'
+export type {
+  ExerciceList,
+  ExerciceRead,
+  ExerciceCreate,
+  ExerciceUpdate,
+  ExerciceStats,
+} from './exercices.service'

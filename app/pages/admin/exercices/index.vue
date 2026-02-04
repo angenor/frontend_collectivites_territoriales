@@ -96,6 +96,9 @@
               <th class="text-left px-6 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
                 Données
               </th>
+              <th class="text-left px-6 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
+                Comptes
+              </th>
               <th class="text-right px-6 py-3 text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider">
                 Actions
               </th>
@@ -137,8 +140,24 @@
                   <span class="font-medium text-[var(--text-primary)]">{{ exercice.nb_depenses || 0 }}</span> dépenses
                 </div>
               </td>
+              <td class="px-6 py-4">
+                <NuxtLink
+                  :to="`/admin/comptes-administratifs?annee=${exercice.annee}`"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 transition-colors"
+                >
+                  <font-awesome-icon :icon="['fas', 'file-invoice-dollar']" class="text-[10px]" />
+                  {{ exercice.nb_communes }} commune{{ exercice.nb_communes > 1 ? 's' : '' }}
+                </NuxtLink>
+              </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
+                  <NuxtLink
+                    :to="`/admin/comptes-administratifs?annee=${exercice.annee}`"
+                    class="p-2 text-[var(--text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--interactive-hover)] rounded-lg transition-colors"
+                    title="Voir les comptes administratifs"
+                  >
+                    <font-awesome-icon :icon="['fas', 'folder-open']" />
+                  </NuxtLink>
                   <button
                     @click="editExercice(exercice)"
                     class="p-2 text-[var(--text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--interactive-hover)] rounded-lg transition-colors cursor-pointer"
@@ -171,7 +190,7 @@
       <!-- Empty state -->
       <div v-if="!exercices.length" class="py-12">
         <UiEmptyState
-          :icon="['fas', 'calendar-alt']"
+          :icon="['fas', 'calendar-days']"
           title="Aucun exercice"
           description="Créez votre premier exercice budgétaire."
         >
@@ -190,7 +209,7 @@
 
     <!-- Create/Edit Modal -->
     <UiModal
-      :show="showCreateModal || showEditModal"
+      v-model="showModalActive"
       :title="showEditModal ? 'Modifier l\'exercice' : 'Nouvel exercice'"
       size="md"
       @close="closeModals"
@@ -282,7 +301,7 @@
 
     <!-- Delete Confirmation Modal -->
     <UiModal
-      :show="showDeleteModal"
+      v-model="showDeleteModal"
       title="Confirmer la suppression"
       size="sm"
       @close="showDeleteModal = false"
@@ -316,21 +335,23 @@ definePageMeta({
   layout: 'admin',
 })
 
-interface Exercice {
+interface ExerciceEnriched {
   id: number
   annee: number
   libelle?: string
   date_debut: string
   date_fin: string
   cloture: boolean
-  nb_recettes?: number
-  nb_depenses?: number
+  nb_recettes: number
+  nb_depenses: number
+  nb_communes: number
 }
 
 const toast = useAppToast()
+const exercicesService = useExercicesService()
 
 // State
-const exercices = ref<Exercice[]>([])
+const exercices = ref<ExerciceEnriched[]>([])
 const loading = ref(true)
 const saving = ref(false)
 const deleting = ref(false)
@@ -338,7 +359,7 @@ const deleting = ref(false)
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteModal = ref(false)
-const selectedExercice = ref<Exercice | null>(null)
+const selectedExercice = ref<ExerciceEnriched | null>(null)
 
 const form = ref({
   annee: new Date().getFullYear(),
@@ -349,6 +370,12 @@ const form = ref({
 })
 
 // Computed
+const showModalActive = computed({
+  get: () => showCreateModal.value || showEditModal.value,
+  set: (val: boolean) => {
+    if (!val) closeModals()
+  },
+})
 const exercicesOuverts = computed(() => exercices.value.filter(e => !e.cloture).length)
 const exercicesClotures = computed(() => exercices.value.filter(e => e.cloture).length)
 const exerciceActuel = computed(() => exercices.value.find(e => !e.cloture) || exercices.value[0])
@@ -366,46 +393,47 @@ const formatDate = (dateStr: string) => {
 const loadExercices = async () => {
   loading.value = true
   try {
-    // TODO: Remplacer par appel API réel
-    // const response = await $fetch('/api/v1/admin/exercices')
-    // exercices.value = response
+    const list = await exercicesService.getExercices()
 
-    // Données de démonstration
-    exercices.value = [
-      {
-        id: 1,
-        annee: 2024,
-        libelle: 'Exercice budgétaire 2024',
-        date_debut: '2024-01-01',
-        date_fin: '2024-12-31',
-        cloture: false,
-        nb_recettes: 156,
-        nb_depenses: 142,
-      },
-      {
-        id: 2,
-        annee: 2023,
-        libelle: 'Exercice budgétaire 2023',
-        date_debut: '2023-01-01',
-        date_fin: '2023-12-31',
-        cloture: true,
-        nb_recettes: 245,
-        nb_depenses: 231,
-      },
-      {
-        id: 3,
-        annee: 2022,
-        libelle: 'Exercice budgétaire 2022',
-        date_debut: '2022-01-01',
-        date_fin: '2022-12-31',
-        cloture: true,
-        nb_recettes: 198,
-        nb_depenses: 187,
-      },
-    ]
-  } catch (error) {
+    // Enrich each exercice with details (dates) and stats (counts) in parallel
+    const enriched = await Promise.all(
+      list.map(async (item) => {
+        try {
+          const [detail, stats] = await Promise.all([
+            exercicesService.getExercice(item.id),
+            exercicesService.getStatistiques(item.id),
+          ])
+          return {
+            id: item.id,
+            annee: item.annee,
+            libelle: item.libelle,
+            date_debut: detail.date_debut,
+            date_fin: detail.date_fin,
+            cloture: item.cloture,
+            nb_recettes: stats.recettes.total,
+            nb_depenses: stats.depenses.total,
+            nb_communes: Math.max(stats.communes_avec_recettes, stats.communes_avec_depenses),
+          }
+        } catch {
+          return {
+            id: item.id,
+            annee: item.annee,
+            libelle: item.libelle,
+            date_debut: '',
+            date_fin: '',
+            cloture: item.cloture,
+            nb_recettes: 0,
+            nb_depenses: 0,
+            nb_communes: 0,
+          }
+        }
+      })
+    )
+
+    exercices.value = enriched
+  } catch (error: any) {
     console.error('Erreur lors du chargement des exercices:', error)
-    toast.error('Erreur lors du chargement des exercices')
+    toast.error(error?.message || 'Erreur lors du chargement des exercices')
   } finally {
     loading.value = false
   }
@@ -422,7 +450,7 @@ const resetForm = () => {
   }
 }
 
-const editExercice = (exercice: Exercice) => {
+const editExercice = (exercice: ExerciceEnriched) => {
   selectedExercice.value = exercice
   form.value = {
     annee: exercice.annee,
@@ -437,51 +465,48 @@ const editExercice = (exercice: Exercice) => {
 const saveExercice = async () => {
   saving.value = true
   try {
-    // TODO: Appel API réel
     if (showEditModal.value && selectedExercice.value) {
-      // Mise à jour
-      const index = exercices.value.findIndex(e => e.id === selectedExercice.value!.id)
-      if (index !== -1) {
-        exercices.value[index] = {
-          ...exercices.value[index],
-          ...form.value,
-        }
-      }
+      await exercicesService.updateExercice(selectedExercice.value.id, {
+        libelle: form.value.libelle || undefined,
+        date_debut: form.value.date_debut,
+        date_fin: form.value.date_fin,
+        cloture: form.value.cloture,
+      })
       toast.success('Exercice modifié avec succès')
     } else {
-      // Création
-      const newExercice: Exercice = {
-        id: Date.now(),
-        ...form.value,
-        nb_recettes: 0,
-        nb_depenses: 0,
-      }
-      exercices.value.unshift(newExercice)
+      await exercicesService.createExercice({
+        annee: form.value.annee,
+        libelle: form.value.libelle || undefined,
+        date_debut: form.value.date_debut,
+        date_fin: form.value.date_fin,
+        cloture: form.value.cloture,
+      })
       toast.success('Exercice créé avec succès')
     }
     closeModals()
-  } catch (error) {
+    await loadExercices()
+  } catch (error: any) {
     console.error('Erreur lors de la sauvegarde:', error)
-    toast.error('Erreur lors de la sauvegarde')
+    toast.error(error?.message || 'Erreur lors de la sauvegarde')
   } finally {
     saving.value = false
   }
 }
 
-const clotureExercice = async (exercice: Exercice) => {
+const clotureExercice = async (exercice: ExerciceEnriched) => {
   if (!confirm(`Êtes-vous sûr de vouloir clôturer l'exercice ${exercice.annee} ?`)) return
 
   try {
-    // TODO: Appel API réel
-    exercice.cloture = true
+    await exercicesService.cloturerExercice(exercice.id)
     toast.success(`Exercice ${exercice.annee} clôturé`)
-  } catch (error) {
+    await loadExercices()
+  } catch (error: any) {
     console.error('Erreur lors de la clôture:', error)
-    toast.error('Erreur lors de la clôture')
+    toast.error(error?.message || 'Erreur lors de la clôture')
   }
 }
 
-const confirmDelete = (exercice: Exercice) => {
+const confirmDelete = (exercice: ExerciceEnriched) => {
   selectedExercice.value = exercice
   showDeleteModal.value = true
 }
@@ -491,17 +516,14 @@ const deleteExercice = async () => {
 
   deleting.value = true
   try {
-    // TODO: Appel API réel
-    const index = exercices.value.findIndex(e => e.id === selectedExercice.value!.id)
-    if (index !== -1) {
-      exercices.value.splice(index, 1)
-    }
+    await exercicesService.deleteExercice(selectedExercice.value.id)
     toast.success('Exercice supprimé')
     showDeleteModal.value = false
     selectedExercice.value = null
-  } catch (error) {
+    await loadExercices()
+  } catch (error: any) {
     console.error('Erreur lors de la suppression:', error)
-    toast.error('Erreur lors de la suppression')
+    toast.error(error?.message || 'Erreur lors de la suppression')
   } finally {
     deleting.value = false
   }

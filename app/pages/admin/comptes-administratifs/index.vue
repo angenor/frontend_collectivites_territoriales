@@ -120,7 +120,26 @@
 
       <!-- Year column -->
       <template #cell-annee="{ row }">
-        <span class="font-mono font-medium">{{ row.annee }}</span>
+        <div class="flex items-center gap-2">
+          <NuxtLink
+            to="/admin/exercices"
+            class="font-mono font-medium text-[var(--text-primary)] hover:text-[var(--color-primary)] transition-colors"
+            title="Voir les exercices budgétaires"
+          >
+            {{ row.annee }}
+          </NuxtLink>
+          <span
+            :class="[
+              'inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded-full',
+              getExerciceStatus(row.annee).cloture
+                ? 'bg-[var(--color-warning)]/10 text-[var(--color-warning)]'
+                : 'bg-[var(--color-success)]/10 text-[var(--color-success)]'
+            ]"
+          >
+            <font-awesome-icon :icon="['fas', getExerciceStatus(row.annee).cloture ? 'lock' : 'lock-open']" class="text-[8px]" />
+            {{ getExerciceStatus(row.annee).cloture ? 'Clôturé' : 'En cours' }}
+          </span>
+        </div>
       </template>
 
       <!-- Status column -->
@@ -255,12 +274,12 @@
             required
           />
 
-          <!-- Year -->
+          <!-- Exercice -->
           <UiFormSelect
             v-model="formData.annee"
-            label="Année"
-            :options="yearOptions"
-            placeholder="Sélectionner une année"
+            label="Exercice budgétaire"
+            :options="exerciceFormOptions"
+            placeholder="Sélectionner un exercice"
             :error="formErrors.annee"
             required
           />
@@ -334,9 +353,11 @@ definePageMeta({
   layout: 'admin',
 })
 
+const route = useRoute()
 const toast = useAppToast()
 const comptesService = useComptesAdministratifsService()
 const geoService = useGeoService()
+const exercicesService = useExercicesService()
 
 // ============================================================================
 // STATE
@@ -375,6 +396,9 @@ const isDeleting = ref(false)
 const regions = ref<Array<{ id: string; nom: string }>>([])
 const communes = ref<Array<{ id: string; nom: string; region_id: string }>>([])
 
+// Exercices data
+const exercicesList = ref<Array<{ id: number; annee: number; libelle?: string; cloture: boolean }>>([])
+
 // ============================================================================
 // PAGINATION
 // ============================================================================
@@ -410,12 +434,19 @@ const communeOptions = computed(() => {
 })
 
 const yearOptions = computed(() => {
-  const currentYear = new Date().getFullYear()
-  const years = []
-  for (let y = currentYear; y >= currentYear - 10; y--) {
-    years.push({ value: y, label: String(y) })
-  }
-  return years
+  return exercicesList.value.map(e => ({
+    value: e.annee,
+    label: `${e.annee} – ${e.cloture ? 'Clôturé' : 'En cours'}`,
+  }))
+})
+
+const exerciceFormOptions = computed(() => {
+  return exercicesList.value
+    .filter(e => !e.cloture)
+    .map(e => ({
+      value: e.annee,
+      label: `${e.annee} – ${e.libelle || `Exercice ${e.annee}`}`,
+    }))
 })
 
 const statutOptions = [
@@ -456,76 +487,13 @@ const loadComptes = async () => {
   }
 }
 
-// Générer des données de démonstration
-const generateMockComptes = (): CompteAdministratifWithStats[] => {
-  const communes = [
-    { id: '1', nom: 'Antananarivo Renivohitra' },
-    { id: '2', nom: 'Toamasina I' },
-    { id: '3', nom: 'Antsirabe I' },
-    { id: '4', nom: 'Fianarantsoa I' },
-    { id: '5', nom: 'Mahajanga I' },
-    { id: '6', nom: 'Toliara I' },
-    { id: '7', nom: 'Antsiranana I' },
-    { id: '8', nom: 'Ambatondrazaka' },
-  ]
-  const statuts = ['brouillon', 'valide', 'publie', 'publie', 'publie']
-  const currentYear = new Date().getFullYear()
-
-  return communes.map((commune, index) => {
-    const exerciceId = (index % 3) + 1 // Mock exercice IDs: 1, 2, 3
-    return {
-      // Format ID: {commune_id}-{exercice_id} pour correspondre au backend
-      id: `${commune.id}-${exerciceId}`,
-      commune_id: commune.id,
-      commune: commune as any,
-      district_id: null,
-      district: null,
-      region_id: null,
-      region: null,
-      annee: currentYear - (index % 3),
-      statut: statuts[index % statuts.length],
-      notes: null,
-      nombre_lignes: Math.floor(Math.random() * 50) + 20,
-      total_recettes: Math.floor(Math.random() * 500000000) + 100000000,
-      total_depenses: Math.floor(Math.random() * 400000000) + 80000000,
-      created_at: new Date(Date.now() - index * 86400000 * 30).toISOString(),
-      updated_at: new Date(Date.now() - index * 86400000 * 7).toISOString(),
-    }
-  })
-}
-
-// Générer des données géographiques mock
-const generateMockGeo = () => {
-  const mockRegions = [
-    { id: '1', nom: 'Analamanga' },
-    { id: '2', nom: 'Vakinankaratra' },
-    { id: '3', nom: 'Atsinanana' },
-    { id: '4', nom: 'Haute Matsiatra' },
-    { id: '5', nom: 'Boeny' },
-    { id: '6', nom: 'Atsimo-Andrefana' },
-    { id: '7', nom: 'Diana' },
-  ]
-  const mockDistricts = [
-    { id: '1', nom: 'Antananarivo Renivohitra', region_id: '1' },
-    { id: '2', nom: 'Antananarivo Atsimondrano', region_id: '1' },
-    { id: '3', nom: 'Antsirabe I', region_id: '2' },
-    { id: '4', nom: 'Toamasina I', region_id: '3' },
-    { id: '5', nom: 'Fianarantsoa I', region_id: '4' },
-    { id: '6', nom: 'Mahajanga I', region_id: '5' },
-    { id: '7', nom: 'Toliara I', region_id: '6' },
-    { id: '8', nom: 'Antsiranana I', region_id: '7' },
-  ]
-  const mockCommunes = [
-    { id: '1', nom: 'Antananarivo Renivohitra', district_id: '1' },
-    { id: '2', nom: 'Ambohidratrimo', district_id: '2' },
-    { id: '3', nom: 'Antsirabe I', district_id: '3' },
-    { id: '4', nom: 'Toamasina I', district_id: '4' },
-    { id: '5', nom: 'Fianarantsoa I', district_id: '5' },
-    { id: '6', nom: 'Mahajanga I', district_id: '6' },
-    { id: '7', nom: 'Toliara I', district_id: '7' },
-    { id: '8', nom: 'Antsiranana I', district_id: '8' },
-  ]
-  return { mockRegions, mockDistricts, mockCommunes }
+const loadExercices = async () => {
+  try {
+    exercicesList.value = await exercicesService.getExercices()
+  } catch (error: any) {
+    console.error('Erreur lors du chargement des exercices:', error)
+    exercicesList.value = []
+  }
 }
 
 const loadGeography = async () => {
@@ -683,6 +651,11 @@ const handleDelete = async () => {
 }
 
 // Helpers
+const getExerciceStatus = (annee: number) => {
+  const exercice = exercicesList.value.find(e => e.annee === annee)
+  return { cloture: exercice?.cloture ?? false }
+}
+
 const getCollectiviteType = (compte: CompteAdministratif): string => {
   if (compte.commune) return 'Commune'
   if (compte.district) return 'District'
@@ -729,6 +702,13 @@ const formatDate = (date: string): string => {
 // ============================================================================
 
 onMounted(() => {
+  // Lire le query param annee (navigation depuis la page Exercices)
+  const anneeParam = route.query.annee
+  if (anneeParam) {
+    filters.annee = Number(anneeParam)
+  }
+
+  loadExercices()
   loadGeography()
   loadComptes()
 })
