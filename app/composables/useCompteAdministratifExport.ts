@@ -7,6 +7,8 @@
  */
 
 import ExcelJS from 'exceljs'
+import type { CompteAdministratif } from '~/types/comptes-administratifs'
+import type { TableauCompletAPI } from '~/composables/useBudgetTableData'
 
 // Types pour les données
 export interface LigneCompte {
@@ -708,7 +710,62 @@ export const useCompteAdministratifExport = () => {
     return exportCompteAdministratif(demoData)
   }
 
+  /**
+   * Bridge method: converts page-level objects (CompteAdministratif + TableauCompletAPI)
+   * into CompteAdministratifData and triggers the Excel export.
+   */
+  const exportToExcel = async (
+    compte: CompteAdministratif,
+    tableauComplet: TableauCompletAPI
+  ): Promise<boolean> => {
+    const collectivite = compte.commune?.nom || compte.district?.nom || compte.region?.nom || 'N/A'
+
+    const mapRecetteLignes = (section: any): LigneCompte[] =>
+      section?.lignes?.map((l: any) => ({
+        code: l.code,
+        intitule: l.intitule,
+        niveau: l.niveau as 1 | 2 | 3,
+        budget_primitif: l.budget_primitif || 0,
+        budget_additionnel: l.budget_additionnel || 0,
+        modifications: l.modifications || 0,
+        previsions_definitives: l.previsions_definitives || 0,
+        or_admis: l.or_admis || 0,
+        recouvrement: l.recouvrement || 0,
+        reste_a_recouvrer: l.reste_a_recouvrer || 0,
+      })) || []
+
+    const mapDepenseLignes = (section: any): LigneCompte[] =>
+      section?.lignes?.map((l: any) => ({
+        code: l.code,
+        intitule: l.intitule,
+        niveau: l.niveau as 1 | 2 | 3,
+        budget_primitif: l.budget_primitif || 0,
+        budget_additionnel: l.budget_additionnel || 0,
+        modifications: l.modifications || 0,
+        previsions_definitives: l.previsions_definitives || 0,
+        engagement: l.engagement || 0,
+        mandat_admis: l.mandat_admis || 0,
+        paiement: l.paiement || 0,
+        reste_a_payer: l.reste_a_payer || 0,
+      })) || []
+
+    const recSections = tableauComplet.recettes?.sections || []
+    const depSections = tableauComplet.depenses?.sections || []
+
+    const data: CompteAdministratifData = {
+      collectivite,
+      annee: compte.annee,
+      recettes_fonctionnement: mapRecetteLignes(recSections.find(s => s.section === 'fonctionnement')),
+      recettes_investissement: mapRecetteLignes(recSections.find(s => s.section === 'investissement')),
+      depenses_fonctionnement: mapDepenseLignes(depSections.find(s => s.section === 'fonctionnement')),
+      depenses_investissement: mapDepenseLignes(depSections.find(s => s.section === 'investissement')),
+    }
+
+    return exportCompteAdministratif(data)
+  }
+
   return {
+    exportToExcel,
     exportCompteAdministratif,
     prepareDataForExport,
     exportDemoData,
