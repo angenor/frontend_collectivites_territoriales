@@ -209,7 +209,8 @@ const menuGroups = computed<MenuGroup[]>(() => [
           { to: '/admin/colonnes', label: 'Colonnes', icon: ['fas', 'table-columns'] },
         ]
       },
-      { to: '/admin/import', label: 'Import Données', icon: ['fas', 'file-import'] },
+      // TODO: À implémenter prochainement
+      // { to: '/admin/import', label: 'Import Données', icon: ['fas', 'file-import'] },
     ]
   },
   {
@@ -247,24 +248,27 @@ const menuGroups = computed<MenuGroup[]>(() => [
           { to: '/admin/cms/sections', label: 'Sections', icon: ['fas', 'puzzle-piece'] },
         ]
       },
-      { to: '/admin/documents', label: 'Documents', icon: ['fas', 'folder-open'] },
+      // TODO: À implémenter prochainement
+      // { to: '/admin/documents', label: 'Documents', icon: ['fas', 'folder-open'] },
     ]
   },
   {
     title: 'Administration',
     items: [
       { to: '/admin/utilisateurs', label: 'Utilisateurs', icon: ['fas', 'users'] },
-      { to: '/admin/newsletter', label: 'Newsletter', icon: ['fas', 'envelope'] },
-      {
-        to: '/admin/statistiques',
-        label: 'Statistiques',
-        icon: ['fas', 'chart-line'],
-        children: [
-          { to: '/admin/statistiques', label: 'Vue générale', icon: ['fas', 'chart-simple'] },
-          { to: '/admin/statistiques/visites', label: 'Visites', icon: ['fas', 'eye'] },
-          { to: '/admin/statistiques/audit', label: 'Journal d\'audit', icon: ['fas', 'clipboard-list'] },
-        ]
-      },
+      // TODO: À implémenter prochainement
+      // { to: '/admin/newsletter', label: 'Newsletter', icon: ['fas', 'envelope'] },
+      // TODO: À implémenter prochainement
+      // {
+      //   to: '/admin/statistiques',
+      //   label: 'Statistiques',
+      //   icon: ['fas', 'chart-line'],
+      //   children: [
+      //     { to: '/admin/statistiques', label: 'Vue générale', icon: ['fas', 'chart-simple'] },
+      //     { to: '/admin/statistiques/visites', label: 'Visites', icon: ['fas', 'eye'] },
+      //     { to: '/admin/statistiques/audit', label: 'Journal d\'audit', icon: ['fas', 'clipboard-list'] },
+      //   ]
+      // },
       { to: '/admin/parametres', label: 'Paramètres', icon: ['fas', 'gear'] },
       { to: '/admin/profil', label: 'Mon Profil', icon: ['fas', 'user-circle'] },
     ]

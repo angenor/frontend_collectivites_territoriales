@@ -37,8 +37,6 @@ export type {
 export type {
   ImportResult,
   ImportError,
-  ImportWarning,
-  ImportPreview,
   ImportOptions,
 } from './import.service'
 export type { ExportOptions } from './export.service'
