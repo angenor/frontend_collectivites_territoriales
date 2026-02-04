@@ -11,13 +11,13 @@
         </p>
       </div>
       <div class="flex items-center gap-3">
-        <UiButton
+        <!-- <UiButton
           variant="outline"
           :icon="['fas', 'file-import']"
           @click="navigateTo('/admin/import')"
         >
           Importer
-        </UiButton>
+        </UiButton> -->
         <UiButton
           variant="primary"
           :icon="['fas', 'plus']"

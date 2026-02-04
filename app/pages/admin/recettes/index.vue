@@ -11,13 +11,13 @@
         </p>
       </div>
       <div class="flex items-center gap-3">
-        <UiButton
+        <!-- <UiButton
           variant="outline"
           :icon="['fas', 'download']"
           @click="handleExport"
         >
           Exporter
-        </UiButton>
+        </UiButton> -->
       </div>
     </div>
 
