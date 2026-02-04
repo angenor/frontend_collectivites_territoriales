@@ -106,7 +106,6 @@ export interface LigneBudgetaire {
 // Types pour les formulaires
 export interface CompteAdministratifFormData {
   commune_id: string | null
-  district_id: string | null
   region_id: string | null
   annee: number
   statut: 'brouillon' | 'valide' | 'publie' | 'archive'

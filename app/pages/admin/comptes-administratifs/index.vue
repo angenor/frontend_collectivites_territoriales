@@ -244,24 +244,13 @@
             @update:model-value="handleRegionChange"
           />
 
-          <!-- District -->
-          <UiFormSelect
-            v-model="formData.district_id"
-            label="District"
-            :options="districtOptions"
-            placeholder="Sélectionner un district"
-            :disabled="!formData.region_id"
-            :error="formErrors.district_id"
-            @update:model-value="handleDistrictChange"
-          />
-
           <!-- Commune -->
           <UiFormSelect
             v-model="formData.commune_id"
             label="Commune"
             :options="communeOptions"
             placeholder="Sélectionner une commune"
-            :disabled="!formData.district_id"
+            :disabled="!formData.region_id"
             :error="formErrors.commune_id"
             required
           />
@@ -360,7 +349,6 @@ const searchQuery = ref('')
 // Filters
 const filters = reactive({
   region_id: null as string | null,
-  district_id: null as string | null,
   annee: null as number | null,
   statut: null as string | null,
 })
@@ -371,7 +359,6 @@ const editingCompte = ref<CompteAdministratif | null>(null)
 const isSubmitting = ref(false)
 const formData = reactive<CompteAdministratifFormData>({
   commune_id: null,
-  district_id: null,
   region_id: null,
   annee: new Date().getFullYear(),
   statut: 'brouillon',
@@ -386,8 +373,7 @@ const isDeleting = ref(false)
 
 // Geography data
 const regions = ref<Array<{ id: string; nom: string }>>([])
-const districts = ref<Array<{ id: string; nom: string; region_id: string }>>([])
-const communes = ref<Array<{ id: string; nom: string; district_id: string }>>([])
+const communes = ref<Array<{ id: string; nom: string; region_id: string }>>([])
 
 // ============================================================================
 // PAGINATION
@@ -416,21 +402,11 @@ const regionOptions = computed(() => [
   ...regions.value.map(r => ({ value: r.id, label: r.nom })),
 ])
 
-const districtOptions = computed(() => {
-  const filtered = formData.region_id
-    ? districts.value.filter(d => d.region_id === formData.region_id)
-    : districts.value
-  return [
-    { value: '', label: 'Tous les districts' },
-    ...filtered.map(d => ({ value: d.id, label: d.nom })),
-  ]
-})
-
 const communeOptions = computed(() => {
-  const filtered = formData.district_id
-    ? communes.value.filter(c => c.district_id === formData.district_id)
+  const filtered = formData.region_id
+    ? communes.value.filter((c: any) => String(c.region_id) === String(formData.region_id))
     : communes.value
-  return filtered.map(c => ({ value: c.id, label: c.nom }))
+  return filtered.map((c: any) => ({ value: c.id, label: c.nom }))
 })
 
 const yearOptions = computed(() => {
@@ -555,19 +531,18 @@ const generateMockGeo = () => {
 const loadGeography = async () => {
   try {
     const [regionsData, communesData] = await Promise.all([
-      geoService.getRegions({ limit: 100 }),
-      geoService.getCommunes({ limit: 2000 }),
+      geoService.getRegions(),
+      geoService.getCommunes({ limit: 500 }),
     ])
-    regions.value = regionsData.items
-    communes.value = communesData.items
-    // Pas de districts dans la structure malgache (Province → Région → Commune)
-    districts.value = []
+    // getRegions retourne un tableau directement
+    regions.value = Array.isArray(regionsData) ? regionsData : (regionsData as any).items || []
+    // getCommunes peut retourner un tableau ou une réponse paginée
+    communes.value = Array.isArray(communesData) ? communesData : communesData.items || []
   } catch (error: any) {
     console.error('Erreur lors du chargement des données géographiques:', error)
     toast.error('Erreur lors du chargement des données géographiques')
     regions.value = []
     communes.value = []
-    districts.value = []
   }
 }
 
@@ -605,7 +580,6 @@ const openCreateModal = () => {
   editingCompte.value = null
   Object.assign(formData, {
     commune_id: null,
-    district_id: null,
     region_id: null,
     annee: new Date().getFullYear(),
     statut: 'brouillon',
@@ -619,7 +593,6 @@ const openEditModal = (compte: CompteAdministratif) => {
   editingCompte.value = compte
   Object.assign(formData, {
     commune_id: compte.commune_id,
-    district_id: compte.district_id,
     region_id: compte.region_id,
     annee: compte.annee,
     statut: compte.statut,
@@ -630,11 +603,6 @@ const openEditModal = (compte: CompteAdministratif) => {
 }
 
 const handleRegionChange = () => {
-  formData.district_id = null
-  formData.commune_id = null
-}
-
-const handleDistrictChange = () => {
   formData.commune_id = null
 }
 
@@ -642,8 +610,8 @@ const handleSubmit = async () => {
   // Validation
   Object.keys(formErrors).forEach(key => delete formErrors[key])
 
-  if (!formData.commune_id && !formData.district_id && !formData.region_id) {
-    formErrors.commune_id = 'Sélectionnez au moins une collectivité'
+  if (!formData.commune_id) {
+    formErrors.commune_id = 'Sélectionnez une commune'
     return
   }
 
@@ -657,12 +625,14 @@ const handleSubmit = async () => {
     if (editingCompte.value) {
       await comptesService.updateCompte(editingCompte.value.id, formData)
       toast.success('Compte administratif mis à jour')
+      showFormModal.value = false
+      loadComptes()
     } else {
-      await comptesService.createCompte(formData)
+      const created = await comptesService.createCompte(formData)
       toast.success('Compte administratif créé')
+      showFormModal.value = false
+      navigateTo(`/admin/comptes-administratifs/${created.id}`)
     }
-    showFormModal.value = false
-    loadComptes()
   } catch (error: any) {
     toast.error(error.message || 'Une erreur est survenue')
   } finally {

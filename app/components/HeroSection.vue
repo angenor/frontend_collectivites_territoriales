@@ -123,6 +123,14 @@ watch(selectedRegion, async (newVal) => {
   }
 })
 
+// Message d'indication du champ manquant
+const missingFieldMessage = computed(() => {
+  if (!selectedProvince.value) return 'Veuillez d\'abord sélectionner une province'
+  if (!selectedRegion.value) return 'Veuillez d\'abord sélectionner une région'
+  if (!selectedCommune.value) return 'Veuillez d\'abord sélectionner une commune'
+  return ''
+})
+
 // Fonction de recherche avec redirection
 const handleSearch = async () => {
   if (!selectedCommune.value) {
@@ -173,7 +181,7 @@ onMounted(() => {
         class="w-full h-full object-cover"
       />
       <!-- Overlay gradient pour améliorer la lisibilité -->
-      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/95 via-blue-800/90 to-blue-900/85 dark:from-gray-900/95 dark:via-gray-800/90 dark:to-gray-900/85"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-900/60 via-blue-800/50 to-blue-900/50 dark:from-gray-900/70 dark:via-gray-800/60 dark:to-gray-900/60"></div>
 
       <!-- Pattern overlay pour texture -->
       <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
@@ -218,7 +226,7 @@ onMounted(() => {
         </div>
 
         <!-- Formulaire de recherche moderne avec dark mode -->
-        <div class="max-w-5xl mx-auto animate-fade-in-up rainbow-border-wrapper">
+        <div class="max-w-5xl mx-auto animate-fade-in-up">
           <div class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10 transition-colors duration-200">
             <h3 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-6 text-center flex items-center justify-center gap-3">
               <font-awesome-icon icon="search" class="text-blue-600 dark:text-blue-400" />
@@ -275,10 +283,10 @@ onMounted(() => {
               <!-- Région avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  <font-awesome-icon icon="building" class="text-green-500 dark:text-green-400" />
+                  <font-awesome-icon icon="building" class="text-blue-500 dark:text-blue-400" />
                   <span>Région</span>
                   <Transition name="fade" mode="out-in">
-                    <span v-if="selectedProvince" :key="totalRegionsForProvince" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
+                    <span v-if="selectedProvince" :key="totalRegionsForProvince" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
                       {{ totalRegionsForProvince }}
                     </span>
                   </Transition>
@@ -305,7 +313,7 @@ onMounted(() => {
                 <!-- Compteur Communes pour la région sélectionnée -->
                 <Transition name="fade">
                   <div v-if="selectedRegion" class="mt-2 text-xs text-gray-600 dark:text-gray-400 flex items-center gap-2">
-                    <font-awesome-icon icon="info-circle" class="text-green-500 dark:text-green-400" />
+                    <font-awesome-icon icon="info-circle" class="text-blue-500 dark:text-blue-400" />
                     <span>{{ totalCommunesForRegion }} communes</span>
                   </div>
                 </Transition>
@@ -314,10 +322,10 @@ onMounted(() => {
               <!-- Commune avec compteur -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  <font-awesome-icon icon="users" class="text-purple-500 dark:text-purple-400" />
+                  <font-awesome-icon icon="users" class="text-blue-500 dark:text-blue-400" />
                   <span>Commune</span>
                   <Transition name="fade" mode="out-in">
-                    <span v-if="selectedRegion" :key="totalCommunesForRegion" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200">
+                    <span v-if="selectedRegion" :key="totalCommunesForRegion" class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
                       {{ totalCommunesForRegion }}
                     </span>
                   </Transition>
@@ -346,7 +354,7 @@ onMounted(() => {
               <!-- Année -->
               <div class="relative">
                 <label class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">
-                  <font-awesome-icon icon="calendar" class="text-orange-500 dark:text-orange-400" />
+                  <font-awesome-icon icon="calendar" class="text-blue-500 dark:text-blue-400" />
                   <span>Année</span>
                 </label>
                 <div class="relative">
@@ -370,15 +378,25 @@ onMounted(() => {
 
             <!-- Bouton de recherche -->
             <div class="flex justify-center">
-              <button
-                @click="handleSearch"
-                :disabled="!selectedCommune"
-                class="group relative px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl disabled:from-gray-300 disabled:to-gray-400 dark:disabled:from-gray-600 dark:disabled:to-gray-700 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100 disabled:opacity-60 flex items-center gap-3"
-              >
-                <font-awesome-icon icon="search" class="w-6 h-6" />
-                <span>Rechercher</span>
-                <font-awesome-icon icon="chevron-right" class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
-              </button>
+              <div class="relative group/btn">
+                <button
+                  @click="handleSearch"
+                  :disabled="!selectedCommune"
+                  class="relative px-10 py-4 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl disabled:from-gray-300 disabled:to-gray-400 dark:disabled:from-gray-600 dark:disabled:to-gray-700 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100 disabled:opacity-60 flex items-center gap-3"
+                >
+                  <font-awesome-icon icon="search" class="w-6 h-6" />
+                  <span>Rechercher</span>
+                  <font-awesome-icon icon="chevron-right" class="w-5 h-5 transform group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+                <!-- Tooltip champ manquant -->
+                <div
+                  v-if="missingFieldMessage"
+                  class="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-4 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-lg whitespace-nowrap opacity-0 group-hover/btn:opacity-100 transition-opacity duration-200 pointer-events-none shadow-lg"
+                >
+                  {{ missingFieldMessage }}
+                  <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                </div>
+              </div>
             </div>
 
             <!-- Info sélection avec dark mode -->
@@ -567,49 +585,4 @@ select {
   }
 }
 
-/* Rainbow animated border */
-.rainbow-border-wrapper {
-  position: relative;
-  border-radius: 1rem;
-}
-
-.rainbow-border-wrapper::before,
-.rainbow-border-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  z-index: -1;
-  border-radius: 1.1rem;
-  background: linear-gradient(
-    45deg,
-    #fb0094,
-    #0000ff,
-    #00ff00,
-    #ffff00,
-    #ff0000,
-    #fb0094,
-    #0000ff,
-    #00ff00,
-    #ffff00,
-    #ff0000
-  );
-  background-size: 400%;
-  animation: steam 45s linear infinite;
-}
-
-.rainbow-border-wrapper::after {
-  filter: blur(10px);
-}
-
-@keyframes steam {
-  0% {
-    background-position: 0 0;
-  }
-  50% {
-    background-position: 400% 0;
-  }
-  100% {
-    background-position: 0 0;
-  }
-}
 </style>
